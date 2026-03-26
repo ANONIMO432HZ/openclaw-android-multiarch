@@ -58,18 +58,22 @@ wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 
 The number after `inet` is your phone's IP address (in this example, `192.168.45.139`).
 
-## Step 5: Connect via SSH from Computer
+## Step 6: Dashboard Tunneling (Recommended)
+OpenClaw's web dashboard often restricts access to `localhost` for security. To access it from your PC browser, you need to "tunnel" the ports:
 
-Open a terminal on your computer (Mac: Terminal, Windows: PowerShell or Command Prompt) and type. Replace the IP address with the one you found in Step 4:
+1. Close your current SSH connection (type `exit`)
+2. Reconnect using this command:
+   ```bash
+   ssh -p 8022 -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 u0_aXXX@IP_ADDRESS
+   ```
+3. Open your PC browser and go to: `http://localhost:18789`
 
-```bash
-ssh -p 8022 192.168.45.139
-```
+**What do these flags mean?**
+- `-L 18789:127.0.0.1:18789`: Maps the phone's Dashboard port to your PC's localhost.
+- `-L 18791:127.0.0.1:18791`: Maps the Gateway's communication port.
+- This bypasses `Origin not allowed` errors and lets you use the visual dashboard on your big screen.
 
-- `Are you sure you want to continue connecting?` → type `yes`
-- `Password:` → enter the password you set in Step 2 (e.g., `1234`)
-
-Once connected, you'll see the Termux `$` prompt. From now on, you can type all Termux commands using your computer keyboard.
+Once connected, you'll see the Termux `$` prompt. From now on, you can type all Termux commands using your computer keyboard and view the UI in your browser.
 
 ## Notes
 

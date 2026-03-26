@@ -69,7 +69,11 @@ export PATH="$GLIBC_NODE_DIR/bin:$HOME/.local/bin:$PATH"
 export TMPDIR="$PREFIX/tmp"
 export TMP="$TMPDIR"
 export TEMP="$TMPDIR"
-export OA_GLIBC=1
+if is_armv7l; then
+    export OA_GLIBC=0
+else
+    export OA_GLIBC=1
+fi
 
 step 6 "Platform Package Install (L2)"
 bash "$SCRIPT_DIR/platforms/$SELECTED_PLATFORM/install.sh"

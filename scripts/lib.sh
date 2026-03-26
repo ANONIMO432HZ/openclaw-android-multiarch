@@ -38,6 +38,24 @@ detect_platform() {
     return 1
 }
 
+# ── System Resource Detection ──
+is_armv7l() {
+    local arch=$(uname -m)
+    if [[ "$arch" == "armv7l" || "$arch" == "armhf" || "$arch" == "arm" ]]; then
+        return 0
+    fi
+    return 1
+}
+
+is_low_ram() {
+    local total_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    # Low RAM if < 2GB (approx 2,000,000 KB)
+    if [ "$total_kb" -lt 2048000 ]; then
+        return 0
+    fi
+    return 1
+}
+
 # ── Platform name validation ──
 validate_platform_name() {
     local name="$1"

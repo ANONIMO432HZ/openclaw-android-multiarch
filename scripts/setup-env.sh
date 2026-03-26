@@ -7,8 +7,15 @@ PLATFORM=$(detect_platform) || true
 
 INFRA_VARS="export TMPDIR=\"\$PREFIX/tmp\"
 export TMP=\"\$TMPDIR\"
-export TEMP=\"\$TMPDIR\"
+export TEMP=\"\$TMPDIR\""
+
+if is_armv7l; then
+    INFRA_VARS="${INFRA_VARS}
+export OA_GLIBC=0"
+else
+    INFRA_VARS="${INFRA_VARS}
 export OA_GLIBC=1"
+fi
 
 PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\""
 if [ -n "$PLATFORM" ]; then

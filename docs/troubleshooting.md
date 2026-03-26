@@ -302,3 +302,27 @@ No action needed. Verify that OpenCode works:
 ```bash
 opencode --version
 ```
+
+## Issues on ARMv7 / 32-bit / Legacy Devices (Android 7+)
+
+### Error de Arquitectura (Binary Mismatch)
+- **Cause:** Using `ld.so` glue code with `aarch64` binaries on `armv7l` hardware.
+- **Solution:** The installer now automatically detects ARMv7 and uses Termux-native packages (`pkg install nodejs`) instead of external glibc binaries.
+
+### Thermal Throttling
+- **Cause:** High CPU usage during installation on old hardware.
+- **Solution:** Limit parallel compilation by running `npm config set jobs 1` before installing.
+
+### Out of Memory (OOM)
+- **Cause:** System kills Node.js processes on devices with <2GB RAM.
+- **Solution:** Set Node.js memory limits: `export NODE_OPTIONS="--max-old-space-size=512"`.
+
+### Gateway not accessible via Network (Origin Not Allowed)
+
+- **Cause:** Security checks (`CORS`) on the OpenClaw CLI reject WebSocket connections from different Origins (like the PC IP).
+- **Symptom:** Page loads but the chat fails to connect with "reason=origin not allowed".
+- **Solution (Definitive):** Use an **SSH Tunnel** to bypass origin security.
+  1. Open Termux on your phone and run `pkg install openssh && sshd`.
+  2. Map ports 18789 and 18791 from your PC (PowerShell):
+     `ssh -p 8022 -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 u0_aXXX@IP_PHONE`
+  3. Load `http://localhost:18789` in your PC browser with the token from `~/.openclaw/openclaw.json`.

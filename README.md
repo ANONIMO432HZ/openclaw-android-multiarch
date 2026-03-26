@@ -12,7 +12,11 @@ Because Android deserves a shell.
 
 ## No Linux install required
 
-The standard approach to running OpenClaw on Android requires installing proot-distro with Linux, adding 700MB-1GB of overhead. OpenClaw on Android eliminates this by installing just the glibc dynamic linker (ld.so), letting you run OpenClaw without a full Linux distribution.
+The standard approach to running OpenClaw on Android requires installing proot-distro with Linux, adding 700MB-1GB of overhead. OpenClaw on Android eliminates this by:
+1. **glibc mode (aarch64)**: Installing just the glibc dynamic linker (ld.so), letting you run OpenClaw without a full Linux distribution.
+2. **Native mode (armv7l)**: Using Termux native packages for 32-bit legacy devices (Android 7+), maximizing compatibility and performance.
+
+> 🚀 **Looking for a detailed walkthrough?** Check out our **[Full Termux Setup Guide](docs/setup-termux.md)** for step-by-step instructions and legacy hardware tips.
 
 **Standard approach**: Install a full Linux distribution in Termux via proot-distro.
 

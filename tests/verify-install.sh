@@ -51,10 +51,18 @@ else
     check_fail "TMPDIR not set"
 fi
 
-if [ "${OA_GLIBC:-}" = "1" ]; then
-    check_pass "OA_GLIBC=1 (glibc architecture)"
+if is_armv7l; then
+    if [ "${OA_GLIBC:-}" = "0" ]; then
+        check_pass "OA_GLIBC=0 (native architecture)"
+    else
+        check_fail "OA_GLIBC should be 0 for native architecture (got: ${OA_GLIBC:-})"
+    fi
 else
-    check_fail "OA_GLIBC not set"
+    if [ "${OA_GLIBC:-}" = "1" ]; then
+        check_pass "OA_GLIBC=1 (glibc architecture)"
+    else
+        check_fail "OA_GLIBC not set to 1 for glibc architecture"
+    fi
 fi
 
 COMPAT_FILE="$PROJECT_DIR/patches/glibc-compat.js"
@@ -64,25 +72,39 @@ else
     check_fail "glibc-compat.js not found at $COMPAT_FILE"
 fi
 
-GLIBC_MARKER="$PROJECT_DIR/.glibc-arch"
-if [ -f "$GLIBC_MARKER" ]; then
-    check_pass "glibc architecture marker (.glibc-arch)"
-else
-    check_fail "glibc architecture marker not found"
-fi
+if ! is_armv7l; then
+    GLIBC_MARKER="$PROJECT_DIR/.glibc-arch"
+    if [ -f "$GLIBC_MARKER" ]; then
+        check_pass "glibc architecture marker (.glibc-arch)"
+    else
+        check_fail "glibc architecture marker not found"
+    fi
 
-GLIBC_LDSO="${PREFIX:-}/glibc/lib/ld-linux-aarch64.so.1"
-if [ -f "$GLIBC_LDSO" ]; then
-    check_pass "glibc dynamic linker (ld-linux-aarch64.so.1)"
-else
-    check_fail "glibc dynamic linker not found at $GLIBC_LDSO"
+    GLIBC_LDSO="${PREFIX:-}/glibc/lib/ld-linux-aarch64.so.1"
+    if [ -f "$GLIBC_LDSO" ]; then
+        check_pass "glibc dynamic linker (ld-linux-aarch64.so.1)"
+    else
+        check_fail "glibc dynamic linker not found at $GLIBC_LDSO"
+    fi
 fi
 
 NODE_WRAPPER="$PROJECT_DIR/node/bin/node"
-if [ -f "$NODE_WRAPPER" ] && head -1 "$NODE_WRAPPER" 2>/dev/null | grep -q "bash"; then
-    check_pass "glibc node wrapper script"
+if [ -f "$NODE_WRAPPER" ]; then
+    if is_armv7l; then
+        if [ -L "$NODE_WRAPPER" ]; then
+            check_pass "native node symlink"
+        else
+            check_warn "node at $NODE_WRAPPER is not a symlink (expected for native)"
+        fi
+    else
+        if head -1 "$NODE_WRAPPER" 2>/dev/null | grep -q "bash"; then
+            check_pass "glibc node wrapper script"
+        else
+            check_fail "glibc node wrapper not found or not a wrapper script"
+        fi
+    fi
 else
-    check_fail "glibc node wrapper not found or not a wrapper script"
+    check_fail "node binary/link not found at $NODE_WRAPPER"
 fi
 
 for DIR in "$PROJECT_DIR" "$PREFIX/tmp"; do

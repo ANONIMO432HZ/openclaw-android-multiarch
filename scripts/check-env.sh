@@ -21,12 +21,18 @@ ARCH=$(uname -m)
 echo -n "       Architecture: $ARCH"
 if [ "$ARCH" = "aarch64" ]; then
     echo -e " ${GREEN}(recommended)${NC}"
-elif [ "$ARCH" = "armv7l" ] || [ "$ARCH" = "arm" ]; then
-    echo -e " ${YELLOW}(supported, but aarch64 recommended)${NC}"
+elif is_armv7l; then
+    echo -e " ${YELLOW}(legacy/32-bit detected)${NC}"
+    echo -e "       ${BOLD}Legacy support active: using native Node.js instead of glibc.${NC}"
 elif [ "$ARCH" = "x86_64" ] || [ "$ARCH" = "i686" ]; then
     echo -e " ${YELLOW}(emulator detected)${NC}"
 else
     echo -e " ${YELLOW}(unknown, may not work)${NC}"
+fi
+
+if is_low_ram; then
+    echo -e "${YELLOW}[WARN]${NC} Low RAM detected (<2GB). Setup and execution may be unstable."
+    echo "       Memory-intensive tools (Chromium, code-server) are not recommended."
 fi
 
 AVAILABLE_MB=$(df "$PREFIX" 2>/dev/null | awk 'NR==2 {print int($4/1024)}')

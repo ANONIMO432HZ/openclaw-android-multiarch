@@ -31,6 +31,10 @@ fi
 
 ARCH=$(uname -m)
 if [ "$ARCH" != "aarch64" ]; then
+    if is_armv7l; then
+        echo -e "${YELLOW}[SKIP]${NC} glibc runtime not required for 32-bit/ARMv7 (native instead)"
+        exit 0
+    fi
     echo -e "${RED}[FAIL]${NC} glibc environment requires aarch64 (got: $ARCH)"
     exit 1
 fi

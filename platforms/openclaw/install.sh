@@ -28,10 +28,19 @@ if npm list -g openclaw &>/dev/null 2>&1 || [ -d "$PREFIX/lib/node_modules/openc
     echo -e "${GREEN}[OK]${NC}   Previous installation cleaned"
 fi
 
+# Thermal throttling fix for old devices
+if is_armv7l || is_low_ram; then
+    echo "Limiting npm jobs to 1 (thermal/OOM prevention)..."
+    npm config set jobs 1 2>/dev/null || true
+fi
+
 echo "Running: npm install -g openclaw@latest --ignore-scripts"
 echo "This may take several minutes..."
 echo ""
 npm install -g openclaw@latest --ignore-scripts
+
+# OOM prevention for openclaw update
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=512"
 
 echo ""
 echo -e "${GREEN}[OK]${NC}   OpenClaw installed"
@@ -70,3 +79,10 @@ echo "Running: openclaw update"
 echo "  (This includes building native modules and may take 5-10 minutes)"
 echo ""
 openclaw update || true
+
+# Config binding fix for termux-ssh access (0.0.0.0)
+CONFIG_FILE="$HOME/.openclaw/openclaw.json"
+if [ -f "$CONFIG_FILE" ]; then
+    echo "Patching OpenClaw config for 0.0.0.0 binding..."
+    sed -i 's/"host":\s*"127.0.0.1"/"host": "0.0.0.0"/g' "$CONFIG_FILE" || true
+fi

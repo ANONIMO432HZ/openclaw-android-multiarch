@@ -37,6 +37,26 @@ if [ -z "${PREFIX:-}" ]; then
     exit 1
 fi
 
+if is_armv7l; then
+    echo "Architecture: 32-bit/ARMv7 (Legacy)"
+    echo "Installing native Node.js from Termux (pkg install)..."
+    if pkg install -y nodejs; then
+        echo -e "${GREEN}[OK]${NC}   Native Node.js installed"
+        # Create a compatible structure for the orchestrator
+        mkdir -p "$NODE_DIR/bin"
+        ln -sf "$(command -v node)" "$NODE_DIR/bin/node"
+        ln -sf "$(command -v npm)" "$NODE_DIR/bin/npm"
+        ln -sf "$(command -v npx)" "$NODE_DIR/bin/npx"
+        echo -e "${GREEN}[OK]${NC}   Native node linked to $NODE_DIR/bin"
+        # Ensure npm script-shell set
+        "$NODE_DIR/bin/npm" config set script-shell "$PREFIX/bin/sh" 2>/dev/null || true
+        exit 0
+    else
+        echo -e "${RED}[FAIL]${NC} Failed to install native nodejs"
+        exit 1
+    fi
+fi
+
 if [ ! -x "$GLIBC_LDSO" ]; then
     echo -e "${RED}[FAIL]${NC} glibc dynamic linker not found — run install-glibc.sh first"
     exit 1

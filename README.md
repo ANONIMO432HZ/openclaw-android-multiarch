@@ -5,8 +5,8 @@
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-brightgreen)
 ![Termux](https://img.shields.io/badge/Termux-Required-orange)
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
-![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-bcp)
-![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-bcp)
+![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
+![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.
 
@@ -14,11 +14,11 @@ Because Android deserves a shell.
 
 ### Case Study: Motorola Moto G6 (Legacy 32-bit)
 
-* **Credits**: Gateway based on [openclaw/openclaw](https://github.com/openclaw/openclaw). Smart Proxy ([OmniBrain-API](https://github.com/ANONIMO432HZ/OmniBrain-API)) refactored by the author from a `midudev` demo.
+* **Credits**: Gateway based on [openclaw/openclaw](https://github.com/openclaw/openclaw). Smart Proxy ([OmniBrain-AI-Proxy-Smart](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart)) refactored by the author from a `midudev` demo.
 * **Device**: Moto G6 (XT1925) - Snapdragon 450, 2GB RAM.
 * **Architecture**: `armv7l` (32-bit).
 * **Result**: Fully functional OpenClaw Gateway + Dashboard.
-* **Strategy**: "Native Lite" mode (No proot), SSH Tunneling for Dashboard, and [OmniBrain-API](https://github.com/ANONIMO432HZ/OmniBrain-API) as a proxy to save local RAM.
+* **Strategy**: "Native Lite" mode (No proot), SSH Tunneling for Dashboard, and [OmniBrain-AI-Proxy-Smart](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart) as a proxy to save local RAM.
 * **Full Walkthrough**: See our **[Moto G6 Deploy Example](docs/moto-g6-deploy-example.md)** for a guide on setting up the **Custom Provider** with the **`auto`** model for smart routing.
 
 ## No Linux install required

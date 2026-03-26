@@ -22,7 +22,7 @@ Este documento centraliza las soluciones técnicas y parches necesarios para eje
 
 ## 4. Estrategia de Proxy para Menor Carga
 - **Problema:** Procesar el enrutamiento y la cascada de modelos consume mucha CPU en hardware viejo.
-- **Solución Dinámica:** Delegar la inteligencia del agente a un servidor proxy como [OmniBrain-API](https://github.com/AidanPark/OmniBrain-API).
+- **Solución Dinámica:** Delegar la inteligencia del agente a un servidor proxy como [OmniBrain-AI-Proxy-Smart](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart).
 - **Esquema:** `OpenClaw (Android)` -> `OmniBrain-API (Proxy)` -> `AI Providers (Cloud)`.
 
 ## 5. Acceso Remoto: Túneles SSH

@@ -13,7 +13,7 @@ NC='\033[0m'
 # ── Project constants ──
 PROJECT_DIR="$HOME/.openclaw-android"
 PLATFORM_MARKER="$PROJECT_DIR/.platform"
-REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-bcp/main"
+REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main"
 
 BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
 BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"

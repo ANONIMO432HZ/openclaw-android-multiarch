@@ -4,7 +4,7 @@ This document serves as a real-world example and guide for users attempting to r
 
 ## 🚀 Credits & Attribution
 - **OpenClaw (Android Gateway):** Based on the core platform at [openclaw/openclaw](https://github.com/openclaw/openclaw).
-- **OmniBrain-API (Smart Proxy):** Originally a demo by `midudev`, it was **comprehensively refactored and optimized for production** by the author ([ANONIMO432HZ](https://github.com/ANONIMO432HZ/OmniBrain-API)) to enable low-latency routing and high-availability on mobile devices.
+- **OmniBrain-AI-Proxy-Smart (Smart Proxy):** Originally a demo by `midudev`, it was **comprehensively refactored and optimized for production** by the author ([ANONIMO432HZ](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart)) to enable low-latency routing and high-availability on mobile devices.
 
 ---
 
@@ -33,8 +33,8 @@ Instead of using `proot-distro` (which adds ~700MB overhead and an emulation lay
 - **Node.js:** Installed via `pkg install nodejs-lts` (32-bit native).
 - **Persistence:** Switched to `sql.js` (WASM) for the database to bypass native compilation failures.
 
-### 2. External AI Proxy (OmniBrain-API)
-To keep the phone's CPU and RAM usage low, we integrated [OmniBrain-API](https://github.com/ANONIMO432HZ/OmniBrain-API) as a universal proxy.
+### 2. External AI Proxy (OmniBrain-AI-Proxy-Smart)
+To keep the phone's CPU and RAM usage low, we integrated [OmniBrain-AI-Proxy-Smart](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart) as a universal proxy.
 - **Benefit:** The logic for selecting models (Groq, OpenRouter, Cerebras) and handling fallbacks happens on the proxy, not the phone.
 - **Result:** Zero latency penalty and significantly lower power consumption.
 
@@ -56,17 +56,17 @@ Since the Moto G6 is purely a gateway, the UI (Dashboard) is accessed from a rem
 3.  Executed: `pkg update && pkg install nodejs-lts git openssh tmux`.
 
 ### Phase B: Integration
-1.  Ran the installer from `ANONIMO432HZ/openclaw-android-bcp`.
+1.  Ran the installer from `ANONIMO432HZ/openclaw-android-multiarch`.
 2.  Selected ONLY the **Gateway** and **CLI** components. Avoided `code-server` and `OpenCode`.
-3.  Configured the API Endpoint to point to a local instance of **OmniBrain-API** running on the network.
+3.  Configured the API Endpoint to point to a local instance of **OmniBrain-AI-Proxy-Smart** running on the network.
 
 ### Phase D: OpenClaw Onboarding (Smart Hub Integration)
-To enable the **Smart Routing** features of OmniBrain-API, follow these steps during the OpenClaw initial setup (Onboarding):
+To enable the **Smart Routing** features of OmniBrain-AI-Proxy-Smart, follow these steps during the OpenClaw initial setup (Onboarding):
 1. **Choose Provider:** Select **"Custom"** or **"OpenAI Compatible"**.
 2. **Base URL:** Enter your proxy address (e.g., `http://192.168.0.100:3000/v1`).
 3. **API Key:** Any string (the proxy validates routing, but OpenClaw requires a placeholder).
 4. **Model ID:** Explicitly set this to **`auto`**.
-   - *Why?* This tells OmniBrain-API to use its internal intelligence to route your request to the fastest available provider (Groq/Cerebras) and handle fallbacks automatically without overloading the phone's CPU.
+   - *Why?* This tells OmniBrain-AI-Proxy-Smart to use its internal intelligence to route your request to the fastest available provider (Groq/Cerebras) and handle fallbacks automatically without overloading the phone's CPU.
 
 ### Phase C: Execution
 1.  Started the gateway in a `tmux` session to ensure persistence:

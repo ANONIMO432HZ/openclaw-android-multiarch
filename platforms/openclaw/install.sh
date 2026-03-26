@@ -28,11 +28,7 @@ if npm list -g openclaw &>/dev/null 2>&1 || [ -d "$PREFIX/lib/node_modules/openc
     echo -e "${GREEN}[OK]${NC}   Previous installation cleaned"
 fi
 
-# Thermal throttling fix for old devices
-if is_armv7l || is_low_ram; then
-    echo "Limiting npm jobs to 1 (thermal/OOM prevention)..."
-    npm config set jobs 1 2>/dev/null || true
-fi
+# OpenClaw update requires standard performance
 
 echo "Running: npm install -g openclaw@latest --ignore-scripts"
 echo "This may take several minutes..."

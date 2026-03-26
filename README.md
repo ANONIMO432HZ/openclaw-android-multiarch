@@ -5,10 +5,21 @@
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-brightgreen)
 ![Termux](https://img.shields.io/badge/Termux-Required-orange)
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
-![License MIT](https://img.shields.io/github/license/AidanPark/openclaw-android)
-![GitHub Stars](https://img.shields.io/github/stars/AidanPark/openclaw-android)
+![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-bcp)
+![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-bcp)
 
 Because Android deserves a shell.
+
+## 📱 Success Stories
+
+### Case Study: Motorola Moto G6 (Legacy 32-bit)
+
+* **Credits**: Gateway based on [openclaw/openclaw](https://github.com/openclaw/openclaw). Smart Proxy ([OmniBrain-API](https://github.com/ANONIMO432HZ/OmniBrain-API)) refactored by the author from a `midudev` demo.
+* **Device**: Moto G6 (XT1925) - Snapdragon 450, 2GB RAM.
+* **Architecture**: `armv7l` (32-bit).
+* **Result**: Fully functional OpenClaw Gateway + Dashboard.
+* **Strategy**: "Native Lite" mode (No proot), SSH Tunneling for Dashboard, and [OmniBrain-API](https://github.com/ANONIMO432HZ/OmniBrain-API) as a proxy to save local RAM.
+* **Full Walkthrough**: See our **[Moto G6 Deploy Example](docs/moto-g6-deploy-example.md)** for a guide on setting up the **Custom Provider** with the **`auto`** model for smart routing.
 
 ## No Linux install required
 
@@ -240,9 +251,9 @@ See the [Troubleshooting Guide](docs/troubleshooting.md) for detailed solutions.
 
 ## Performance
 
-CLI commands like `openclaw status` may feel slower than on a PC. This is because each command needs to read many files, and the phone's storage is slower than a PC's, with Android's security processing adding overhead.
-
 However, **once the gateway is running, there's no difference**. The process stays in memory so files don't need to be re-read, and AI responses are processed on external servers — the same speed as on a PC.
+> [!NOTE]
+> Thermal throttling (CPU limitation) is only a concern during the **initial installation** due to heavy dependency building. Normal operation is stable.
 
 ## Local LLM on Android
 

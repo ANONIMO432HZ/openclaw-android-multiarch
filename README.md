@@ -143,7 +143,7 @@ pkg update -y && pkg install -y curl
 Paste the following command in Termux.
 
 ```bash
-curl -sL myopenclawhub.com/install | bash && source ~/.bashrc
+curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/install.sh | bash && source ~/.bashrc
 ```
 
 Everything is installed automatically with a single command. This takes 3–10 minutes depending on network speed and device. Wi-Fi is recommended.
@@ -177,6 +177,20 @@ In the new tab, run:
 ```bash
 openclaw gateway
 ```
+
+### 🔄 Quick Start / Reactivation
+If your device turns off or you restart Termux, you don't need to reinstall anything. Just run these commands:
+1. Open the Termux app.
+2. Start the gateway:
+   ```bash
+   openclaw gateway
+   ```
+3. (Optional) Open a new tab and start the CLI:
+   ```bash
+   openclaw
+   ```
+
+---
 
 <img src="docs/images/termux_tab_1.png" width="300" alt="openclaw gateway running">
 

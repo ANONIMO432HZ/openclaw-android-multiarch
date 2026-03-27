@@ -221,10 +221,11 @@ After installation, the `oa` command is available for managing your installation
 | `oa --update` | Actualiza OpenClaw y los parches de Android |
 | `oa --fix-android` | **Esencial**: Parche para errores 'not supported on Android' |
 | `oa --setup-service` | Configura el Gateway como servicio de fondo (auto-arranque) |
-| `oa start` | Inicia el Gateway en segundo plano |
-| `oa stop` | Detiene el Gateway de fondo |
+| `oa start` | Inicia el centro de opciones de arranque (Fondo/Manual) |
+| `oa start:manual` | **Depuración**: Fuerza ejecución en primer plano |
+| `oa stop` | Detiene el Gateway de fondo y limpia procesos huérfanos |
 | `oa restart` | Reinicia el Gateway |
-| `oa status` | Muestra el estado completo de instalación y servicios |
+| `oa status` | Muestra el estado completo de instalación y versión v1.0.12 |
 | `oa logs` | Ver logs en vivo del servicio Gateway |
 | `oa --install` | Instalar herramientas opcionales (tmux, code-server, AI CLIs, etc.) |
 | `oa --backup` | Crear un backup completo de los datos de OpenClaw |

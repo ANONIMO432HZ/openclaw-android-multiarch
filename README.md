@@ -20,7 +20,7 @@ Because Android deserves a shell.
 
 ### Case Study: Motorola Moto G6 (Legacy 32-bit)
 
-* **Credits**: Gateway based on [openclaw/openclaw](https://github.com/openclaw/openclaw). Smart Proxy ([OmniBrain-AI-Proxy-Smart](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart)) refactored by the author from a `midudev` demo.
+* **Credits**: Gateway based on [openclaw/android](https://github.com/AidanPark/openclaw-android). Smart Proxy ([OmniBrain-AI-Proxy-Smart](https://github.com/ANONIMO432HZ/OmniBrain-AI-Proxy-Smart)) refactored by the author from a `midudev` demo.
 * **Device**: Moto G6 (XT1925) - Snapdragon 450, 2GB RAM.
 * **Architecture**: `armv7l` (32-bit).
 * **Result**: Fully functional OpenClaw Gateway + Dashboard.

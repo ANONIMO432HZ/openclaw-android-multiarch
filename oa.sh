@@ -2,6 +2,10 @@
 # oa.sh — OpenClaw Management Orchestrator for Android
 set -euo pipefail
 
+# Cambiamos esto para que no falle si se usa 'curl | bash'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+
 PROJECT_DIR="$HOME/.openclaw-android"
 
 if [ -f "$HOME/.openclaw-android/scripts/lib.sh" ]; then

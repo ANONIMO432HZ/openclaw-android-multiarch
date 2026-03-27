@@ -2,7 +2,7 @@
 # patch-android.sh — patch OpenClaw core to allow onboarding in Termux
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
 
 OPENCLAW_PATH="/data/data/com.termux/files/usr/lib/node_modules/openclaw"

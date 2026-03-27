@@ -15,7 +15,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 MODE="${1:-install}"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 INSTALL_DIR="$HOME/.local/lib"
 BIN_DIR="$HOME/.local/bin"
 

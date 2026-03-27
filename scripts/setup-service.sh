@@ -2,7 +2,7 @@
 # scripts/setup-service.sh — Configure OpenClaw as a Termux background service (Optimized)
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]:-$0}")")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
 
 SERVICE_NAME="openclaw-gateway"

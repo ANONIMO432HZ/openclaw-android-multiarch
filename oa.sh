@@ -51,6 +51,10 @@ cmd_update() {
     # Check current repo for oa/lib changes
     git pull origin main || true
     
+    # Self-clean CRLF line endings (Windows to Linux fix)
+    find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
+    sed -i 's/\r$//' "$PREFIX/bin/oa" 2>/dev/null || true
+    
     # Propagate changes to tools
     if command -v openclaw &>/dev/null; then
         echo "Updating OpenClaw Core..."
@@ -75,13 +79,16 @@ cmd_uninstall() {
         exit 0
     fi
     
-    # Stop services
+    # 1. Stop and disable service using our own stop case
+    echo -e "  Stopping and cleaning up processes..."
+    $0 stop >/dev/null 2>&1 || true
+    
     if command -v sv &>/dev/null; then
-        sv stop openclaw-gateway 2>/dev/null || true
         sv-disable openclaw-gateway 2>/dev/null || true
     fi
     
-    # Remove files
+    # 2. Remove files
+    echo -e "  Removing CLI and files..."
     rm -rf "$PROJECT_DIR"
     rm -f "$PREFIX/bin/oa"
     
@@ -223,16 +230,16 @@ case "${1:-}" in
             echo -e "${YELLOW}Stopping OpenClaw gateway...${NC}"
             sv stop openclaw-gateway || true
             sleep 1
-            
-            # Identify process and force kill if still alive
-            local PIDS
-            PIDS=$(pgrep -f "node.*openclaw" || echo "")
-            if [ -n "$PIDS" ]; then
-                echo -e "Cleaning up lingering processes ($PIDS)..."
-                kill -9 $PIDS 2>/dev/null || true
-            fi
-            echo -e "${GREEN}[OK]${NC} Stopped."
         fi
+        
+        # Identify process and force kill if still alive (Catches manual starts too)
+        local PIDS
+        PIDS=$(pgrep -f "node.*openclaw" || echo "")
+        if [ -n "$PIDS" ]; then
+            echo -e "Cleaning up lingering processes ($PIDS)..."
+            kill -9 $PIDS 2>/dev/null || true
+        fi
+        echo -e "${GREEN}[OK]${NC} Stopped."
         ;;
     --restart|-restart|restart)
         if command -v sv &>/dev/null; then

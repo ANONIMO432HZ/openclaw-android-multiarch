@@ -9,25 +9,35 @@ OPENCLAW_PATH="/data/data/com.termux/files/usr/lib/node_modules/openclaw"
 DIST_DIR="$OPENCLAW_PATH/dist"
 
 if [ ! -d "$DIST_DIR" ]; then
-    echo -e "${RED}[FAIL]${NC} OpenClaw installation not found at $OPENCLAW_PATH"
+    echo -e "${RED}[FAIL]${NC} OpenClaw installation not found at $DIST_DIR"
     exit 1
 fi
 
-echo -e "${BOLD}Applying Android fix to OpenClaw core…${NC}"
+echo -e "${BOLD}OpenClaw on Android — Core Patcher${NC}"
+echo -e "────────────────────────────────────────"
 
-# Find the file containing the error
-# The hash part of the filename may change between versions
-target_file=$(grep -l 'Gateway service install not supported on' "$DIST_DIR"/*.js | head -n 1 || true)
+# Pattern to search for (including backticks variant used in chunks)
+SEARCH_PATTERN="throw new Error(\`Gateway service install not supported on \${process.platform}\`);"
+REPLACEMENT="return; // Patched for Android support"
 
-if [ -z "$target_file" ]; then
-    echo -e "${GREEN}[OK]${NC}   No throw found (already patched or not present in this version)"
+# Find all files containing the pattern
+files_to_patch=()
+while IFS= read -r f; do
+    files_to_patch+=("$f")
+done < <(grep -l "Gateway service install not supported on" "$DIST_DIR"/*.js || true)
+
+if [ ${#files_to_patch[@]} -eq 0 ]; then
+    echo -e "${GREEN}[OK]${NC}   No files need patching (already correct or version not supported)."
     exit 0
 fi
 
-echo -e "  Target: $(basename "$target_file")"
+echo -e "  Found ${#files_to_patch[@]} file(s) to patch..."
 
-# Replace throw with a noop (return) to avoid crashing during onboarding
-# The string usually matches: throw new Error(`Gateway service install not supported on ${process.platform}`);
-sed -i "s/throw new Error(\`Gateway service install not supported on \${process.platform}\`);/return;/g" "$target_file"
+for f in "${files_to_patch[@]}"; do
+    echo -e "  Patching: $(basename "$f")..."
+    # Using sed with a safe delimiter and escaping backticks for the shell
+    sed -i "s/throw new Error(\`Gateway service install not supported on \${process.platform}\`);/$REPLACEMENT/g" "$f"
+done
 
-echo -e "${GREEN}[OK]${NC}   Patch applied. You can now run 'openclaw onboarding' without errors."
+echo ""
+echo -e "${GREEN}[OK]${NC}   Core patched successfully. You can now run 'openclaw onboarding'."

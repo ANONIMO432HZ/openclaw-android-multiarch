@@ -219,13 +219,18 @@ After installation, the `oa` command is available for managing your installation
 | Option | Description |
 |--------|-------------|
 | `oa --update` | Update OpenClaw and Android patches |
+| `oa --fix-android` | **Essential**: Patch 'not supported on Android' core errors |
+| `oa --setup-service` | Configure Gateway as a background daemon (auto-start) |
+| `oa start` | Start the Gateway in background |
+| `oa stop` | Stop the background Gateway |
+| `oa status` | Show full installation and service status |
+| `oa logs` | View live Gateway service logs |
 | `oa --install` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
-| `oa --uninstall` | Remove OpenClaw on Android |
 | `oa --backup` | Create a full backup of OpenClaw data |
 | `oa --restore` | Restore from a backup |
-| `oa --status` | Show installation status and all installed components |
-| `oa --version` | Show version |
-| `oa --help` | Show available options |
+| `oa --uninstall` | Remove OpenClaw on Android |
+| `oa --version` | Show version info |
+| `oa --help` | Show all available options |
 
 
 ## Update

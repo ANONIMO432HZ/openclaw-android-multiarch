@@ -43,7 +43,10 @@ show_help() {
     echo "  --restore      Restore from a backup"
     echo "  --fix-android  Patch OpenClaw core to fix 'not supported on Android' crash"
     echo "  --setup-service Setup OpenClaw as a Termux background service"
-    echo "  --status       Show installation status and all components"
+    echo "  start          Start the OpenClaw gateway (background)"
+    echo "  stop           Stop the OpenClaw gateway (background)"
+    echo "  status         Show installation status and all components"
+    echo "  logs           Show gateway service logs"
     echo "  --version, -v  Show version"
     echo "  --help, -h     Show this help message"
     echo ""
@@ -217,7 +220,42 @@ case "${1:-}" in
             exit 1
         fi
         ;;
-    --status)
+    start)
+        if command -v sv &>/dev/null; then
+            echo -e "Starting OpenClaw gateway..."
+            sv start openclaw-gateway || { echo -e "${RED}[FAIL]${NC} Service 'openclaw-gateway' not found. Run: oa --setup-service"; exit 1; }
+        else
+            echo -e "${RED}[FAIL]${NC} termux-services not installed. Run: oa --setup-service"
+            exit 1
+        fi
+        ;;
+    stop)
+        if command -v sv &>/dev/null; then
+            echo -e "Stopping OpenClaw gateway..."
+            sv stop openclaw-gateway || true
+        else
+            echo -e "${RED}[FAIL]${NC} termux-services not installed."
+            exit 1
+        fi
+        ;;
+    restart)
+        if command -v sv &>/dev/null; then
+            echo -e "Restarting OpenClaw gateway..."
+            sv restart openclaw-gateway
+        fi
+        ;;
+    logs)
+        local LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
+        if [ ! -f "$LOGFILE" ]; then
+             # Standard location if sv-log is not used
+             LOGFILE="$HOME/.termux/services/openclaw-gateway/run"
+             echo -e "${YELLOW}[WARN]${NC} Service log file not found. Showing service script instead."
+             cat "$LOGFILE"
+             exit 0
+        fi
+        tail -f "$LOGFILE"
+        ;;
+    --status|status)
         cmd_status
         ;;
     --version|-v)

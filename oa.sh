@@ -232,9 +232,11 @@ case "${1:-}" in
             sleep 1
         fi
         
-        # Identify process and force kill if still alive (Catches manual starts too)
+        # Identify process aggressively (Catches manual 'openclaw gateway' from any session)
+        # Excludes current script PID ($$) and grep itself to avoid false positives
         local PIDS
-        PIDS=$(pgrep -f "node.*openclaw" || echo "")
+        PIDS=$(pgrep -f "openclaw gateway|node.*openclaw" | grep -v "$$" || echo "")
+        
         if [ -n "$PIDS" ]; then
             echo -e "Cleaning up lingering processes ($PIDS)..."
             kill -9 $PIDS 2>/dev/null || true

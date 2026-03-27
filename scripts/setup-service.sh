@@ -14,7 +14,7 @@ echo -e "───────────────────────�
 
 # 1. Faster Prerequisites Check
 if ! command -v openclaw &>/dev/null; then
-    echo -e "${RED}[FAIL]${NC} 'openclaw' command not found. Install it with: pkg install openclaw"
+    echo -e "${RED}[FAIL]${NC} 'openclaw' command not found. Install it with: oa --update"
     exit 1
 fi
 

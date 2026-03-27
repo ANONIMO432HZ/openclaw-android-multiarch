@@ -221,7 +221,7 @@ case "${1:-}" in
             exit 1
         fi
         ;;
-    start)
+    --start|-start|start)
         if command -v sv &>/dev/null; then
             echo -e "Starting OpenClaw gateway..."
             sv start openclaw-gateway || { echo -e "${RED}[FAIL]${NC} Service 'openclaw-gateway' not found. Run: oa --setup-service"; exit 1; }
@@ -230,22 +230,38 @@ case "${1:-}" in
             exit 1
         fi
         ;;
-    stop)
+    --stop|-stop|stop)
         if command -v sv &>/dev/null; then
-            echo -e "Stopping OpenClaw gateway..."
+            echo -e "${YELLOW}Stopping OpenClaw gateway...${NC}"
             sv stop openclaw-gateway || true
+            sleep 1
+            
+            # Identify process and force kill if still alive
+            # We look for node processes running openclaw
+            local PIDS
+            PIDS=$(pgrep -f "node.*openclaw" || echo "")
+            if [ -n "$PIDS" ]; then
+                echo -e "${YELLOW}Cleaning up hanging processes ($PIDS)...${NC}"
+                kill -9 $PIDS 2>/dev/null || true
+            fi
+            echo -e "${GREEN}[OK]${NC} Closed."
         else
             echo -e "${RED}[FAIL]${NC} termux-services not installed."
             exit 1
         fi
         ;;
-    restart)
+    --restart|-restart|restart)
         if command -v sv &>/dev/null; then
-            echo -e "Restarting OpenClaw gateway..."
-            sv restart openclaw-gateway
+            echo -e "${CYAN}Restarting OpenClaw gateway...${NC}"
+            # Use our improved stop logic by recursing
+            $0 stop
+            $0 start
+        else
+            echo -e "${RED}[FAIL]${NC} termux-services not installed."
+            exit 1
         fi
         ;;
-    logs)
+    --logs|-logs|logs)
         local LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
         if [ ! -f "$LOGFILE" ]; then
              # Standard location if sv-log is not used

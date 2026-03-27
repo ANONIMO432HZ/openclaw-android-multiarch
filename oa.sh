@@ -44,11 +44,12 @@ show_help() {
     echo "  --fix-android  Patch OpenClaw core to fix 'not supported on Android' crash"
     echo "  --setup-service Setup OpenClaw as a Termux background service"
     echo "  start          Start the OpenClaw gateway (background)"
-    echo "  stop           Stop the OpenClaw gateway (background)"
-    echo "  status         Show installation status and all components"
-    echo "  logs           Show gateway service logs"
-    echo "  --version, -v  Show version"
-    echo "  --help, -h     Show this help message"
+    echo "  stop           Stop the background Gateway"
+    echo "  restart        Restart the Gateway"
+    echo "  status         Show full installation and service status"
+    echo "  logs           View live Gateway service logs"
+    echo "  --version, -v  Show version info"
+    echo "  --help, -h     Show all available options"
     echo ""
 }
 
@@ -179,16 +180,16 @@ cmd_install() {
 }
 
 case "${1:-}" in
-    --update)
+    --update|-update|update)
         cmd_update
         ;;
-    --install)
+    --install|-install|install)
         cmd_install
         ;;
-    --uninstall)
+    --uninstall|-uninstall|uninstall)
         cmd_uninstall
         ;;
-    --backup)
+    --backup|-backup|backup)
         if declare -f cmd_backup > /dev/null 2>&1; then
             cmd_backup "${2:-}"
         else
@@ -196,7 +197,7 @@ case "${1:-}" in
             exit 1
         fi
         ;;
-    --restore)
+    --restore|-restore|restore)
         if declare -f cmd_restore > /dev/null 2>&1; then
             cmd_restore
         else
@@ -204,7 +205,7 @@ case "${1:-}" in
             exit 1
         fi
         ;;
-    --fix-android)
+    --fix-android|-fix-android|fix-android)
         if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
             bash "$PROJECT_DIR/scripts/patch-android.sh"
         else
@@ -212,7 +213,7 @@ case "${1:-}" in
             exit 1
         fi
         ;;
-    --setup-service)
+    --setup-service|-setup-service|setup-service)
         if [ -f "$PROJECT_DIR/scripts/setup-service.sh" ]; then
             bash "$PROJECT_DIR/scripts/setup-service.sh"
         else
@@ -255,13 +256,13 @@ case "${1:-}" in
         fi
         tail -f "$LOGFILE"
         ;;
-    --status|status)
+    --status|-status|status)
         cmd_status
         ;;
-    --version|-v)
+    --version|-version|version|-v)
         show_version
         ;;
-    --help|-h|"")
+    --help|-help|help|-h|"")
         show_help
         ;;
     *)

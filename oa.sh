@@ -38,12 +38,13 @@ show_help() {
     echo "  backup         Create a full backup of OpenClaw data"
     echo "  restore       Restore OpenClaw data from a backup"
     echo "  uninstall     Completely remove OpenClaw from Android"
-    echo "  version|-v   Show version information"
+    echo "  v|version    Show version information"
     echo "  help|-h        Show this help message"
     echo ""
 }
 
 # ── Command Implementations ──
+
 cmd_update() {
     show_banner "OpenClaw — Update Module" "$PURPLE"
     echo "Checking for updates..."
@@ -62,42 +63,74 @@ cmd_update() {
     fi
     
     # Re-patch just in case
-    if [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
+    # Note: Using patch-android.sh as primary, fallback to old patch-core.sh
+    if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
+        bash "$PROJECT_DIR/scripts/patch-android.sh"
+    elif [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
         bash "$PROJECT_DIR/scripts/patch-core.sh"
     fi
     
     echo -e "${GREEN}[OK]${NC} Update cycle completed."
 }
 
-cmd_uninstall() {
-    show_banner "OpenClaw — Uninstaller" "$RED"
-    echo -e "${YELLOW}[WARNING]${NC} This will remove OpenClaw and all its configuration."
-    read -p "Are you sure? (y/n): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Canceled."
-        exit 0
+cmd_install() {
+    if [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
+        bash "$PROJECT_DIR/scripts/install-tools.sh"
+    else
+        echo -e "${RED}[FAIL]${NC} install-tools.sh not found."
+        exit 1
     fi
+}
+
+cmd_start() {
+    show_banner "OpenClaw Initiation Options" "$PURPLE"
     
-    # 1. Stop and disable service using our own stop case
-    echo -e "  Stopping and cleaning up processes..."
-    $0 stop >/dev/null 2>&1 || true
+    echo -e "${CYAN}[Option 1: Background Service (Recommended)]${NC}"
+    echo -e "  - Description: Runs as a persistent daemon via termux-services."
+    echo -e "  - Benefits: Auto-restart on crash, survives SSH disconnect, auto-start on boot."
+    echo -e "  - Usage: ${BOLD}oa start${NC}"
+    echo -e ""
+    echo -e "${YELLOW}[Option 2: Foreground Manual (Fast Debug)]${NC}"
+    echo -e "  - Description: Runs directly in your current terminal session."
+    echo -e "  - Benefits: Instant log output, close with Ctrl+C, best for quick debugging."
+    echo -e "  - Usage: ${BOLD}oa start:manual${NC}"
+    echo -e ""
+    echo -e "${BOLD}-----------------------------------------${NC}"
     
     if command -v sv &>/dev/null; then
-        sv-disable openclaw-gateway 2>/dev/null || true
+        echo -e "${GREEN}Executing [Option 1] now...${NC}"
+        sv start openclaw-gateway || { 
+            echo -e "${RED}[FAIL]${NC} Background service not found."
+            echo -e "Run: ${CYAN}oa setup-service${NC} once."
+            exit 1
+        }
+    else
+        echo -e "${YELLOW}[INFO]${NC} termux-services not installed. Falling back to [Option 2]..."
+        cmd_start_manual
+    fi
+}
+
+cmd_start_manual() {
+    echo -e "${YELLOW}Running OpenClaw gateway directly (Foreground)...${NC}"
+    openclaw gateway
+}
+
+cmd_stop() {
+    if command -v sv &>/dev/null; then
+        echo -e "${YELLOW}Stopping OpenClaw gateway...${NC}"
+        sv stop openclaw-gateway || true
+        sleep 1
     fi
     
-    # 2. Remove files
-    echo -e "  Removing CLI and files..."
-    rm -rf "$PROJECT_DIR"
-    rm -f "$PREFIX/bin/oa"
+    # Identify process aggressively (Catches manual 'openclaw gateway' from any session)
+    local PIDS
+    PIDS=$(pgrep -f "openclaw gateway|node.*openclaw" | grep -v "$$" || echo "")
     
-    # Remove bashrc markers
-    if [ -f "$HOME/.bashrc" ]; then
-        sed -i "/# >>> OpenClaw on Android >>>/,/# <<< OpenClaw on Android <<</d" "$HOME/.bashrc"
+    if [ -n "$PIDS" ]; then
+        echo -e "Cleaning up lingering processes ($PIDS)..."
+        kill -9 $PIDS 2>/dev/null || true
     fi
-    
-    echo -e "${GREEN}[OK]${NC} OpenClaw has been removed."
+    echo -e "${GREEN}[OK]${NC} Stopped."
 }
 
 cmd_status() {
@@ -143,134 +176,112 @@ cmd_status() {
     echo ""
 }
 
-# ── Main Entry Point ──
-case "${1:-}" in
-    --update|-update|update)
-        cmd_update
-        ;;
-    --install|-install|install)
-        if [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
-            bash "$PROJECT_DIR/scripts/install-tools.sh"
-        else
-            echo -e "${RED}[FAIL]${NC} install-tools.sh not found."
-            exit 1
-        fi
-        ;;
-    --uninstall|-uninstall|uninstall)
-        cmd_uninstall
-        ;;
-    --backup|-backup|backup)
-        # Load extra modules if present
-        [ -f "$PROJECT_DIR/scripts/backup.sh" ] && source "$PROJECT_DIR/scripts/backup.sh"
+cmd_backup() {
+    if [ -f "$PROJECT_DIR/scripts/backup.sh" ]; then
+        source "$PROJECT_DIR/scripts/backup.sh"
         if command -v cmd_backup_create &>/dev/null; then
             cmd_backup_create
         else
-            echo -e "${RED}[FAIL]${NC} Backup system not found."
-            exit 1
+            echo -e "${RED}[FAIL]${NC} cmd_backup_create not found in backup.sh."
         fi
-        ;;
-    --restore|-restore|restore)
-        [ -f "$PROJECT_DIR/scripts/backup.sh" ] && source "$PROJECT_DIR/scripts/backup.sh"
+    else
+        echo -e "${RED}[FAIL]${NC} Backup system not found."
+    fi
+}
+
+cmd_restore() {
+    if [ -f "$PROJECT_DIR/scripts/backup.sh" ]; then
+        source "$PROJECT_DIR/scripts/backup.sh"
         if command -v cmd_backup_restore &>/dev/null; then
             cmd_backup_restore
         else
-            echo -e "${RED}[FAIL]${NC} Restore system not found."
-            exit 1
+            echo -e "${RED}[FAIL]${NC} cmd_backup_restore not found in backup.sh."
         fi
-        ;;
-    --fix-android|-fix-android|fix-android)
-        if [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
-            bash "$PROJECT_DIR/scripts/patch-core.sh"
-        else
-            echo -e "${RED}[FAIL]${NC} patch-core.sh not found."
-            exit 1
-        fi
-        ;;
-    --setup-service|-setup-service|setup-service)
-        if [ -f "$PROJECT_DIR/scripts/setup-service.sh" ]; then
-            bash "$PROJECT_DIR/scripts/setup-service.sh"
-        else
-            echo -e "${RED}[FAIL]${NC} setup-service.sh not found."
-            exit 1
-        fi
-        ;;
-    --start|-start|start)
-        show_banner "OpenClaw Initiation Options" "$PURPLE"
-        
-        echo -e "${CYAN}[Option 1: Background Service (Recommended)]${NC}"
-        echo -e "  - Description: Runs as a persistent daemon via termux-services."
-        echo -e "  - Benefits: Auto-restart on crash, survives SSH disconnect, auto-start on boot."
-        echo -e "  - Usage: ${BOLD}oa start${NC}"
-        echo -e ""
-        echo -e "${YELLOW}[Option 2: Foreground Manual (Fast Debug)]${NC}"
-        echo -e "  - Description: Runs directly in your current terminal session."
-        echo -e "  - Benefits: Instant log output, close with Ctrl+C, best for quick debugging."
-        echo -e "  - Usage: ${BOLD}oa start:manual${NC}"
-        echo -e ""
-        echo -e "${BOLD}-----------------------------------------${NC}"
-        
-        if command -v sv &>/dev/null; then
-            echo -e "${GREEN}Executing [Option 1] now...${NC}"
-            sv start openclaw-gateway || { 
-                echo -e "${RED}[FAIL]${NC} Background service not found."
-                echo -e "Run: ${CYAN}oa --setup-service${NC} to enable persistent background mode."
-                exit 1
-            }
-        else
-            echo -e "${YELLOW}[INFO]${NC} termux-services not installed. Falling back to [Option 2]..."
-            $0 start:manual
-        fi
-        ;;
-    --start:manual|start:manual)
-        echo -e "${YELLOW}Running OpenClaw gateway directly (Foreground)...${NC}"
-        openclaw gateway
-        ;;
-    --stop|-stop|stop)
-        if command -v sv &>/dev/null; then
-            echo -e "${YELLOW}Stopping OpenClaw gateway...${NC}"
-            sv stop openclaw-gateway || true
-            sleep 1
-        fi
-        
-        # Identify process aggressively (Catches manual 'openclaw gateway' from any session)
-        # Excludes current script PID ($$) and grep itself to avoid false positives
-        local PIDS
-        PIDS=$(pgrep -f "openclaw gateway|node.*openclaw" | grep -v "$$" || echo "")
-        
-        if [ -n "$PIDS" ]; then
-            echo -e "Cleaning up lingering processes ($PIDS)..."
-            kill -9 $PIDS 2>/dev/null || true
-        fi
-        echo -e "${GREEN}[OK]${NC} Stopped."
-        ;;
-    --restart|-restart|restart)
-        if command -v sv &>/dev/null; then
-            echo -e "${CYAN}Restarting OpenClaw gateway...${NC}"
-            sv restart openclaw-gateway
-        fi
-        ;;
-    --logs|-logs|logs)
-        local LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
-        if [ ! -f "$LOGFILE" ]; then
-             LOGFILE="$HOME/.openclaw-android/server.log"
-        fi
-        
-        if [ -f "$LOGFILE" ]; then
-             tail -f "$LOGFILE"
-        else
-             echo -e "${RED}[FAIL]${NC} No logs found."
-             exit 1
-        fi
-        ;;
-    --status|-status|status)
-        cmd_status
-        ;;
-    --version|-version|version|-v)
-        echo "oa CLI v$OA_VERSION"
-        ;;
-    --help|-help|help|-h|"")
-        show_help
-        ;;
+    else
+        echo -e "${RED}[FAIL]${NC} Restore system not found."
+    fi
+}
+
+cmd_fix_android() {
+    if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
+        bash "$PROJECT_DIR/scripts/patch-android.sh"
+    elif [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
+        bash "$PROJECT_DIR/scripts/patch-core.sh"
+    else
+        echo -e "${RED}[FAIL]${NC} Patch system not found."
+    fi
+}
+
+cmd_setup_service() {
+    if [ -f "$PROJECT_DIR/scripts/setup-service.sh" ]; then
+        bash "$PROJECT_DIR/scripts/setup-service.sh"
+    else
+        echo -e "${RED}[FAIL]${NC} setup-service.sh not found."
+    fi
+}
+
+cmd_logs() {
+    local LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
+    if [ ! -f "$LOGFILE" ]; then
+         LOGFILE="$PROJECT_DIR/server.log"
+    fi
+    
+    if [ -f "$LOGFILE" ]; then
+         tail -f "$LOGFILE"
+    else
+         echo -e "${RED}[FAIL]${NC} No logs found."
+         exit 1
+    fi
+}
+
+cmd_uninstall() {
+    show_banner "OpenClaw — Uninstaller" "$RED"
+    echo -e "${YELLOW}[WARNING]${NC} This will remove OpenClaw and all its configuration."
+    read -p "Are you sure? (y/n): " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Canceled."
+        exit 0
+    fi
+    
+    # 1. Stop and disable service
+    echo -e "  Stopping and cleaning up processes..."
+    cmd_stop >/dev/null 2>&1 || true
+    
+    if command -v sv &>/dev/null; then
+        sv-disable openclaw-gateway 2>/dev/null || true
+    fi
+    
+    # 2. Remove files
+    echo -e "  Removing CLI and files..."
+    rm -rf "$PROJECT_DIR"
+    rm -f "$PREFIX/bin/oa"
+    
+    # Remove bashrc markers
+    if [ -f "$HOME/.bashrc" ]; then
+        sed -i "/# >>> OpenClaw on Android >>>/,/# <<< OpenClaw on Android <<</d" "$HOME/.bashrc"
+    fi
+    
+    echo -e "${GREEN}[OK]${NC} OpenClaw has been removed."
+}
+
+# ── Main Entry Point ──
+case "${1:-}" in
+    update|--update|up)     cmd_update ;;
+    install|--install|inst)  cmd_install ;;
+    start|--start|strt)      cmd_start ;;
+    start:manual|strt:man)  cmd_start_manual ;;
+    stop|--stop|stp)         cmd_stop ;;
+    restart|--restart|rst)   cmd_stop && cmd_start ;;
+    logs|--logs|log)         cmd_logs ;;
+    status|--status|st)      cmd_status ;;
+    backup|--backup|bkp)     cmd_backup ;;
+    restore|--restore|rst)   cmd_restore ;;
+    fix-android|fix)        cmd_fix_android ;;
+    setup-service|svc)      cmd_setup_service ;;
+    uninstall|--uninstall|uninst) cmd_uninstall ;;
+    v|version|--version|-v) echo "oa CLI v$OA_VERSION" ;;
+    help|--help|h|"")       show_help ;;
     *)
         echo -e "${RED}Unknown command: $1${NC}"
         show_help

@@ -83,7 +83,7 @@ A standalone Android app is also available. It bundles a terminal emulator and a
 - Built-in dashboard for gateway control, runtime info, and tool management
 - Works independently of Termux — installing the app does not affect an existing Termux + `oa` setup
 
-Download the APK from the [Releases](https://github.com/AidanPark/openclaw-android/releases) page.
+Download the APK from the [Releases](https://github.com/ANONIMO432HZ/openclaw-android-multiarch/releases) page.
 
 
 ## Requirements
@@ -216,21 +216,22 @@ If you run OpenClaw on multiple devices on the same network, use the <a href="ht
 
 After installation, the `oa` command is available for managing your installation:
 
-| Option | Description |
-|--------|-------------|
-| `oa --update` | Update OpenClaw and Android patches |
-| `oa --fix-android` | **Essential**: Patch 'not supported on Android' core errors |
-| `oa --setup-service` | Configure Gateway as a background daemon (auto-start) |
-| `oa start` | Start the Gateway in background |
-| `oa stop` | Stop the background Gateway |
-| `oa status` | Show full installation and service status |
-| `oa logs` | View live Gateway service logs |
-| `oa --install` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
-| `oa --backup` | Create a full backup of OpenClaw data |
-| `oa --restore` | Restore from a backup |
-| `oa --uninstall` | Remove OpenClaw on Android |
-| `oa --version` | Show version info |
-| `oa --help` | Show all available options |
+| Opción | Descripción |
+| :--- | :--- |
+| `oa --update` | Actualiza OpenClaw y los parches de Android |
+| `oa --fix-android` | **Esencial**: Parche para errores 'not supported on Android' |
+| `oa --setup-service` | Configura el Gateway como servicio de fondo (auto-arranque) |
+| `oa start` | Inicia el Gateway en segundo plano |
+| `oa stop` | Detiene el Gateway de fondo |
+| `oa restart` | Reinicia el Gateway |
+| `oa status` | Muestra el estado completo de instalación y servicios |
+| `oa logs` | Ver logs en vivo del servicio Gateway |
+| `oa --install` | Instalar herramientas opcionales (tmux, code-server, AI CLIs, etc.) |
+| `oa --backup` | Crear un backup completo de los datos de OpenClaw |
+| `oa --restore` | Restaurar desde un backup previo |
+| `oa --uninstall` | Eliminar OpenClaw de Android |
+| `oa --version` | Muestra información de versión (`-v`) |
+| `oa --help` | Muestra todas las opciones disponibles (`-h`) |
 
 
 ## Update

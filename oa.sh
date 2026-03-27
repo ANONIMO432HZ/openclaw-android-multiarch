@@ -41,6 +41,8 @@ show_help() {
     echo "  --uninstall    Remove OpenClaw on Android"
     echo "  --backup       Create a full backup of OpenClaw data"
     echo "  --restore      Restore from a backup"
+    echo "  --fix-android  Patch OpenClaw core to fix 'not supported on Android' crash"
+    echo "  --setup-service Setup OpenClaw as a Termux background service"
     echo "  --status       Show installation status and all components"
     echo "  --version, -v  Show version"
     echo "  --help, -h     Show this help message"
@@ -196,6 +198,22 @@ case "${1:-}" in
             cmd_restore
         else
             echo -e "${RED}[FAIL]${NC} backup.sh not found. Run: oa --update"
+            exit 1
+        fi
+        ;;
+    --fix-android)
+        if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
+            bash "$PROJECT_DIR/scripts/patch-android.sh"
+        else
+            echo -e "${RED}[FAIL]${NC} patch-android.sh not found. Run: oa --update"
+            exit 1
+        fi
+        ;;
+    --setup-service)
+        if [ -f "$PROJECT_DIR/scripts/setup-service.sh" ]; then
+            bash "$PROJECT_DIR/scripts/setup-service.sh"
+        else
+            echo -e "${RED}[FAIL]${NC} setup-service.sh not found. Run: oa --update"
             exit 1
         fi
         ;;

@@ -11,7 +11,7 @@ if [ -f "$HOME/.openclaw-android/scripts/lib.sh" ]; then
         source "$HOME/.openclaw-android/scripts/backup.sh"
     fi
 else
-    OA_VERSION="1.0.10"
+    OA_VERSION="1.0.12"
     RED='\033[0;31m'
     GREEN='\033[0;32m'
     YELLOW='\033[1;33m'
@@ -30,25 +30,23 @@ else
 fi
 
 show_help() {
-    echo ""
-    echo -e "${BOLD}oa${NC} — OpenClaw on Android CLI v${OA_VERSION}"
-    echo ""
-    echo "Usage: oa [option]"
+    show_banner "OpenClaw on Android Professional CLI" "$PURPLE"
+    echo "Usage: oa [command]"
     echo ""
     echo "Options:"
-    echo "  --update       Update OpenClaw and Android patches"
-    echo "  --install      Install optional tools (tmux, code-server, AI CLIs, etc.)"
-    echo "  --uninstall    Remove OpenClaw on Android"
-    echo "  --backup       Create a full backup of OpenClaw data"
-    echo "  --restore      Restore from a backup"
-    echo "  --fix-android  Patch OpenClaw core to fix 'not supported on Android' crash"
-    echo "  --setup-service Setup OpenClaw as a Termux background service"
-    echo "  start          Start the OpenClaw gateway (background)"
-    echo "  stop           Stop the background Gateway"
-    echo "  restart        Restart the Gateway"
-    echo "  status         Show full installation and service status"
-    echo "  logs           View live Gateway service logs"
-    echo "  --version, -v  Show version info"
+    echo "  --update|update        Update OpenClaw and Android patches"
+    echo "  --install|install       Install optional tools (tmux, code-server, AI CLIs, etc.)"
+    echo "  --uninstall|uninstall     Remove OpenClaw on Android"
+    echo "  --backup|backup        Create a full backup of OpenClaw data"
+    echo "  --restore|restore       Restore from a backup"
+    echo "  --fix-android|fix-android   Patch OpenClaw core to fix 'not supported on Android' crash"
+    echo "  --setup-service|setup-service Configure OpenClaw as a background service"
+    echo "  --start|start           Start the OpenClaw gateway (background)"
+    echo "  --stop|stop            Stop the background Gateway"
+    echo "  --restart|restart         Restart the Gateway"
+    echo "  --status|status          Show full installation and service status"
+    echo "  --logs|logs            View live Gateway service logs"
+    echo "  --version|version|v     Show version info"
     echo "  --help, -h     Show all available options"
     echo ""
 }
@@ -110,12 +108,7 @@ cmd_uninstall() {
 }
 
 cmd_status() {
-    echo ""
-    echo -e "${BOLD}========================================${NC}"
-    echo -e "${BOLD}  OpenClaw on Android — Status${NC}"
-    echo -e "${BOLD}========================================${NC}"
-
-    echo ""
+    show_banner "OpenClaw on Android — Status" "$GREEN"
     echo -e "${BOLD}Version${NC}"
     echo "  oa:          v${OA_VERSION}"
 
@@ -222,13 +215,36 @@ case "${1:-}" in
         fi
         ;;
     --start|-start|start)
+        show_banner "OpenClaw Initiation Options" "$PURPLE"
+        
+        echo -e "${CYAN}[Option 1: Background Service (Recommended)]${NC}"
+        echo -e "  - Description: Runs as a persistent daemon via termux-services."
+        echo -e "  - Benefits: Auto-restart on crash, survives SSH disconnect, auto-start on boot."
+        echo -e "  - Usage: ${BOLD}oa start${NC}"
+        echo -e ""
+        echo -e "${YELLOW}[Option 2: Foreground Manual (Fast Debug)]${NC}"
+        echo -e "  - Description: Runs directly in your current terminal session."
+        echo -e "  - Benefits: Instant log output, close with Ctrl+C, best for quick debugging."
+        echo -e "  - Usage: ${BOLD}oa start:manual${NC}"
+        echo -e ""
+        echo -e "${BOLD}-----------------------------------------${NC}"
+        
         if command -v sv &>/dev/null; then
-            echo -e "Starting OpenClaw gateway..."
-            sv start openclaw-gateway || { echo -e "${RED}[FAIL]${NC} Service 'openclaw-gateway' not found. Run: oa --setup-service"; exit 1; }
+            echo -e "${GREEN}Executing [Option 1] now...${NC}"
+            sv start openclaw-gateway || { 
+                echo -e "${RED}[FAIL]${NC} Background service not found."
+                echo -e "Run: ${CYAN}oa --setup-service${NC} to enable persistent background mode."
+                echo -e "Or run: ${YELLOW}oa start:manual${NC} for manual foreground mode."
+                exit 1
+            }
         else
-            echo -e "${RED}[FAIL]${NC} termux-services not installed. Run: oa --setup-service"
-            exit 1
+            echo -e "${YELLOW}[INFO]${NC} termux-services not detected. Falling back to [Option 2]..."
+            $0 start:manual
         fi
+        ;;
+    --start:manual|start:manual)
+        echo -e "${YELLOW}Running OpenClaw gateway directly (Foreground)...${NC}"
+        openclaw gateway
         ;;
     --stop|-stop|stop)
         if command -v sv &>/dev/null; then

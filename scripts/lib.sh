@@ -7,8 +7,19 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
+
+show_banner() {
+    local TITLE="$1"
+    local COLOR="${2:-$PURPLE}"
+    echo -e "${BOLD}========================================${NC}"
+    echo -e "${COLOR}  ${BOLD}$TITLE${NC}"
+    echo -e "${BOLD}========================================${NC}"
+}
 
 # ── Project constants ──
 PROJECT_DIR="$HOME/.openclaw-android"

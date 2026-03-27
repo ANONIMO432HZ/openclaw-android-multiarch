@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ── Configuration ──
 PROJECT_DIR="$HOME/.openclaw-android"
 
+# Load shared library (Single Source of Truth)
 if [ -f "$HOME/.openclaw-android/scripts/lib.sh" ]; then
     # shellcheck source=/dev/null
     source "$HOME/.openclaw-android/scripts/lib.sh"
-    # shellcheck source=/dev/null
-    if [ -f "$HOME/.openclaw-android/scripts/backup.sh" ]; then
-        source "$HOME/.openclaw-android/scripts/backup.sh"
-    fi
-else
-    OA_VERSION="1.0.12"
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    YELLOW='\033[1;33m'
-    BOLD='\033[1m'
-    NC='\033[0m'
-    REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main"
-    PLATFORM_MARKER="$PROJECT_DIR/.platform"
-
-    detect_platform() {
-        if [ -f "$PLATFORM_MARKER" ]; then
-            cat "$PLATFORM_MARKER"
-            return 0
-        fi
-        return 1
-    }
 fi
 
+# Fallback and common colors (if lib was not found or as common base)
+OA_VERSION="${OA_VERSION:-1.0.12}"
+RED="${RED:-\033[0;31m}"
+GREEN="${GREEN:-\033[0;32m}"
+YELLOW="${YELLOW:-\033[1;33m}"
+BLUE="${BLUE:-\033[0;34m}"
+PURPLE="${PURPLE:-\033[0;35m}"
+CYAN="${CYAN:-\033[0;36m}"
+BOLD="${BOLD:-\033[1m}"
+NC="${NC:-\033[0m}"
+REPO_BASE="${REPO_BASE:-https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main}"
+
+# Load optional backup functions
+if [ -f "$HOME/.openclaw-android/scripts/backup.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$HOME/.openclaw-android/scripts/backup.sh"
+fi
+
+# ── CLI Core Functions ──
 show_help() {
     show_banner "OpenClaw on Android Professional CLI" "$PURPLE"
     echo "Usage: oa [command]"
@@ -113,7 +113,12 @@ cmd_status() {
     echo "  oa:          v${OA_VERSION}"
 
     local PLATFORM
-    PLATFORM=$(detect_platform 2>/dev/null) || PLATFORM=""
+    if command -v detect_platform &>/dev/null; then
+        PLATFORM=$(detect_platform 2>/dev/null) || PLATFORM=""
+    else
+        PLATFORM=""
+    fi
+    
     if [ -n "$PLATFORM" ]; then
         echo "  Platform:    $PLATFORM"
     else
@@ -141,68 +146,56 @@ cmd_status() {
     if grep -qF "OpenClaw on Android" "$HOME/.bashrc" 2>/dev/null; then
         echo -e "  ${GREEN}[OK]${NC}   .bashrc environment block present"
     else
-        echo -e "  ${RED}[MISS]${NC} .bashrc environment block not found"
-    fi
-
-    local STATUS_SCRIPT="$PROJECT_DIR/platforms/$PLATFORM/status.sh"
-    if [ -n "$PLATFORM" ] && [ -f "$STATUS_SCRIPT" ]; then
-        bash "$STATUS_SCRIPT"
+        echo -e "  ${RED}[MISS]${NC} .bashrc environment missing"
     fi
 
     echo ""
+    echo -e "${BOLD}Service Status${NC}"
+    if command -v sv &>/dev/null; then
+        sv status openclaw-gateway || echo -e "  Service info: Not configured."
+    else
+        echo -e "  ${YELLOW}[WARN]${NC} termux-services not installed."
+    fi
+    echo ""
 }
 
-cmd_install() {
-    if ! command -v curl &>/dev/null; then
-        echo -e "${RED}[FAIL]${NC} curl not found. Install it with: pkg install curl"
-        exit 1
-    fi
-
-    local TMPFILE
-    TMPFILE=$(mktemp "${TMPDIR:-${PREFIX:-/tmp}/tmp}/install-tools.XXXXXX.sh" 2>/dev/null) \
-        || TMPFILE=$(mktemp "/tmp/install-tools.XXXXXX.sh")
-
-    if ! curl -sfL "$REPO_BASE/install-tools.sh" -o "$TMPFILE"; then
-        rm -f "$TMPFILE"
-        echo -e "${RED}[FAIL]${NC} Failed to download install-tools.sh"
-        exit 1
-    fi
-
-    bash "$TMPFILE"
-    rm -f "$TMPFILE"
-}
-
+# ── Main Entry Point ──
 case "${1:-}" in
     --update|-update|update)
         cmd_update
         ;;
     --install|-install|install)
-        cmd_install
+        if [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
+            bash "$PROJECT_DIR/scripts/install-tools.sh"
+        else
+            echo -e "${RED}[FAIL]${NC} install-tools.sh not found. Run: oa --update"
+            exit 1
+        fi
         ;;
     --uninstall|-uninstall|uninstall)
         cmd_uninstall
         ;;
     --backup|-backup|backup)
-        if declare -f cmd_backup > /dev/null 2>&1; then
-            cmd_backup "${2:-}"
+        if command -v cmd_backup_create &>/dev/null; then
+            cmd_backup_create
         else
-            echo -e "${RED}[FAIL]${NC} backup.sh not found. Run: oa --update"
+            echo -e "${RED}[FAIL]${NC} Backup system not loaded."
             exit 1
         fi
         ;;
     --restore|-restore|restore)
-        if declare -f cmd_restore > /dev/null 2>&1; then
-            cmd_restore
+        if command -v cmd_backup_restore &>/dev/null; then
+            cmd_backup_restore
         else
-            echo -e "${RED}[FAIL]${NC} backup.sh not found. Run: oa --update"
+            echo -e "${RED}[FAIL]${NC} Restore system not loaded."
             exit 1
         fi
         ;;
     --fix-android|-fix-android|fix-android)
-        if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
-            bash "$PROJECT_DIR/scripts/patch-android.sh"
+        if [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
+            bash "$PROJECT_DIR/scripts/patch-core.sh"
         else
-            echo -e "${RED}[FAIL]${NC} patch-android.sh not found. Run: oa --update"
+            echo -e "${RED}[FAIL]${NC} patch-core.sh not found. Run: oa --update"
             exit 1
         fi
         ;;
@@ -253,7 +246,6 @@ case "${1:-}" in
             sleep 1
             
             # Identify process and force kill if still alive
-            # We look for node processes running openclaw
             local PIDS
             PIDS=$(pgrep -f "node.*openclaw" || echo "")
             if [ -n "$PIDS" ]; then
@@ -261,17 +253,6 @@ case "${1:-}" in
                 kill -9 $PIDS 2>/dev/null || true
             fi
             echo -e "${GREEN}[OK]${NC} Closed."
-        else
-            echo -e "${RED}[FAIL]${NC} termux-services not installed."
-            exit 1
-        fi
-        ;;
-    --restart|-restart|restart)
-        if command -v sv &>/dev/null; then
-            echo -e "${CYAN}Restarting OpenClaw gateway...${NC}"
-            # Use our improved stop logic by recursing
-            $0 stop
-            $0 start
         else
             echo -e "${RED}[FAIL]${NC} termux-services not installed."
             exit 1

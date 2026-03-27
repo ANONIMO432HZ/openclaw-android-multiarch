@@ -32,6 +32,7 @@ bash install.sh
 ```
 
 **Flujo Automático:**
+
 1. Verificación de entorno (Arquitectura, batería, versión de Android).
 2. Instalación de motor de ejecución (Node.js nativo o glibc).
 3. Parcheo de dependencias nativas (módulos C++ compatibles con Android).
@@ -54,6 +55,7 @@ Si detecta un dispositivo de 32 bits o con poca RAM (<2GB), el sistema aplica es
 Debido a restricciones de seguridad de WebSockets en Android, la forma más fiable de acceder al chat desde tu PC es mediante un túnel SSH.
 
 ### Paso 1: Configurar SSH en Termux
+
 ```bash
 pkg install openssh
 passwd  # Establece una contraseña
@@ -61,12 +63,14 @@ sshd    # Inicia el daemon de SSH
 ```
 
 ### Paso 2: Crear el Túnel desde la PC (PowerShell)
+
 ```powershell
 # Reemplaza u0_aXXX con tu usuario y 192.168.x.x con la IP del móvil
 ssh -p 8022 -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 u0_aXXX@192.168.x.x
 ```
 
 ### Paso 3: Iniciar y Entrar
+
 1. En Termux: `openclaw gateway --allow-unconfigured`
 2. En la PC: Abre `http://localhost:18789` y pega tu token.
 

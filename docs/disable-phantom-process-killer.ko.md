@@ -95,7 +95,7 @@ pkg install -y android-tools
 
 <img src="images/signal9/05-pairing-code-dialog.png" width="300" alt="페어링 코드 다이얼로그">
 
-3. Termux에서 화면에 표시된 포트와 코드를 사용하여 페어링 명령을 실행합니다:
+1. Termux에서 화면에 표시된 포트와 코드를 사용하여 페어링 명령을 실행합니다:
 
 ```bash
 adb pair localhost:<페어링_포트> <페어링_코드>

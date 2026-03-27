@@ -87,6 +87,7 @@ Open the Termux app on the phone and run `sshd`. Either type directly on the pho
 ```bash
 adb shell input text 'sshd'
 ```
+
 ```bash
 adb shell input keyevent 66
 ```
@@ -96,6 +97,7 @@ The IP address may have changed, so verify:
 ```bash
 adb shell input text 'ifconfig'
 ```
+
 ```bash
 adb shell input keyevent 66
 ```
@@ -306,14 +308,17 @@ opencode --version
 ## Issues on ARMv7 / 32-bit / Legacy Devices (Android 7+)
 
 ### Error de Arquitectura (Binary Mismatch)
+
 - **Cause:** Using `ld.so` glue code with `aarch64` binaries on `armv7l` hardware.
 - **Solution:** The installer now automatically detects ARMv7 and uses Termux-native packages (`pkg install nodejs`) instead of external glibc binaries.
 
 ### Thermal Throttling
+
 - **Cause:** High CPU usage during installation on old hardware.
 - **Solution:** Limit parallel compilation by running `npm config set jobs 1` before installing.
 
 ### Out of Memory (OOM)
+
 - **Cause:** System kills Node.js processes on devices with <2GB RAM.
 - **Solution:** Set Node.js memory limits: `export NODE_OPTIONS="--max-old-space-size=512"`.
 

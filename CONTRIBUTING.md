@@ -102,6 +102,7 @@ Upgrade Node.js to v22.22.0 for FTS5 support
 ### 5. Open a Pull Request
 
 Open a PR against `main`. Describe:
+
 - What the change does
 - Why it's needed
 - How to test it

@@ -64,7 +64,6 @@
 
 [Releases](https://github.com/AidanPark/openclaw-android/releases) 페이지에서 APK를 다운로드하세요.
 
-
 ## 요구사항
 
 - Android 7.0 이상 (Android 10 이상 권장)
@@ -112,7 +111,6 @@ pkg update -y && pkg install -y curl
 ```
 
 > 처음 실행하면 저장소 미러를 선택하라는 메시지가 나올 수 있습니다. 아무거나 선택해도 되지만, 지역적으로 가까운 미러를 고르면 더 빠릅니다.
-
 
 ### 4단계: OpenClaw 설치
 
@@ -192,7 +190,6 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | `oa --version` | 버전 표시 |
 | `oa --help` | 사용 가능한 옵션 표시 |
 
-
 ## 업데이트
 
 ```bash
@@ -210,24 +207,29 @@ oa --update && source ~/.bashrc
 이미 최신인 컴포넌트는 스킵됩니다. 설치하지 않은 컴포넌트는 건드리지 않고 — 기기에 이미 설치된 것만 업데이트합니다. 여러 번 실행해도 안전합니다.
 
 > `oa` 명령어가 없는 경우 (이전 설치 사용자), curl로 실행:
+>
 > ```bash
 > curl -sL myopenclawhub.com/update | bash && source ~/.bashrc
 > ```
-
 
 ## 백업 및 복구
 
 OpenClaw의 내장 백업 명령어(`openclaw backup create`)는 Android의 앱 전용 저장소에서 하드링크(`fs.link()`) 생성이 제한되어 있어 실패하는 경우가 많습니다. `oa --backup` 명령어는 `tar`를 직접 사용하여 이 문제를 해결하면서도, OpenClaw 백업 규격과 완벽하게 호환되는 아카이브를 생성합니다.
 백업 생성:
+
 ```bash
 oa --backup
 ```
+
 백업은 `~/.openclaw-android/backup/` 폴더에 타임스탬프가 포함된 파일명(예: `2026-03-14T00-00-00.000Z-openclaw-backup.tar.gz`)으로 저장됩니다. `oa --backup ~/my-backups/`와 같이 사용자 지정 경로를 지정할 수도 있습니다. 백업에는 설정, 상태, 워크스페이스, 에이전트 데이터가 모두 포함됩니다.
 백업에서 복구:
+
 ```bash
 oa --restore
 ```
+
 이 명령어를 실행하면 기본 백업 폴더에 있는 사용 가능한 백업 목록이 표시됩니다. 복구하려는 백업의 번호를 선택하면 됩니다. 도구가 백업 매니페스트에서 플랫폼을 자동으로 감지하여 `~/.openclaw/` 경로로 복구를 진행합니다. 기존 데이터를 덮어쓰게 되므로 실행 전 확인 절차가 진행됩니다.
+
 ## 문제 해결
 
 자세한 트러블슈팅 가이드는 [문제 해결 문서](docs/troubleshooting.ko.md)를 참고하세요.
@@ -437,10 +439,12 @@ PLATFORM_NEEDS_BUILD_TOOLS=true
 플랫폼 선택과 무관하게 항상 실행됩니다.
 
 **install-infra-deps.sh:**
+
 - `pkg update -y && pkg upgrade -y`로 패키지 저장소 갱신 및 업그레이드
 - `git` 설치 (npm git 의존성 및 저장소 클론에 필요)
 
 **setup-paths.sh:**
+
 - `$PREFIX/tmp`와 `$HOME/.openclaw-android/patches` 디렉토리 생성
 - 표준 Linux 경로(`/bin/sh`, `/usr/bin/env`, `/tmp`)의 Termux 매핑 표시
 
@@ -472,6 +476,7 @@ PLATFORM_NEEDS_BUILD_TOOLS=true
 **[6.5] 환경변수 + CLI + 마커:**
 
 플랫폼 설치 후 오케스트레이터가:
+
 - `setup-env.sh`를 실행하여 `.bashrc` 환경변수 블록 작성
 - 플랫폼의 `env.sh`를 평가하여 플랫폼별 변수 설정
 - 플랫폼 마커 파일(`~/.openclaw-android/.platform`) 기록

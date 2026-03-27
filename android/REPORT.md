@@ -27,26 +27,32 @@
 ## 수정된 버그 (6건)
 
 ### 1. JsBridge.kt — installTool() 누락 핸들러
+
 - **문제**: AI CLI 도구(claude-code, gemini-cli, codex-cli) 설치 시 `echo 'Unknown tool'` 출력
 - **수정**: npm install 명령 추가 (총 11개 도구 전체 커버)
 
 ### 2. JsBridge.kt — uninstallTool() 잘못된 삭제 명령
+
 - **문제**: npm 패키지도 `apt-get remove`로 삭제 시도
 - **수정**: 도구 타입별 분기 (apt-get / npm uninstall)
 
 ### 3. JsBridge.kt — getInstalledTools() / isToolInstalled() 불완전
+
 - **문제**: 4개 도구만 검사, npm 전역 패키지 미감지
 - **수정**: 전체 도구 바이너리 경로 + `command -v` 검사
 
 ### 4. Setup.tsx — useState 오용
+
 - **문제**: `useState(() => { ... })` 로 사이드 이펙트 실행 (React 규칙 위반)
 - **수정**: `useEffect(() => { ... }, [])` 로 변경
 
 ### 5. SettingsAbout.tsx — 버튼 레이블 불일치
+
 - **문제**: "View on GitHub" 버튼이 Android 앱 정보 화면을 열음
 - **수정**: 레이블을 "App Info"로 변경
 
 ### 6. SettingsTools.tsx — 누락 도구
+
 - **문제**: android-tools, chromium, opencode 미표시 (oa --install 대비 3개 누락)
 - **수정**: 11개 전체 도구 + 4개 카테고리로 확장
 

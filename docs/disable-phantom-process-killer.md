@@ -95,7 +95,7 @@ pkg install -y android-tools
 
 <img src="images/signal9/05-pairing-code-dialog.png" width="300" alt="Pairing code dialog">
 
-3. In Termux, run the pairing command using the port and code shown on screen:
+1. In Termux, run the pairing command using the port and code shown on screen:
 
 ```bash
 adb pair localhost:<PAIRING_PORT> <PAIRING_CODE>

@@ -87,6 +87,7 @@ Termux의 SSH 서버(`sshd`)가 실행되지 않은 상태입니다. Termux 앱�
 ```bash
 adb shell input text 'sshd'
 ```
+
 ```bash
 adb shell input keyevent 66
 ```
@@ -96,6 +97,7 @@ IP가 변경되었을 수 있으니 확인:
 ```bash
 adb shell input text 'ifconfig'
 ```
+
 ```bash
 adb shell input keyevent 66
 ```

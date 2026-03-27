@@ -17,7 +17,7 @@ else
     YELLOW='\033[1;33m'
     BOLD='\033[1m'
     NC='\033[0m'
-    REPO_BASE="https://raw.githubusercontent.com/AidanPark/openclaw-android/main"
+    REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main"
     PLATFORM_MARKER="$PROJECT_DIR/.platform"
 
     detect_platform() {

@@ -18,8 +18,15 @@ if [ -f "$SCRIPT_DIR/openclaw-patch-paths.sh" ]; then
     bash "$SCRIPT_DIR/openclaw-patch-paths.sh" 2>&1 | tee -a "$LOG_FILE"
 else
     echo -e "${RED}[FAIL]${NC} openclaw-patch-paths.sh not found in $SCRIPT_DIR"
-    echo "  FAILED: openclaw-patch-paths.sh not found" >> "$LOG_FILE"
     exit 1
+fi
+
+# Apply core Android support patch (fixes "Gateway service not supported")
+CORE_PATCHER="$(cd "$SCRIPT_DIR/../../.." && pwd)/scripts/patch-android.sh"
+if [ -f "$CORE_PATCHER" ]; then
+    bash "$CORE_PATCHER" 2>&1 | tee -a "$LOG_FILE"
+else
+    echo -e "${YELLOW}[WARN]${NC} Core patcher not found at $CORE_PATCHER"
 fi
 
 echo ""

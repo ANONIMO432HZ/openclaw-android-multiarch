@@ -70,11 +70,25 @@ fi
 
 mkdir -p "$HOME/.openclaw"
 
-echo ""
-echo "Running: openclaw update"
-echo "  (This includes building native modules and may take 5-10 minutes)"
-echo ""
-openclaw update || true
+# Optimization: Skip 'openclaw update' on ARMv7 if we just installed @latest
+# These devices often OOM during the redundant update check.
+if [ "$IS_ARMV7L" = true ]; then
+    echo -e "${YELLOW}[SKIP]${NC} Skipping 'openclaw update' on ARMv7 to prevent OOM."
+    echo "       The latest version was already installed via npm."
+else
+    echo ""
+    echo "Running: openclaw update"
+    echo "  (This includes building native modules and may take 5-10 minutes)"
+    echo ""
+    openclaw update || true
+fi
+
+# Force Sharp WASM build for ARMv7 (Legacy compatibility)
+if [ "$IS_ARMV7L" = true ]; then
+    step "Sharp Image Processing (WASM Fallback)"
+    echo "Building sharp for ARMv7..."
+    bash "$SCRIPT_DIR/patches/openclaw-build-sharp.sh" || true
+fi
 
 # Config binding fix for termux-ssh access (0.0.0.0)
 CONFIG_FILE="$HOME/.openclaw/openclaw.json"

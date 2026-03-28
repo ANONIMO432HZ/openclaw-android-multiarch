@@ -12,6 +12,7 @@
 # patchelf is NOT used — Android seccomp causes SIGSEGV on patchelf'd binaries.
 # All glibc binaries are executed via: exec ld.so binary "$@"
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib.sh"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

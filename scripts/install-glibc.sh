@@ -9,6 +9,7 @@
 #   3. Verify glibc dynamic linker
 #   4. Create marker file
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)/lib.sh"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

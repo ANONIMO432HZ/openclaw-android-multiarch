@@ -47,12 +47,27 @@ if ask_yn "Install tmux (terminal multiplexer)?"; then INSTALL_TMUX=true; fi
 if ask_yn "Install ttyd (web terminal)?"; then INSTALL_TTYD=true; fi
 if ask_yn "Install dufs (file server)?"; then INSTALL_DUFS=true; fi
 if ask_yn "Install android-tools (adb)?"; then INSTALL_ANDROID_TOOLS=true; fi
-if ask_yn "Install Chromium (browser automation for OpenClaw, ~400MB)?"; then INSTALL_CHROMIUM=true; fi
-if ask_yn "Install code-server (browser IDE)?"; then INSTALL_CODE_SERVER=true; fi
-if ask_yn "Install OpenCode (AI coding assistant)?"; then INSTALL_OPENCODE=true; fi
-if ask_yn "Install Claude Code CLI?"; then INSTALL_CLAUDE_CODE=true; fi
-if ask_yn "Install Gemini CLI?"; then INSTALL_GEMINI_CLI=true; fi
-if ask_yn "Install Codex CLI?"; then INSTALL_CODEX_CLI=true; fi
+
+# Selection logic based on architecture and resources
+if is_armv7l; then
+    # ARMv7: Hide completely unsupported tools
+    echo -e "${YELLOW}[ARMv7 DETECTED]${NC} Hiding memory-intensive tools unsupported on 32-bit legacy devices."
+    echo ""
+else
+    # ARMv8/aarch64: Show everything, but warn if RAM is low
+    MEM_WARN=""
+    if is_low_ram; then
+        MEM_WARN=" ${YELLOW}[LOW RAM WARNING]${NC}"
+        echo -e "${YELLOW}[LOW RAM]${NC} Warnings active for memory-intensive tools."
+    fi
+
+    if ask_yn "Install Chromium (browser automation for OpenClaw, ~400MB)$MEM_WARN?"; then INSTALL_CHROMIUM=true; fi
+    if ask_yn "Install code-server (browser IDE)$MEM_WARN?"; then INSTALL_CODE_SERVER=true; fi
+    if ask_yn "Install OpenCode (AI coding assistant)$MEM_WARN?"; then INSTALL_OPENCODE=true; fi
+    if ask_yn "Install Claude Code CLI$MEM_WARN?"; then INSTALL_CLAUDE_CODE=true; fi
+    if ask_yn "Install Gemini CLI$MEM_WARN?"; then INSTALL_GEMINI_CLI=true; fi
+    if ask_yn "Install Codex CLI$MEM_WARN?"; then INSTALL_CODEX_CLI=true; fi
+fi
 
 step 4 "Core Infrastructure (L1)"
 bash "$SCRIPT_DIR/scripts/install-infra-deps.sh"
@@ -74,6 +89,12 @@ if is_armv7l; then
     export OA_GLIBC=0
 else
     export OA_GLIBC=1
+fi
+
+# Set low-memory limits for ARMv7 on heavy NPM/Node operations
+if [ "$IS_ARMV7L" = true ]; then
+    echo -e "${YELLOW}[LOW RAM MODE]${NC} Limiting Node.js memory for installation stability."
+    export NODE_OPTIONS="--max-old-space-size=512"
 fi
 
 step 6 "Platform Package Install (L2)"
@@ -114,11 +135,12 @@ step 7 "Install Optional Tools (L3)"
 [ "$INSTALL_DUFS" = true ] && pkg install -y dufs || true
 [ "$INSTALL_ANDROID_TOOLS" = true ] && pkg install -y android-tools || true
 
-[ "$INSTALL_CHROMIUM" = true ] && bash "$SCRIPT_DIR/scripts/install-chromium.sh" install || true
+if [ "$IS_ARMV7L" = false ]; then
+    [ "$INSTALL_CHROMIUM" = true ] && bash "$SCRIPT_DIR/scripts/install-chromium.sh" install || true
+    [ "$INSTALL_CODE_SERVER" = true ] && mkdir -p "$PROJECT_DIR/patches" && cp "$SCRIPT_DIR/patches/argon2-stub.js" "$PROJECT_DIR/patches/argon2-stub.js" && bash "$SCRIPT_DIR/scripts/install-code-server.sh" install || true
+    [ "$INSTALL_OPENCODE" = true ] && bash "$SCRIPT_DIR/scripts/install-opencode.sh" install || true
+fi
 
-[ "$INSTALL_CODE_SERVER" = true ] && mkdir -p "$PROJECT_DIR/patches" && cp "$SCRIPT_DIR/patches/argon2-stub.js" "$PROJECT_DIR/patches/argon2-stub.js" && bash "$SCRIPT_DIR/scripts/install-code-server.sh" install || true
-
-[ "$INSTALL_OPENCODE" = true ] && bash "$SCRIPT_DIR/scripts/install-opencode.sh" install || true
 
 [ "$INSTALL_CLAUDE_CODE" = true ] && npm install -g @anthropic-ai/claude-code || true
 [ "$INSTALL_GEMINI_CLI" = true ] && npm install -g @google/gemini-cli || true

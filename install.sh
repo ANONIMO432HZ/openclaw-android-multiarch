@@ -1,24 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Cambiamos esto para que no falle si se usa 'curl | bash'
+# This script installs OpenClaw on Termux with platform-aware architecture.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+
+# Global configuration
+TOTAL_STEPS=8
 source "$SCRIPT_DIR/scripts/lib.sh"
 
-echo ""
-echo -e "${BOLD}========================================${NC}"
-echo -e "${BOLD}  OpenClaw on Android - Installer v${OA_VERSION}${NC}"
-echo -e "${BOLD}========================================${NC}"
-echo ""
-echo "This script installs OpenClaw on Termux with platform-aware architecture."
-echo ""
-
-# Load library early for UI utilities
-source "$SCRIPT_DIR/scripts/lib.sh"
-
-
-
-
+banner "OpenClaw on Android - Installer" "$OA_VERSION"
 
 step 1 "Environment Check"
 if command -v termux-wake-lock &>/dev/null; then
@@ -40,9 +30,9 @@ INSTALL_ANDROID_TOOLS=false
 INSTALL_CODE_SERVER=false
 INSTALL_OPENCODE=false
 INSTALL_CLAUDE_CODE=false
+INSTALL_CHROMIUM=false
 INSTALL_GEMINI_CLI=false
 INSTALL_CODEX_CLI=false
-INSTALL_CHROMIUM=false
 
 check_tool_installed() {
     local cmd="$1"
@@ -76,107 +66,83 @@ if is_armv7l; then
     echo -e "\n${YELLOW}[ARMv7 DETECTED]${NC} Hiding memory-intensive tools unsupported on 32-bit legacy devices."
 else
     # ARMv8/aarch64: Show everything, but warn if RAM is low
-    MEM_WARN=""
-    if is_low_ram; then
-        MEM_WARN=" ${YELLOW}[LOW RAM WARNING]${NC}"
-        echo -e "${YELLOW}[LOW RAM]${NC} Warnings active for memory-intensive tools."
+    if ! check_tool_installed "chromium" "Chromium (browser automation)"; then
+        if ask_yn "Install Chromium (browser automation for OpenClaw, ~400MB)?"; then INSTALL_CHROMIUM=true; fi
     fi
-
-    if ask_yn "Install Chromium (browser automation for OpenClaw, ~400MB)$MEM_WARN?"; then INSTALL_CHROMIUM=true; fi
-    if ask_yn "Install code-server (browser IDE)$MEM_WARN?"; then INSTALL_CODE_SERVER=true; fi
-    if ask_yn "Install OpenCode (AI coding assistant)$MEM_WARN?"; then INSTALL_OPENCODE=true; fi
-    if ask_yn "Install Claude Code CLI$MEM_WARN?"; then INSTALL_CLAUDE_CODE=true; fi
-    if ask_yn "Install Gemini CLI$MEM_WARN?"; then INSTALL_GEMINI_CLI=true; fi
-    if ask_yn "Install Codex CLI$MEM_WARN?"; then INSTALL_CODEX_CLI=true; fi
+    if ! check_tool_installed "code-server" "code-server (browser IDE)"; then
+        if ask_yn "Install code-server (browser IDE)?"; then INSTALL_CODE_SERVER=true; fi
+    fi
+    if ! check_tool_installed "opencode" "OpenCode (AI assistant)"; then
+        if ask_yn "Install OpenCode (AI coding assistant)?"; then INSTALL_OPENCODE=true; fi
+    fi
+    if ! check_tool_installed "claude" "Claude Code CLI"; then
+        if ask_yn "Install Claude Code CLI?"; then INSTALL_CLAUDE_CODE=true; fi
+    fi
+    if ! check_tool_installed "gemini" "Gemini CLI"; then
+        if ask_yn "Install Gemini CLI?"; then INSTALL_GEMINI_CLI=true; fi
+    fi
+    if ! check_tool_installed "codex" "Codex CLI"; then
+        if ask_yn "Install Codex CLI?"; then INSTALL_CODEX_CLI=true; fi
+    fi
 fi
 
 step 4 "Core Infrastructure (L1)"
-bash "$SCRIPT_DIR/scripts/install-infra-deps.sh"
+bash "$SCRIPT_DIR/scripts/install-infra.sh"
 bash "$SCRIPT_DIR/scripts/setup-paths.sh"
 
 step 5 "Platform Runtime Dependencies (L2)"
-[ "${PLATFORM_NEEDS_GLIBC:-false}" = true ] && bash "$SCRIPT_DIR/scripts/install-glibc.sh" || true
-[ "${PLATFORM_NEEDS_NODEJS:-false}" = true ] && bash "$SCRIPT_DIR/scripts/install-nodejs.sh" || true
-[ "${PLATFORM_NEEDS_BUILD_TOOLS:-false}" = true ] && bash "$SCRIPT_DIR/scripts/install-build-tools.sh" || true
-[ "${PLATFORM_NEEDS_PROOT:-false}" = true ] && pkg install -y proot || true
+# Pass the architecture info to children
+bash "$SCRIPT_DIR/scripts/install-glibc.sh"
+bash "$SCRIPT_DIR/scripts/install-nodejs.sh"
+bash "$SCRIPT_DIR/scripts/install-build-tools.sh"
 
-# Source environment for current session (needed by platform install)
-GLIBC_NODE_DIR="$PROJECT_DIR/node"
-export PATH="$GLIBC_NODE_DIR/bin:$HOME/.local/bin:$PATH"
-export TMPDIR="$PREFIX/tmp"
-export TMP="$TMPDIR"
-export TEMP="$TMPDIR"
-if is_armv7l; then
-    export OA_GLIBC=0
-else
-    export OA_GLIBC=1
-fi
-
-# Set low-memory limits for ARMv7 on heavy NPM/Node operations
-if [ "$IS_ARMV7L" = true ]; then
+# Memory optimization for installation phase
+if is_low_ram && [ "$IS_ARMV7L" = true ]; then
     echo -e "${YELLOW}[LOW RAM MODE]${NC} Limiting Node.js memory for installation stability."
     export NODE_OPTIONS="--max-old-space-size=512"
 fi
 
-step 6 "Platform Package Install (L2)"
+step 6 "Platform Package Installation"
+# Run the platform-specific installer
 bash "$SCRIPT_DIR/platforms/$SELECTED_PLATFORM/install.sh"
 
-echo ""
-echo -e "${BOLD}[6.5] Environment Variables + CLI + Marker${NC}"
-echo "----------------------------------------"
-bash "$SCRIPT_DIR/scripts/setup-env.sh"
-
-PLATFORM_ENV_SCRIPT="$SCRIPT_DIR/platforms/$SELECTED_PLATFORM/env.sh"
-if [ -f "$PLATFORM_ENV_SCRIPT" ]; then
-    eval "$(bash "$PLATFORM_ENV_SCRIPT")"
-fi
-
-mkdir -p "$PROJECT_DIR"
-echo "$SELECTED_PLATFORM" > "$PLATFORM_MARKER"
-
-cp "$SCRIPT_DIR/oa.sh" "$PREFIX/bin/oa"
-chmod +x "$PREFIX/bin/oa"
-cp "$SCRIPT_DIR/update.sh" "$PREFIX/bin/oaupdate"
-chmod +x "$PREFIX/bin/oaupdate"
-
-cp "$SCRIPT_DIR/uninstall.sh" "$PROJECT_DIR/uninstall.sh"
-chmod +x "$PROJECT_DIR/uninstall.sh"
-
-mkdir -p "$PROJECT_DIR/scripts"
-mkdir -p "$PROJECT_DIR/platforms"
-cp "$SCRIPT_DIR/scripts/lib.sh" "$PROJECT_DIR/scripts/lib.sh"
-cp "$SCRIPT_DIR/scripts/setup-env.sh" "$PROJECT_DIR/scripts/setup-env.sh"
-cp "$SCRIPT_DIR/scripts/backup.sh" "$PROJECT_DIR/scripts/backup.sh"
-rm -rf "$PROJECT_DIR/platforms/$SELECTED_PLATFORM"
-cp -R "$SCRIPT_DIR/platforms/$SELECTED_PLATFORM" "$PROJECT_DIR/platforms/$SELECTED_PLATFORM"
-
 step 7 "Install Optional Tools (L3)"
-[ "$INSTALL_TMUX" = true ] && pkg install -y tmux || true
-[ "$INSTALL_TTYD" = true ] && pkg install -y ttyd || true
-[ "$INSTALL_DUFS" = true ] && pkg install -y dufs || true
-[ "$INSTALL_ANDROID_TOOLS" = true ] && pkg install -y android-tools || true
+if [ "$INSTALL_TMUX" = true ]; then pkg install -y tmux; fi
+if [ "$INSTALL_TTYD" = true ]; then pkg install -y ttyd; fi
+if [ "$INSTALL_DUFS" = true ]; then pkg install -y dufs; fi
+if [ "$INSTALL_ANDROID_TOOLS" = true ]; then pkg install -y android-tools; fi
+if [ "$INSTALL_CHROMIUM" = true ]; then pkg install -y chromium; fi
+if [ "$INSTALL_CODE_SERVER" = true ]; then pkg install -y code-server; fi
 
-if [ "$IS_ARMV7L" = false ]; then
-    [ "$INSTALL_CHROMIUM" = true ] && bash "$SCRIPT_DIR/scripts/install-chromium.sh" install || true
-    [ "$INSTALL_CODE_SERVER" = true ] && mkdir -p "$PROJECT_DIR/patches" && cp "$SCRIPT_DIR/patches/argon2-stub.js" "$PROJECT_DIR/patches/argon2-stub.js" && bash "$SCRIPT_DIR/scripts/install-code-server.sh" install || true
-    [ "$INSTALL_OPENCODE" = true ] && bash "$SCRIPT_DIR/scripts/install-opencode.sh" install || true
-fi
+# AI Tools (npm based)
+if [ "$INSTALL_OPENCODE" = true ]; then npm install -g @opencode/cli --no-audit --no-fund; fi
+if [ "$INSTALL_CLAUDE_CODE" = true ]; then npm install -g @anthropic-ai/claude-code --no-audit --no-fund; fi
+if [ "$INSTALL_GEMINI_CLI" = true ]; then npm install -g @google/gemini-cli --no-audit --no-fund; fi
+if [ "$INSTALL_CODEX_CLI" = true ]; then npm install -g @openai/codex-cli --no-audit --no-fund; fi
 
+step 8 "System Configuration & Services"
+bash "$SCRIPT_DIR/scripts/setup-service.sh"
+bash "$SCRIPT_DIR/scripts/setup-cli.sh"
+bash "$SCRIPT_DIR/scripts/setup-shell.sh"
 
-[ "$INSTALL_CLAUDE_CODE" = true ] && npm install -g @anthropic-ai/claude-code || true
-[ "$INSTALL_GEMINI_CLI" = true ] && npm install -g @google/gemini-cli || true
-[ "$INSTALL_CODEX_CLI" = true ] && npm install -g @openai/codex || true
+# Cleanup
+echo ""
+echo "Cleaning up temporary files..."
+rm -rf "$HOME/.openclaw-android/tmp"/* || true
 
-step 8 "Verification"
+echo ""
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}  Installation Complete!${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo ""
+echo "You can now use OpenClaw by running:"
+echo -e "  ${BOLD}oa onboarding${NC}"
+echo ""
+echo "To manage services:"
+echo -e "  ${BOLD}oa start${NC}  - Start all services"
+echo -e "  ${BOLD}oa stop${NC}   - Stop all services"
+echo -e "  ${BOLD}oa status${NC} - View service health"
+echo ""
+
+# Verify the installation
 bash "$SCRIPT_DIR/tests/verify-install.sh"
-
-echo ""
-echo -e "${BOLD}========================================${NC}"
-echo -e "${GREEN}${BOLD}  Installation Complete!${NC}"
-echo -e "${BOLD}========================================${NC}"
-echo ""
-echo -e "  $PLATFORM_NAME $($PLATFORM_VERSION_CMD 2>/dev/null || echo '')"
-echo ""
-echo "Next step:"
-echo "  $PLATFORM_POST_INSTALL_MSG"
-echo ""

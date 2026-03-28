@@ -2,6 +2,8 @@
 set -euo pipefail
 
 PROJECT_DIR="$HOME/.openclaw-android"
+TOTAL_STEPS=5
+OA_VERSION="1.0.12"
 
 if [ -f "$HOME/.openclaw-android/scripts/lib.sh" ]; then
     # shellcheck source=/dev/null
@@ -23,6 +25,22 @@ else
         return 0
     }
 
+    banner() {
+        local TITLE="$1"
+        local VERSION="$2"
+        echo ""
+        echo -e "${BOLD}========================================${NC}"
+        echo -e "${BOLD}  $TITLE v$VERSION${NC}"
+        echo -e "${BOLD}========================================${NC}"
+        echo ""
+    }
+
+    step() {
+        echo ""
+        echo -e "${BOLD}[$1/$TOTAL_STEPS] $2${NC}"
+        echo "----------------------------------------"
+    }
+
     detect_platform() {
         if [ -f "$PLATFORM_MARKER" ]; then
             cat "$PLATFORM_MARKER"
@@ -32,11 +50,7 @@ else
     }
 fi
 
-echo ""
-echo -e "${BOLD}========================================${NC}"
-echo -e "${BOLD}  OpenClaw on Android - Uninstaller${NC}"
-echo -e "${BOLD}========================================${NC}"
-echo ""
+banner "OpenClaw on Android - Uninstaller" "$OA_VERSION"
 
 reply=""
 read -rp "This will remove the installation. Continue? [y/N] " reply < /dev/tty

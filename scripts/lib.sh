@@ -21,6 +21,16 @@ show_banner() {
     echo -e "${BOLD}========================================${NC}"
 }
 
+banner() {
+    local TITLE="$1"
+    local VERSION="$2"
+    echo ""
+    echo -e "${BOLD}========================================${NC}"
+    echo -e "${BOLD}  $TITLE v$VERSION${NC}"
+    echo -e "${BOLD}========================================${NC}"
+    echo ""
+}
+
 # ── Project constants ──
 PROJECT_DIR="$HOME/.openclaw-android"
 PLATFORM_MARKER="$PROJECT_DIR/.platform"
@@ -60,8 +70,9 @@ is_armv7l() {
 # ── UI Utilities ──
 step() {
     echo ""
+    local total="${TOTAL_STEPS:-8}"
     if [[ "$1" =~ ^[0-9]+$ ]]; then
-        echo -e "${BOLD}[$1/8] $2${NC}"
+        echo -e "${BOLD}[$1/$total] $2${NC}"
     else
         echo -e "${BOLD}=== $1 ===${NC}"
     fi

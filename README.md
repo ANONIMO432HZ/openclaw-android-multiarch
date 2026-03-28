@@ -142,7 +142,7 @@ pkg update -y && pkg install -y curl
 Paste the following command in Termux.
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/install.sh | bash && source ~/.bashrc
+curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash && source ~/.bashrc
 ```
 
 Everything is installed automatically with a single command. This takes 3–10 minutes depending on network speed and device. Wi-Fi is recommended.

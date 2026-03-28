@@ -2,20 +2,28 @@
 set -euo pipefail
 
 PROJECT_DIR="$HOME/.openclaw-android"
-TOTAL_STEPS=5
+TOTAL_STEPS=7
 OA_VERSION="1.0.12"
 
-if [ -f "$HOME/.openclaw-android/scripts/lib.sh" ]; then
-    # shellcheck source=/dev/null
-    source "$HOME/.openclaw-android/scripts/lib.sh"
-else
+# Try to load global library, but provide robust fallbacks
+if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
+    source "$PROJECT_DIR/scripts/lib.sh"
+fi
+
+# Manual fallbacks if lib.sh is missing (essential for uninstaller)
+if ! command -v banner &>/dev/null; then
     GREEN='\033[0;32m'
     YELLOW='\033[1;33m'
     BOLD='\033[1m'
     NC='\033[0m'
-    PLATFORM_MARKER="$PROJECT_DIR/.platform"
     BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
     BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
+
+    banner() {
+        echo -e "${BOLD}========================================${NC}"
+        echo -e "${BOLD}  $1 v${2:-$OA_VERSION}${NC}"
+        echo -e "${BOLD}========================================${NC}"
+    }
 
     ask_yn() {
         local prompt="$1"
@@ -24,26 +32,21 @@ else
         [[ "${reply:-}" =~ ^[Nn]$ ]] && return 1
         return 0
     }
+fi
 
-    banner() {
-        local TITLE="$1"
-        local VERSION="$2"
-        echo ""
-        echo -e "${BOLD}========================================${NC}"
-        echo -e "${BOLD}  $TITLE v$VERSION${NC}"
-        echo -e "${BOLD}========================================${NC}"
-        echo ""
-    }
-
+if ! command -v step &>/dev/null; then
     step() {
         echo ""
         echo -e "${BOLD}[$1/$TOTAL_STEPS] $2${NC}"
         echo "----------------------------------------"
     }
+fi
 
+# Fallback for platform detection
+if ! command -v detect_platform &>/dev/null; then
     detect_platform() {
-        if [ -f "$PLATFORM_MARKER" ]; then
-            cat "$PLATFORM_MARKER"
+        if [ -f "$PROJECT_DIR/.platform" ]; then
+            cat "$PROJECT_DIR/.platform"
             return 0
         fi
         return 1
@@ -58,12 +61,6 @@ if [[ ! "$reply" =~ ^[Yy]$ ]]; then
     echo "Aborted."
     exit 0
 fi
-
-step() {
-    echo ""
-    echo -e "${BOLD}[$1/7] $2${NC}"
-    echo "----------------------------------------"
-}
 
 step 1 "Platform uninstall"
 PLATFORM=$(detect_platform 2>/dev/null || true)

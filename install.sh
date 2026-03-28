@@ -13,13 +13,12 @@ echo ""
 echo "This script installs OpenClaw on Termux with platform-aware architecture."
 echo ""
 
+# Load library early for UI utilities
+source "$SCRIPT_DIR/scripts/lib.sh"
 
 
-step() {
-    echo ""
-    echo -e "${BOLD}[$1/8] $2${NC}"
-    echo "----------------------------------------"
-}
+
+
 
 step 1 "Environment Check"
 if command -v termux-wake-lock &>/dev/null; then

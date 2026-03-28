@@ -57,6 +57,16 @@ is_armv7l() {
     fi
     return 1
 }
+# ── UI Utilities ──
+step() {
+    echo ""
+    if [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo -e "${BOLD}[$1/8] $2${NC}"
+    else
+        echo -e "${BOLD}=== $1 ===${NC}"
+    fi
+    echo "----------------------------------------"
+}
 
 # Global arch state
 IS_ARMV7L=false

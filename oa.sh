@@ -55,23 +55,44 @@ show_help() {
 
 cmd_update() {
     banner "OpenClaw — Update Module" "$PURPLE"
-    echo "Checking for updates..."
+    cd "$PROJECT_DIR" || { echo -e "${RED}[FAIL]${NC} Impossible to access $PROJECT_DIR"; exit 1; }
+
+    echo "Checking for script updates..."
     
-    # Check current repo for oa/lib changes
-    git pull origin main || true
+    # Advanced Version Checking (Ported from omni.sh)
+    git fetch --tags --force >/dev/null 2>&1 || true
     
-    # Self-clean CRLF line endings (Windows to Linux fix)
-    find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
-    sed -i 's/\r$//' "$PREFIX/bin/oa" 2>/dev/null || true
+    local LOCAL REMOTE
+    LOCAL=$(git rev-parse HEAD 2>/dev/null || echo "0")
+    REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "1")
+
+    if [ "$LOCAL" != "$REMOTE" ]; then
+        echo -e "${YELLOW}[UPDATE]${NC} New scripts found. Syncing repository..."
+        
+        # Protect local changes
+        git stash push -m "oa-auto-stash" >/dev/null 2>&1 || true
+        
+        if git pull origin main; then
+            git stash pop >/dev/null 2>&1 || true
+            
+            # Refresh formatting for Android
+            find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
+            [ -w "$PREFIX/bin/oa" ] && sed -i 's/\r$//' "$PREFIX/bin/oa" 2>/dev/null || true
+            echo -e "${GREEN}[OK]${NC} Repository synchronized."
+        fi
+    else
+        echo -e "${GREEN}[OK]${NC} Scripts are up-to-date."
+    fi
     
-    # Propagate changes to tools
+    # Propagate changes to tools (OpenClaw Core)
     if command -v openclaw &>/dev/null; then
-        echo "Updating OpenClaw Core..."
+        echo "Updating OpenClaw Core via NPM..."
         npm install -g openclaw@latest
     fi
     
-    # Re-patch just in case
-    # Note: Using patch-android.sh as primary, fallback to old patch-core.sh
+    # ── Critical Reconstruction Step ──
+    # Always re-patch after 'npm install -g' as it overwrites our Android fixes
+    echo "Re-applying Android compatibility patches..."
     if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
         bash "$PROJECT_DIR/scripts/patch-android.sh"
     elif [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then

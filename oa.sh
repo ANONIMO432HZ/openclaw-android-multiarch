@@ -7,9 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 
 PROJECT_DIR="$HOME/.openclaw-android"
-if [ -f "$PROJECT_DIR/installer/scripts/lib.sh" ]; then
-    source "$PROJECT_DIR/installer/scripts/lib.sh"
-elif [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
+if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
     source "$PROJECT_DIR/scripts/lib.sh"
 fi
 
@@ -58,7 +56,7 @@ show_help() {
 # ── Command Implementations ──
 
 cmd_update() {
-    show_banner "OpenClaw — Update Module" "$PURPLE"
+    banner "OpenClaw — Update Module" "$PURPLE"
     echo "Checking for updates..."
     
     # Check current repo for oa/lib changes
@@ -95,7 +93,7 @@ cmd_install() {
 }
 
 cmd_start() {
-    show_banner "OpenClaw Initiation Options" "$PURPLE"
+    banner "OpenClaw Initiation Options" "$PURPLE"
     
     echo -e "${CYAN}[Option 1: Background Service (Recommended)]${NC}"
     echo -e "  - Description: Runs as a persistent daemon via termux-services."
@@ -247,7 +245,7 @@ cmd_logs() {
 }
 
 cmd_uninstall() {
-    show_banner "OpenClaw — Uninstaller" "$RED"
+    banner "OpenClaw — Uninstaller" "$RED"
     echo -e "${YELLOW}[WARNING]${NC} This will remove OpenClaw and all its configuration."
     read -p "Are you sure? (y/n): " -n 1 -r
     echo ""

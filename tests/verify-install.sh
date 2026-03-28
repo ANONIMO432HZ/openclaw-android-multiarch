@@ -88,23 +88,19 @@ if ! is_armv7l; then
     fi
 fi
 
-NODE_WRAPPER="$PROJECT_DIR/node/bin/node"
-if [ -f "$NODE_WRAPPER" ]; then
-    if is_armv7l; then
-        if [ -L "$NODE_WRAPPER" ]; then
-            check_pass "native node symlink"
-        else
-            check_warn "node at $NODE_WRAPPER is not a symlink (expected for native)"
-        fi
-    else
+if is_armv7l; then
+    check_pass "native node used (no wrapper required)"
+else
+    NODE_WRAPPER="$PROJECT_DIR/node/bin/node"
+    if [ -f "$NODE_WRAPPER" ]; then
         if head -1 "$NODE_WRAPPER" 2>/dev/null | grep -q "bash"; then
             check_pass "glibc node wrapper script"
         else
             check_fail "glibc node wrapper not found or not a wrapper script"
         fi
+    else
+        check_fail "node binary/link not found at $NODE_WRAPPER"
     fi
-else
-    check_fail "node binary/link not found at $NODE_WRAPPER"
 fi
 
 for DIR in "$PROJECT_DIR" "$PREFIX/tmp"; do

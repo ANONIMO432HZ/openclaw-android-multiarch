@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO_TARBALL="https://github.com/ANONIMO432HZ/openclaw-android-multiarch/archive/refs/heads/main.tar.gz"
-INSTALL_DIR="$HOME/.openclaw-android/installer"
+INSTALL_DIR="$HOME/.openclaw-android"
 
 RED='\033[0;31m'
 BOLD='\033[1m'
@@ -34,6 +34,4 @@ fi
 # Run the installer
 bash "$INSTALL_DIR/install.sh"
 
-cp "$INSTALL_DIR/uninstall.sh" "$HOME/.openclaw-android/uninstall.sh"
-chmod +x "$HOME/.openclaw-android/uninstall.sh"
-rm -rf "$INSTALL_DIR"
+chmod +x "$INSTALL_DIR/uninstall.sh"

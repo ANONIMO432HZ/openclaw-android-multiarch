@@ -19,7 +19,7 @@ echo "  Targeting: $OA_CLI_PATH"
 cat > "$OA_CLI_PATH" <<EOF
 #!/usr/bin/env bash
 # OpenClaw Android CLI wrapper
-bash "$PROJECT_DIR/installer/oa.sh" "\$@"
+bash "$PROJECT_DIR/oa.sh" "\$@"
 EOF
 
 chmod +x "$OA_CLI_PATH"

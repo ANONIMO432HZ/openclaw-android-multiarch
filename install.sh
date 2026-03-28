@@ -128,7 +128,6 @@ if [ "$INSTALL_GEMINI_CLI" = true ]; then npm install -g @google/gemini-cli --no
 if [ "$INSTALL_CODEX_CLI" = true ]; then npm install -g @openai/codex-cli --no-audit --no-fund; fi
 
 step 8 "System Configuration & Services"
-bash "$SCRIPT_DIR/scripts/setup-service.sh"
 bash "$SCRIPT_DIR/scripts/setup-cli.sh"
 bash "$SCRIPT_DIR/scripts/setup-shell.sh"
 

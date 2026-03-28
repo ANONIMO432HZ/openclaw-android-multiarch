@@ -35,21 +35,20 @@ show_help() {
     echo "Usage: oa [command]"
     echo ""
     echo "Commands:"
-    echo "  update         Update everything (OpenClaw + tools + patches)"
+    echo "  update       Update everything (OpenClaw + tools + patches)"
     echo "  install      Install optional components (code-server, tmux, etc.)"
-    echo "  start          Start OpenClaw Gateway (Background/Manual options)"
-    echo "  start:manual     Force manual foreground execution (Debug)"
-    echo "  stop           Stop the background Gateway service"
-    echo "  restart      Restart the Gateway service"
-    echo "  logs           View real-time Gateway activity logs"
-    echo "  status         Show comprehensive system and service status"
-    echo "  setup-service   Configure Gateway as a persistent Termux service"
-    echo "  fix-android       Apply essential Android compatibility patches"
-    echo "  backup         Create a full backup of OpenClaw data"
-    echo "  restore       Restore OpenClaw data from a backup"
-    echo "  uninstall     Completely remove OpenClaw from Android"
-    echo "  v|version    Show version information"
-    echo "  help|-h        Show this help message"
+    echo "  start        Start OpenClaw Gateway (Background)"
+    echo "  start:fg     Start OpenClaw gateway (Foreground debug)"
+    echo "  stop         Stop background processes"
+    echo "  restart      Restart the Gateway"
+    echo "  logs         View real-time background logs"
+    echo "  status       Show comprehensive system and service status"
+    echo "  fix-android  Apply essential Android compatibility patches"
+    echo "  backup       Create a full backup of OpenClaw data"
+    echo "  restore      Restore OpenClaw data from a backup"
+    echo "  uninstall    Completely remove OpenClaw from Android"
+    echo "  v|version    Show version info"
+    echo "  help|-h      Show this help message"
     echo ""
 }
 
@@ -93,52 +92,41 @@ cmd_install() {
 }
 
 cmd_start() {
-    banner "OpenClaw Initiation Options" "$PURPLE"
+    echo -e "${CYAN}Starting OpenClaw gateway in background...${NC}"
+    # Prevent double starting
+    cmd_stop >/dev/null 2>&1 || true
     
-    echo -e "${CYAN}[Option 1: Background Service (Recommended)]${NC}"
-    echo -e "  - Description: Runs as a persistent daemon via termux-services."
-    echo -e "  - Benefits: Auto-restart on crash, survives SSH disconnect, auto-start on boot."
-    echo -e "  - Usage: ${BOLD}oa start${NC}"
-    echo -e ""
-    echo -e "${YELLOW}[Option 2: Foreground Manual (Fast Debug)]${NC}"
-    echo -e "  - Description: Runs directly in your current terminal session."
-    echo -e "  - Benefits: Instant log output, close with Ctrl+C, best for quick debugging."
-    echo -e "  - Usage: ${BOLD}oa start:manual${NC}"
-    echo -e ""
-    echo -e "${BOLD}-----------------------------------------${NC}"
+    mkdir -p "$PROJECT_DIR/logs"
+    nohup openclaw gateway > "$PROJECT_DIR/server.log" 2>&1 &
     
-    if command -v sv &>/dev/null; then
-        echo -e "${GREEN}Executing [Option 1] now...${NC}"
-        sv start openclaw-gateway || { 
-            echo -e "${RED}[FAIL]${NC} Background service not found."
-            echo -e "Run: ${CYAN}oa setup-service${NC} once."
-            exit 1
-        }
+    echo -e "  Waiting for server to initialize (approx. 5s)..."
+    sleep 5
+    
+    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
+        echo -e "${GREEN}[OK]${NC} OpenClaw is running in the background."
+        echo -e "     Logs: ${BOLD}oa logs${NC}"
     else
-        echo -e "${YELLOW}[INFO]${NC} termux-services not installed. Falling back to [Option 2]..."
-        cmd_start_manual
+        echo -e "${RED}[FAIL]${NC} Failed to start. Check server.log"
     fi
 }
 
-cmd_start_manual() {
-    echo -e "${YELLOW}Running OpenClaw gateway directly (Foreground)...${NC}"
+cmd_start_fg() {
+    echo -e "${YELLOW}Starting OpenClaw gateway in foreground...${NC}"
     openclaw gateway
 }
 
 cmd_stop() {
-    if command -v sv &>/dev/null; then
-        echo -e "${YELLOW}Stopping OpenClaw gateway...${NC}"
-        sv stop openclaw-gateway || true
-        sleep 1
-    fi
+    echo -e "${YELLOW}Stopping OpenClaw gateway processes...${NC}"
     
-    # Identify process aggressively (Catches manual 'openclaw gateway' from any session)
-    local PIDS
-    PIDS=$(pgrep -f "openclaw gateway|node.*openclaw" | grep -v "$$" || echo "")
+    local PIDS=""
+    local ALL_CANDIDATES
+    ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
     
-    if [ -n "$PIDS" ]; then
-        echo -e "Cleaning up lingering processes ($PIDS)..."
-        kill -9 $PIDS 2>/dev/null || true
+    if [ -n "$ALL_CANDIDATES" ]; then
+        echo -e "Cleaning up lingering processes ($ALL_CANDIDATES)..."
+        kill -9 $ALL_CANDIDATES 2>/dev/null || true
+    else
+        echo -e "No active gateway processes found."
     fi
     echo -e "${GREEN}[OK]${NC} Stopped."
 }
@@ -178,14 +166,10 @@ cmd_status() {
     # ── Gateway Status ──
     echo ""
     echo -e "${BOLD}Service Status${NC}"
-    if command -v sv &>/dev/null; then
-        if [ -d "$PREFIX/var/service/openclaw-gateway" ]; then
-            sv status openclaw-gateway
-        else
-            echo -e "  Service info: Not configured."
-        fi
+    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
+        echo -e "  Status: ${GREEN}Running${NC}"
     else
-        echo -e "  ${YELLOW}[WARN]${NC} termux-services not installed."
+        echo -e "  Status: ${RED}Stopped${NC}"
     fi
     echo ""
 }
@@ -226,24 +210,17 @@ cmd_fix_android() {
     fi
 }
 
-cmd_setup_service() {
-    if [ -f "$PROJECT_DIR/scripts/setup-service.sh" ]; then
-        bash "$PROJECT_DIR/scripts/setup-service.sh"
-    else
-        echo -e "${RED}[FAIL]${NC} setup-service.sh not found."
-    fi
-}
-
 cmd_logs() {
-    local LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
+    local LOGFILE="$PROJECT_DIR/server.log"
+    # Fallback to old path if present
     if [ ! -f "$LOGFILE" ]; then
-         LOGFILE="$PROJECT_DIR/server.log"
+         LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
     fi
     
     if [ -f "$LOGFILE" ]; then
          tail -f "$LOGFILE"
     else
-         echo -e "${RED}[FAIL]${NC} No logs found."
+         echo -e "${RED}[FAIL]${NC} No logs found at $LOGFILE"
          exit 1
     fi
 }
@@ -258,10 +235,11 @@ cmd_uninstall() {
         exit 0
     fi
     
-    # 1. Stop and disable service
+    # 1. Stop and disable processes
     echo -e "  Stopping and cleaning up processes..."
     cmd_stop >/dev/null 2>&1 || true
     
+    # Support legacy removal
     if command -v sv &>/dev/null; then
         sv-disable openclaw-gateway 2>/dev/null || true
     fi
@@ -284,7 +262,7 @@ case "${1:-}" in
     update|--update|up)     cmd_update ;;
     install|--install|inst)  cmd_install ;;
     start|--start|strt)      cmd_start ;;
-    start:manual|strt:man)  cmd_start_manual ;;
+    start:fg|--start:fg|strt:fg) cmd_start_fg ;;
     stop|--stop|stp)         cmd_stop ;;
     restart|--restart|rst)   cmd_stop && cmd_start ;;
     logs|--logs|log)         cmd_logs ;;
@@ -292,7 +270,6 @@ case "${1:-}" in
     backup|--backup|bkp)     cmd_backup ;;
     restore|--restore|rst)   cmd_restore ;;
     fix-android|fix)        cmd_fix_android ;;
-    setup-service|svc)      cmd_setup_service ;;
     uninstall|--uninstall|uninst) cmd_uninstall ;;
     v|version|--version|-v) echo "oa CLI v$OA_VERSION" ;;
     help|--help|h|"")       show_help ;;

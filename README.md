@@ -76,7 +76,7 @@ The standard approach to running OpenClaw on Android requires installing proot-d
 | Performance | Slower (proot layer) | Native speed |
 | Setup steps | Install distro, configure Linux, install Node.js, fix paths... | Run one command |
 
-## <img src="docs/images/claw-icon.svg" width="28"> Claw App
+## <img alt="Claw Icon" src="docs/images/claw-icon.svg" width="28"> Claw App
 
 A standalone Android app is also available. It bundles a terminal emulator and a WebView-based UI into a single APK — no Termux required.
 
@@ -222,17 +222,16 @@ After installation, the `oa` command is available for managing your installation
 
 | Opción | Descripción |
 | :--- | :--- |
-| `oa --update` | Actualiza OpenClaw y los parches de Android |
-| `oa --fix-android` | **Esencial**: Parche para errores 'not supported on Android' |
-| `oa --setup-service` | Configura el Gateway como servicio de fondo (auto-arranque) |
-| `oa start` | Inicia el centro de opciones de arranque (Fondo/Manual) |
-| `oa start:manual` | **Depuración**: Fuerza ejecución en primer plano |
-| `oa stop` | Detiene el Gateway de fondo y limpia procesos huérfanos |
+| `oa update` | Actualiza OpenClaw y los parches de Android |
+| `oa fix-android` | **Esencial**: Parche para errores 'not supported on Android' |
+| `oa start` | Inicia el Gateway en segundo plano |
+| `oa start:fg` | Inicia el Gateway en primer plano (ideal para depuración) |
+| `oa stop` | Detiene el Gateway y limpia procesos huérfanos |
 | `oa restart` | Reinicia el Gateway |
-| `oa status` | Muestra el estado completo de instalación y versión v1.0.12 |
+| `oa status` | Muestra el estado completo de instalación y versión |
 | `oa logs` | Ver logs en vivo del servicio Gateway |
-| `oa --install` | Instalar herramientas opcionales (tmux, code-server, AI CLIs, etc.) |
-| `oa --backup` | Crear un backup completo de los datos de OpenClaw |
+| `oa install` | Instalar herramientas opcionales (tmux, code-server, AI CLIs, etc.) |
+| `oa backup` | Crear un backup completo de los datos de OpenClaw |
 | `oa --restore` | Restaurar desde un backup previo |
 | `oa --uninstall` | Eliminar OpenClaw de Android |
 | `oa --version` | Muestra información de versión (`-v`) |

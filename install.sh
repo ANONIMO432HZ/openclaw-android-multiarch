@@ -3,9 +3,16 @@ set -euo pipefail
 
 # This script installs OpenClaw on Termux with platform-aware architecture.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+echo "DEBUG: SCRIPT_DIR is $SCRIPT_DIR"
 
 # Global configuration
 TOTAL_STEPS=8
+if [ ! -f "$SCRIPT_DIR/scripts/lib.sh" ]; then
+    echo "ERROR: Could not find lib.sh at $SCRIPT_DIR/scripts/lib.sh"
+    echo "Current directory: $(pwd)"
+    ls -R "$SCRIPT_DIR" || echo "Cannot list $SCRIPT_DIR"
+    exit 1
+fi
 source "$SCRIPT_DIR/scripts/lib.sh"
 
 banner "OpenClaw on Android - Installer" "$OA_VERSION"

@@ -21,8 +21,17 @@ fi
 
 echo "Downloading installer..."
 mkdir -p "$INSTALL_DIR"
-curl -sfL "$REPO_TARBALL" | tar xz -C "$INSTALL_DIR" --strip-components=1
+if ! curl -sfL "$REPO_TARBALL" | tar xz -C "$INSTALL_DIR" --strip-components=1; then
+    echo -e "${RED}[FAIL]${NC} Download failed. Check your internet connection."
+    exit 1
+fi
 
+if [ ! -f "$INSTALL_DIR/install.sh" ]; then
+    echo -e "${RED}[FAIL]${NC} Installer files incomplete. Retrying may fix it."
+    exit 1
+fi
+
+# Run the installer
 bash "$INSTALL_DIR/install.sh"
 
 cp "$INSTALL_DIR/uninstall.sh" "$HOME/.openclaw-android/uninstall.sh"

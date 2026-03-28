@@ -179,7 +179,11 @@ cmd_status() {
     echo ""
     echo -e "${BOLD}Service Status${NC}"
     if command -v sv &>/dev/null; then
-        sv status openclaw-gateway || echo -e "  Service info: Not configured."
+        if [ -d "$PREFIX/var/service/openclaw-gateway" ]; then
+            sv status openclaw-gateway
+        else
+            echo -e "  Service info: Not configured."
+        fi
     else
         echo -e "  ${YELLOW}[WARN]${NC} termux-services not installed."
     fi

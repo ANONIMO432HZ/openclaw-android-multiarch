@@ -7,25 +7,33 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 
 PROJECT_DIR="$HOME/.openclaw-android"
-
-if [ -f "$HOME/.openclaw-android/scripts/lib.sh" ]; then
-    # shellcheck source=/dev/null
-    source "$HOME/.openclaw-android/scripts/lib.sh"
+if [ -f "$PROJECT_DIR/installer/scripts/lib.sh" ]; then
+    source "$PROJECT_DIR/installer/scripts/lib.sh"
+elif [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
+    source "$PROJECT_DIR/scripts/lib.sh"
 fi
 
-# Fallback values (Single Source of Truth is in lib.sh)
+# Fallback values if lib.sh is NOT found
 OA_VERSION="${OA_VERSION:-1.0.12}"
 RED="${RED:-\033[0;31m}"
 GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"
 BLUE="${BLUE:-\033[0;34m}"
 PURPLE="${PURPLE:-\033[0;35m}"
-CYAN="${CYAN:-\033[0;36m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
+# Fallback banner if lib.sh is not available
+if ! command -v banner &>/dev/null; then
+    banner() {
+        echo -e "${BOLD}========================================${NC}"
+        echo -e "${BOLD}  $1 v${2:-$OA_VERSION}${NC}"
+        echo -e "${BOLD}========================================${NC}"
+    }
+fi
+
 show_help() {
-    show_banner "OpenClaw Android Professional CLI" "$PURPLE"
+    banner "OpenClaw Android Professional CLI" "$PURPLE"
     echo "Usage: oa [command]"
     echo ""
     echo "Commands:"
@@ -138,7 +146,7 @@ cmd_stop() {
 }
 
 cmd_status() {
-    show_banner "OpenClaw Android — Status" "$PURPLE"
+    banner "OpenClaw Android — Status" "$PURPLE"
     
     echo -e "Version: v$OA_VERSION"
     echo -e "Root Directory: $PROJECT_DIR"

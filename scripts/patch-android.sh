@@ -33,10 +33,12 @@ fi
 
 echo -e "  Found ${#files_to_patch[@]} file(s) to patch..."
 
+# Use a pipe | as delimiter to avoid issues with slashes in replacement
+SEARCH_LITERAL="Gateway service install not supported on \${process.platform}"
 for f in "${files_to_patch[@]}"; do
     echo -e "  Patching: $(basename "$f")..."
-    # Using sed with a safe delimiter and escaping backticks for the shell
-    sed -i "s/throw new Error(\`Gateway service install not supported on \${process.platform}\`);/$REPLACEMENT/g" "$f"
+    # We use a broad search for the throw line that contains our literal
+    sed -i "s|throw new Error(\`$SEARCH_LITERAL\`);|$REPLACEMENT|g" "$f"
 done
 
 echo ""

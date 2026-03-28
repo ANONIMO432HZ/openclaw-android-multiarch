@@ -13,6 +13,10 @@ echo ""
 echo "This script installs OpenClaw on Termux with platform-aware architecture."
 echo ""
 
+# Global state
+IS_ARMV7L=false
+if is_armv7l; then IS_ARMV7L=true; fi
+
 step() {
     echo ""
     echo -e "${BOLD}[$1/8] $2${NC}"

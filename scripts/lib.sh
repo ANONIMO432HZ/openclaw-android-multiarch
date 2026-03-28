@@ -58,6 +58,10 @@ is_armv7l() {
     return 1
 }
 
+# Global arch state
+IS_ARMV7L=false
+if is_armv7l; then IS_ARMV7L=true; fi
+
 is_low_ram() {
     local total_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
     # Low RAM if < 2GB (approx 2,000,000 KB)

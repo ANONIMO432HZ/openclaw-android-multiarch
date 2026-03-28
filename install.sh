@@ -13,9 +13,7 @@ echo ""
 echo "This script installs OpenClaw on Termux with platform-aware architecture."
 echo ""
 
-# Global state
-IS_ARMV7L=false
-if is_armv7l; then IS_ARMV7L=true; fi
+
 
 step() {
     echo ""
@@ -47,16 +45,36 @@ INSTALL_GEMINI_CLI=false
 INSTALL_CODEX_CLI=false
 INSTALL_CHROMIUM=false
 
-if ask_yn "Install tmux (terminal multiplexer)?"; then INSTALL_TMUX=true; fi
-if ask_yn "Install ttyd (web terminal)?"; then INSTALL_TTYD=true; fi
-if ask_yn "Install dufs (file server)?"; then INSTALL_DUFS=true; fi
-if ask_yn "Install android-tools (adb)?"; then INSTALL_ANDROID_TOOLS=true; fi
+check_tool_installed() {
+    local cmd="$1"
+    local name="$2"
+    if command -v "$cmd" &>/dev/null; then
+        echo -e "       ${GREEN}[INSTALLED]${NC} $name"
+        return 0
+    fi
+    return 1
+}
+
+if ! check_tool_installed "tmux" "tmux (terminal multiplexer)"; then
+    if ask_yn "Install tmux (terminal multiplexer)?"; then INSTALL_TMUX=true; fi
+fi
+
+if ! check_tool_installed "ttyd" "ttyd (web terminal)"; then
+    if ask_yn "Install ttyd (web terminal)?"; then INSTALL_TTYD=true; fi
+fi
+
+if ! check_tool_installed "dufs" "dufs (file server)"; then
+    if ask_yn "Install dufs (file server)?"; then INSTALL_DUFS=true; fi
+fi
+
+if ! check_tool_installed "adb" "android-tools (adb)"; then
+    if ask_yn "Install android-tools (adb)?"; then INSTALL_ANDROID_TOOLS=true; fi
+fi
 
 # Selection logic based on architecture and resources
 if is_armv7l; then
     # ARMv7: Hide completely unsupported tools
-    echo -e "${YELLOW}[ARMv7 DETECTED]${NC} Hiding memory-intensive tools unsupported on 32-bit legacy devices."
-    echo ""
+    echo -e "\n${YELLOW}[ARMv7 DETECTED]${NC} Hiding memory-intensive tools unsupported on 32-bit legacy devices."
 else
     # ARMv8/aarch64: Show everything, but warn if RAM is low
     MEM_WARN=""

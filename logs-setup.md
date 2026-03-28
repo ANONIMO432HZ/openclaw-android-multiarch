@@ -1,3 +1,132 @@
+Patched 587 file(s).
+OpenClaw on Android — Core Patcher
+────────────────────────────────────────
+  Found 1 file(s) to patch...
+  Patching: service-mdsdTkvr.js...
+sed: -e expression #1, char 93: unknown option to `s'
+~ $
+~ $ curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash
+
+OpenClaw on Android - Bootstrap
+
+Downloading installer...
+
+========================================
+  OpenClaw on Android - Installer v1.0.12
+========================================
+
+This script installs OpenClaw on Termux with platform-aware architecture.
+
+
+[1/8] Environment Check
+----------------------------------------
+[OK]   Termux wake lock enabled
+=== OpenClaw on Android - Environment Check ===
+
+[OK]   Termux detected (PREFIX=/data/data/com.termux/files/usr)
+       Architecture: armv7l (legacy/32-bit detected)
+       Legacy support active: using native Node.js instead of glibc.
+[WARN] Low RAM detected (<2GB). Setup and execution may be unstable.
+       Memory-intensive tools (Chromium, code-server) are not recommended.
+[OK]   Disk space: 10163MB available
+[OK]   Node.js found: v25.8.2
+
+Environment check passed.
+
+[2/8] Platform Selection
+----------------------------------------
+[OK]   Platform: OpenClaw
+
+[3/8] Optional Tools Selection (L3)
+----------------------------------------
+Install tmux (terminal multiplexer)? [Y/n] n
+Install ttyd (web terminal)? [Y/n] n
+Install dufs (file server)? [Y/n] n
+Install android-tools (adb)? [Y/n] n
+[ARMv7 DETECTED] Hiding memory-intensive tools unsupported on 32-bit legacy devices.
+
+
+[4/8] Core Infrastructure (L1)
+----------------------------------------
+=== Installing Infrastructure Dependencies ===
+
+Updating package repositories...
+  (This may take a minute depending on mirror speed)
+Checking availability of current mirror:
+[*] https://grimler.se/termux/termux-main: ok
+Hit:1 https://grimler.se/termux/termux-main stable InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+Checking availability of current mirror:
+[*] https://grimler.se/termux/termux-main: ok
+Hit:1 https://grimler.se/termux/termux-main stable InRelease
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+All packages are up to date.
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+Calculating upgrade... Done
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Installing git...
+Checking availability of current mirror:
+[*] https://grimler.se/termux/termux-main: ok
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+git is already the newest version (2.53.0).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+Infrastructure dependencies installed.
+=== Setting Up Paths ===
+
+[OK]   Created /data/data/com.termux/files/usr/tmp
+[OK]   Created /data/data/com.termux/files/home/.openclaw-android/patches
+
+Standard path mappings (via $PREFIX):
+  /bin/sh      -> /data/data/com.termux/files/usr/bin/sh
+  /usr/bin/env -> /data/data/com.termux/files/usr/bin/env
+  /tmp         -> /data/data/com.termux/files/usr/tmp
+
+Path setup complete.
+
+[5/8] Platform Runtime Dependencies (L2)
+----------------------------------------
+=== Installing glibc Runtime ===
+
+[SKIP] glibc runtime not required for 32-bit/ARMv7 (native instead)
+=== Installing Node.js (glibc) ===
+
+Architecture: 32-bit/ARMv7 (Legacy)
+Installing native Node.js from Termux (pkg install)...
+Checking availability of current mirror:
+[*] https://grimler.se/termux/termux-main: ok
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+nodejs is already the newest version (25.8.2).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+[OK]   Native Node.js installed
+[OK]   Native node linked to /data/data/com.termux/files/home/.openclaw-android/node/bin
+=== Installing Build Tools ===
+
+Installing packages: python make cmake clang binutils
+  (This may take a few minutes depending on network speed)
+Checking availability of current mirror:
+[*] https://grimler.se/termux/termux-main: ok
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+python is already the newest version (3.13.12-5).
+make is already the newest version (4.4.1-1).
+cmake is already the newest version (4.3.0).
+clang is already the newest version (21.1.8-2).
+binutils is already the newest version (2.46.0-3).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
 Build tools installed.
 [LOW RAM MODE] Limiting Node.js memory for installation stability.
 
@@ -7,9 +136,9 @@ Build tools installed.
 
 Existing installation detected \u2014 cleaning up for reinstall...
 
-removed 452 packages in 12s
+removed 453 packages in 12s
 
-removed 38 packages in 3s
+up to date in 3s
 [OK]   Previous installation cleaned
 Running: npm install -g openclaw@latest --ignore-scripts
 This may take several minutes...
@@ -403,217 +532,217 @@ Patching /tmp references...
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/auth-choice.plugin-providers.runtime-KF7lluSU.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/agents/auth-profiles.runtime.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/agents/pi-model-discovery-runtime.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel-summary-DfcJd9U0.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-_q84dtRB.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-4VUYSCl1.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-BBnr5BGm.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-C80t-Xsl.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-CbRpBZ_8.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-CnvXYgFq.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-DhBoHJI6.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-Dl9K0p-h.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channels-B1Sestko.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channels-cli-DKgr6urq.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/command-registry-CU8J9mB_.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/command-secret-gateway-D47bedfa.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-core.runtime-BfIYGHAY.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-handlers.runtime-x1BYyVfP.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-registry.runtime-BhkIW6Tu.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/compact.runtime-C_quO5Zm.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/config-BFKe2WSK.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/configure-CqYmPRdt.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/cron-cli-Bj38LU5x.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/cli/memory-cli.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/deliver-runtime-Dklym3dp.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/devices-cli-BmPHsAQk.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/diagnostics-NDqc4SAr.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/discord-B1pkR9pY.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/doctor-state-migrations-C5MZmSj9.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/entry.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/browser-cli-B5Fn99gn.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugins/build-smoke-entry.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugins/runtime/index.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/call-FXQVz5v6.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-Bm9pGdVz.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-4VUYSCl1.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-BBnr5BGm.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-BXunBKWb.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-DLV-lPM-.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-C80t-Xsl.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-Dl9K0p-h.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channels-cli-DKgr6urq.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/clawbot-cli-Clk8lNE8.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/cli-DQ3p7bDd.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/client-fetch-rOaJaND5.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-handlers.runtime-x1BYyVfP.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-registry.runtime-BhkIW6Tu.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-status.runtime-C7bs2MBW.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands.runtime-D47qNlxE.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/completion-cli-BTAjXxRa.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/config-cli-Dev-sUk5.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/config-BFKe2WSK.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/config-guard-BFbg_7kw.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/credentials-Be9RpJHE.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/daemon-install-fOyo6qaV.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/deliver-Xo_j90mi.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/directive-handling.fast-lane-CvV6ycSd.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/directive-handling.impl-CiOd7iAk.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/directive-handling.persist.runtime-BLni-DZJ.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/directory-cli-CadnaKAX.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/discord-B1pkR9pY.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/dispatch-acp.runtime-BgoLNt3T.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/dns-cli-DrRMCiUD.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/docker-BrzH-NvE.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/docs-cli-DGOC0QZJ.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/doctor-config-preflight-mTvRt1oI.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/get-reply-from-config.runtime-BL_6T_jI.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/hooks-cli-BIuy8axU.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/image-D2uR1T3E.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/imessage-DkYMlpyM.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/install.runtime-Dm_c092A.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/library-De2GppZV.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/llm-slug-generator.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/manager.runtime-BeNpL0xB.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/memory-search-Cht71rk-.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-config.runtime-Dul9OQpF.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-helpers-BVs0PGzB.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-tools.before-tool-call.runtime-B7ASZ7KL.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugin-entry.runtime-SRQF0ACq.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/doctor-state-migrations-C5MZmSj9.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/env-D1ktUnAV.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel-summary-DfcJd9U0.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-_q84dtRB.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-Bm9pGdVz.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-CbRpBZ_8.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-CnvXYgFq.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-DhBoHJI6.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channel.runtime-DLV-lPM-.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/channels-B1Sestko.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/client-fetch-rOaJaND5.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/command-registry-CU8J9mB_.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/command-secret-gateway-D47bedfa.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands-core.runtime-BfIYGHAY.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/commands.runtime-D47qNlxE.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/compact.runtime-C_quO5Zm.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/completion-cli-BTAjXxRa.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/config-cli-Dev-sUk5.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/configure-CqYmPRdt.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/credentials-Be9RpJHE.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/cron-cli-Bj38LU5x.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/cli/memory-cli.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/daemon-install-fOyo6qaV.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/deliver-runtime-Dklym3dp.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/deliver-Xo_j90mi.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/devices-cli-BmPHsAQk.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/diagnostics-NDqc4SAr.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/directive-handling.fast-lane-CvV6ycSd.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/doctor-config-preflight-mTvRt1oI.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/env-overrides.runtime-Hfbm_3yD.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/extensionAPI.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/install.runtime-Dm_c092A.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/llm-slug-generator.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/memory-tool.runtime-DU24cc5T.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-catalog.runtime-BvzjxJhC.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-DbUsrxGI.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-B7lcmiuj.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/node-cli-CV4Mj65Q.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/nodes-cli-DTkqsDXM.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-remote-Cv7tmNCo.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-skills-CxeqO5R0.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugin-registry-0rdoDL6f.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/exec-approvals-cli-PMCC0m_q.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/gateway-cli-SPSnwPDk.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/bundled/boot-md/handler.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/bundled/bootstrap-extra-files/handler.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/bundled/command-logger/handler.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/bundled/session-memory/handler.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/login-qr-D1q7EDZ4.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/mcp-cli-CPPOb-Oc.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/health-LjvnoBJN.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/hooks-cli-BIuy8axU.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/image-D2uR1T3E.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/media-understanding.runtime-DHro8oql.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-config-BtLzCe0O.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-config.runtime-Dul9OQpF.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-CGdFsdml.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-DsYdAq1R.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/node-cli-CV4Mj65Q.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-Do6y4-m3.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-channels-ycg8yMWS.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-remote-Cv7tmNCo.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-search-DMnxAnxK.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/openclaw-tools.runtime-BxR2LKXQ.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pairing-cli-B-LpTQzl.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-embedded-BaSvmUpW.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-embedded.runtime-5NmegYE7.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugins-cli-D4iIkPpa.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/exec-approvals-cli-PMCC0m_q.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/gateway-cli-SPSnwPDk.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/health-LjvnoBJN.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/install.runtime-84HNtv13.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/memory-tool.runtime-DU24cc5T.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-catalog.runtime-BvzjxJhC.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-picker.runtime-BFrvr6NY.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-suppression.runtime-BDYpcFvD.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/nodes-cli-DTkqsDXM.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-hooks-Bne4SNcx.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/openclaw-tools.runtime-BxR2LKXQ.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/prompt-select-styled-Crpuhd5T.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-api-key-auth.runtime-CVeHmx_X.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-auth-choice.runtime-BYWKyjxl.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/io-Ddcnnsbo.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/probe-ivkUzlb_.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/library-De2GppZV.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/logging-kXnS9ssH.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/logs-cli-3SUUzUST.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/manager-runtime-VM1OYy0f.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/manager.runtime-BeNpL0xB.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/memory-cli.runtime-DD2gmIVA.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-picker-RKElaUSQ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/memory-search-Cht71rk-.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-picker.runtime-BFrvr6NY.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-suppression.runtime-BDYpcFvD.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-cli-2U99QM-b.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-DbUsrxGI.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-B7lcmiuj.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-BbwoEBWZ.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-Do6y4-m3.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-DsYdAq1R.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-custom-iFJAz_6V.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-search-DMnxAnxK.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-skills-CxeqO5R0.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-helpers-BVs0PGzB.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/onboard-hooks-Bne4SNcx.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-embedded.runtime-5NmegYE7.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugin-install-Rv_9Aygv.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugin-registry-0rdoDL6f.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/probe-auth-B9DP34c7.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/probe-ivkUzlb_.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/preflight-audio.runtime-CKwr8YlT.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.onboard-CVKGQCsq.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.setup-DyRPr1zy.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-embedded-pi.runtime-CLWUnDiX.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-paths-DM85ql27.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/server-C8VdPOMv.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.maintenance-5bXvdTe4.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/route-reply.runtime-HUR3gzsV.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-model-auth.runtime-xmRgFJU3.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-tts.runtime-Cs3hF1y5.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-8wi_NBXO.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup.finalize-BEqy6Cna.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slash-dispatch.runtime-B1CqGAmG.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status-CkPkRu44.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/web-media-B7RZCKik.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/read-only-account-inspect.telegram.runtime-BtbiI6_s.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-discord-ops.runtime-_AKhtlSz.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-media-understanding.runtime-CmZMMm_N.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/search-manager-BUv-LbMA.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sessions-DEpHcZW-.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup-surface-6h2eo3p-.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-cli-CwYICam_.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slash-commands.runtime-B3HR9IPo.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/system-cli-B-drettu.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/systemd-linger-CRSD5Sir.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/utils-CBuP0bhr.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/webhooks-cli-jLshDUy0.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pw-ai-B9wJaN52.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.message-2KatyhCA.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.status-health-sessions-CuLnq7bV.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/reply-payloads-dedupe.runtime-uzpAItee.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/resolve-DAJnCCPl.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-slack-ops.runtime-6wPajsMZ.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-cli-CVL_R8a-.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/service-Dfbn2gwH.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/session-updates.runtime-BVlSZC4O.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skill-commands.runtime-BJaUtXyN.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status.scan.deps.runtime-BtT1uc2E.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/subagent-orphan-recovery-B4BYE_no.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tts.runtime-DPTQIBhc.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tui-cli-aE-lilUo.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-runtime-BYTqNAtv.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/qr-cli-Dwl8OUtU.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/read-only-account-inspect.discord.runtime-EvajZ_z7.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/read-only-account-inspect.slack.runtime-CEO9lDY6.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.subclis-Fz_79mEH.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/secrets-cli-DYEJ5QsO.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/server-node-events-CphzAudM.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup-surface-CWnsUFpp.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/ssh-tunnel-Bq90Jega.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/store.runtime-BZHPqpEe.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/temp-path-DvwSkpQg.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/program-BCAS9h7J.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-session.runtime-amxUt67a.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-auth-choice.runtime-BYWKyjxl.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-usage-DuzlEOLy.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/entry.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/extensionAPI.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/get-reply-from-config.runtime-BL_6T_jI.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/imessage-DkYMlpyM.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/install.runtime-84HNtv13.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/io-Ddcnnsbo.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/login-qr-D1q7EDZ4.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/mcp-cli-CPPOb-Oc.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/model-picker-RKElaUSQ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/models-config-BtLzCe0O.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/monitor-BbwoEBWZ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-tools.before-tool-call.runtime-B7ASZ7KL.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugin-entry.runtime-SRQF0ACq.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/plugins-cli-D4iIkPpa.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/preflight-audio.runtime-CKwr8YlT.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/probe-auth-B9DP34c7.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-api-key-auth.runtime-CVeHmx_X.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/root-help-A8QELGEk.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup.gateway-config-ZZ9hAAMN.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status-json-Jwr2buEe.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/subagent-registry-runtime-B6sv8auc.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tmp-openclaw-dir-DzRxfh9a.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tool-actions.runtime-Cqcisj5Z.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/server-node-events-CphzAudM.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup-surface-6h2eo3p-.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skill-commands.runtime-BJaUtXyN.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/subagent-orphan-recovery-B4BYE_no.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider.runtime-4fGagB1H.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/read-only-account-inspect.slack.runtime-CEO9lDY6.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-media-understanding.runtime-CmZMMm_N.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/secrets-cli-DYEJ5QsO.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/security-cli-CujzhvtG.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status.scan.deps.runtime-BtT1uc2E.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/systemd-linger-CRSD5Sir.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/temp-path-DvwSkpQg.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tui-cli-aE-lilUo.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/update-cli-CQkb5jJ7.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/whatsapp-CLlEPRC9.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-auth-login.runtime-CMPla3Gu.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-usage-DuzlEOLy.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/qr-cli-Dwl8OUtU.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.setup-DyRPr1zy.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.subclis-Fz_79mEH.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/reply-payloads-dedupe.runtime-uzpAItee.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/run-main-y8ijbwjJ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-discord-ops.runtime-_AKhtlSz.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-telegram-ops.runtime-3bzDpbWN.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/server-C8VdPOMv.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/session-cost-usage-CybU0L2X.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/signal-DpyHiTfw.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-D45eoPB6.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slash-commands.runtime-B3HR9IPo.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slash-skill-commands.runtime-DJ32G-AQ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/update-offset-store-9Qfl-AOw.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/utils-CBuP0bhr.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/web-media-B7RZCKik.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/webhooks-cli-jLshDUy0.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-session.runtime-amxUt67a.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.configure-D6p29JcJ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.status-health-sessions-CuLnq7bV.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/resolve-DAJnCCPl.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/route-reply.runtime-HUR3gzsV.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-model-auth.runtime-xmRgFJU3.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-slack-ops.runtime-6wPajsMZ.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slack-kQkwk71t.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/store.runtime-BZHPqpEe.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/subagent-registry-runtime-B6sv8auc.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/prompt-select-styled-Crpuhd5T.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-auth-login.runtime-CMPla3Gu.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/read-only-account-inspect.discord.runtime-EvajZ_z7.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/read-only-account-inspect.telegram.runtime-BtbiI6_s.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-8wi_NBXO.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sessions-DEpHcZW-.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status-DshxXZzc.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/telegram-CmytpbJd.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider.runtime-4fGagB1H.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pw-ai-B9wJaN52.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.onboard-CVKGQCsq.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/service-Dfbn2gwH.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/session-updates.runtime-BVlSZC4O.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup-surface-CWnsUFpp.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup.finalize-BEqy6Cna.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/signal-DpyHiTfw.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-status-CI0pwjcL.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slash-dispatch.runtime-B1CqGAmG.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/qmd-manager-CdVu0x02.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.agent-DGFyDIYj.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-embedded-pi.runtime-CLWUnDiX.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/runtime-tts.runtime-Cs3hF1y5.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-cli-CVL_R8a-.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-cli-CwYICam_.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/ssh-tunnel-Bq90Jega.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/system-cli-B-drettu.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tool-actions.runtime-Cqcisj5Z.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tts.runtime-DPTQIBhc.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/provider-runtime-BYTqNAtv.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.backup-BAmEqIn6.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.configure-D6p29JcJ.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/run-main-y8ijbwjJ.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/security-cli-CujzhvtG.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.maintenance-5bXvdTe4.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/register.message-2KatyhCA.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-paths-DM85ql27.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/search-manager-BUv-LbMA.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/send-jLbjFm5r.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-status-CI0pwjcL.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/slash-skill-commands.runtime-DJ32G-AQ.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/setup.gateway-config-ZZ9hAAMN.js (tmp path)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/src-Ba9lUiIw.js (tmp path)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/update-offset-store-9Qfl-AOw.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status-CkPkRu44.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/status-json-Jwr2buEe.js (tmp path)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/tmp-openclaw-dir-DzRxfh9a.js (tmp path)
 Patching /bin/sh references...
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/extensions/openshell/index.js (bin/sh)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/docker-BrzH-NvE.js (bin/sh)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/env-D1ktUnAV.js (bin/sh)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-embedded-BaSvmUpW.js (bin/sh)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/launchd-ljiqPV9i.js (bin/sh)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-8wi_NBXO.js (bin/sh)
-  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-remote-D055n83h.js (bin/sh)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/pi-embedded-BaSvmUpW.js (bin/sh)
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/update-cli-CQkb5jJ7.js (bin/sh)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/skills-remote-D055n83h.js (bin/sh)
+  [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/dist/sandbox-8wi_NBXO.js (bin/sh)
 Patching /bin/bash references...
   [PATCHED] /data/data/com.termux/files/usr/lib/node_modules/openclaw/node_modules/@mariozechner/pi-coding-agent/dist/utils/shell.js (bin/bash)
 Patching /usr/bin/env references...
@@ -624,5 +753,19 @@ OpenClaw on Android — Core Patcher
 ────────────────────────────────────────
   Found 1 file(s) to patch...
   Patching: service-mdsdTkvr.js...
-sed: -e expression #1, char 93: unknown option to `s'
+
+[OK]   Core patched successfully. You can now run 'openclaw onboarding'.
+
+Patch log saved to: /data/data/com.termux/files/home/.openclaw-android/patch.log
+OpenClaw patches applied.
+
+Installing clawdhub (skill manager)...
+
+added 34 packages in 14s
+[OK]   clawdhub installed
+Installing undici dependency for clawdhub...
+
+added 4 packages in 16s
+[OK]   undici installed for clawdhub
+/data/data/com.termux/files/home/.openclaw-android/installer/platforms/openclaw/install.sh: line 75: IS_ARMV7L: unbound variable
 ~ $

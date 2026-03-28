@@ -220,27 +220,26 @@ If you run OpenClaw on multiple devices on the same network, use the <a href="ht
 
 After installation, the `oa` command is available for managing your installation:
 
-| Opción | Descripción |
+| Option | Description |
 | :--- | :--- |
-| `oa update` | Actualiza OpenClaw y los parches de Android |
-| `oa fix-android` | **Esencial**: Parche para errores 'not supported on Android' |
-| `oa start` | Inicia el Gateway en segundo plano |
-| `oa start:fg` | Inicia el Gateway en primer plano (ideal para depuración) |
-| `oa stop` | Detiene el Gateway y limpia procesos huérfanos |
-| `oa restart` | Reinicia el Gateway |
-| `oa status` | Muestra el estado completo de instalación y versión |
-| `oa logs` | Ver logs en vivo del servicio Gateway |
-| `oa install` | Instalar herramientas opcionales (tmux, code-server, AI CLIs, etc.) |
-| `oa backup` | Crear un backup completo de los datos de OpenClaw |
-| `oa --restore` | Restaurar desde un backup previo |
-| `oa --uninstall` | Eliminar OpenClaw de Android |
-| `oa --version` | Muestra información de versión (`-v`) |
-| `oa --help` | Muestra todas las opciones disponibles (`-h`) |
+| `oa update` | Updates OpenClaw and Android patches |
+| `oa fix-android` | **Essential**: Patches 'not supported on Android' errors |
+| `oa start` | Starts the Gateway in the background |
+| `oa start:fg` | Starts the Gateway in the foreground (ideal for debugging) |
+| `oa stop` | Stops the Gateway and cleans up orphan processes |
+| `oa status` | Shows complete installation status and version |
+| `oa logs` | View live logs of the Gateway service |
+| `oa install` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
+| `oa backup` | Create a full backup of OpenClaw data |
+| `oa restore` | Restore from a previous backup |
+| `oa uninstall` | Remove OpenClaw from Android |
+| `oa version` | Show version information (`-v`) |
+| `oa help` | Show all available options (`-h`) |
 
 ## Update
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 This single command updates all installed components at once:
@@ -261,20 +260,20 @@ Already up-to-date components are skipped. Components you haven't installed are 
 
 ## Backup & Restore
 
-OpenClaw's built-in backup command (`openclaw backup create`) often fails on Android because it relies on hardlinks, which are blocked in Android's app-private storage. The `oa --backup` command works around this by using `tar` directly while maintaining full compatibility with the OpenClaw backup specification.
+OpenClaw's built-in backup command (`openclaw backup create`) often fails on Android because it relies on hardlinks, which are blocked in Android's app-private storage. The `oa backup` command works around this by using `tar` directly while maintaining full compatibility with the OpenClaw backup specification.
 
 To create a backup:
 
 ```bash
-oa --backup
+oa backup
 ```
 
-Backups are stored in `~/.openclaw-android/backup/` with a timestamped filename (e.g., `2026-03-14T00-00-00.000Z-openclaw-backup.tar.gz`). You can also specify a custom path: `oa --backup ~/my-backups/`. Each backup includes your configuration, state, workspaces, and agents.
+Backups are stored in `~/.openclaw-android/backup/` with a timestamped filename (e.g., `2026-03-14T00-00-00.000Z-openclaw-backup.tar.gz`). You can also specify a custom path: `oa backup ~/my-backups/`. Each backup includes your configuration, state, workspaces, and agents.
 
 To restore from a backup:
 
 ```bash
-oa --restore
+oa restore
 ```
 
 This command lists all available backups in the default backup directory. Simply select the number of the backup you wish to restore. The tool automatically detects the platform from the backup manifest and handles the restoration to `~/.openclaw/`. Note that this will overwrite existing data, so a confirmation is required.

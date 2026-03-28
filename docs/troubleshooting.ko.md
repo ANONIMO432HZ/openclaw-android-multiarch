@@ -135,7 +135,7 @@ Error: Cannot find module '/data/data/com.termux/files/home/.openclaw-lite/patch
 업데이터를 실행하면 환경변수 블록이 갱신됩니다:
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 또는 수동으로 수정:
@@ -194,10 +194,10 @@ Reason: global update
 bash ~/.openclaw-android/scripts/build-sharp.sh
 ```
 
-또는 `openclaw update` 대신 `oa --update`를 사용하면 sharp를 자동으로 처리합니다:
+또는 `openclaw update` 대신 `oa update`를 사용하면 sharp를 자동으로 처리합니다:
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 ## `clawdhub` 실행 시 "Cannot find package 'undici'" 에러
@@ -215,7 +215,7 @@ Node.js v24+ Termux 환경에서는 `undici` 패키지가 Node.js에 번들되�
 업데이터를 실행하면 `clawdhub`와 `undici` 의존성이 자동으로 설치됩니다:
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 또는 수동으로 수정:
@@ -253,7 +253,7 @@ source ~/.bashrc
 여전히 `android`가 출력되면, 최신 버전으로 업데이트하세요 (v1.0.0+는 glibc를 사용하여 이 문제를 영구적으로 해결합니다):
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 ## `openclaw update` 시 node-llama-cpp 빌드 에러

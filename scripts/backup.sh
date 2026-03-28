@@ -99,9 +99,9 @@ _restore_root_for_platform() {
     esac
 }
 
-# ── cmd_backup ──────────────────────────────────────────────────────────────
+# ── perform_backup ────────────────────────────────────────────────────────────
 
-cmd_backup() {
+perform_backup() {
     if ! command -v gzip &>/dev/null; then
         echo "  Installing gzip..."
         pkg install -y gzip 2>/dev/null || { echo -e "${RED}[FAIL]${NC} gzip not found and could not be installed"; exit 1; }
@@ -264,9 +264,9 @@ MANIFEST_EOF
     echo ""
 }
 
-# ── cmd_restore ─────────────────────────────────────────────────────────────
+# ── perform_restore ───────────────────────────────────────────────────────────
 
-cmd_restore() {
+perform_restore() {
     if ! command -v gzip &>/dev/null; then
         echo "  Installing gzip..."
         pkg install -y gzip 2>/dev/null || { echo -e "${RED}[FAIL]${NC} gzip not found and could not be installed"; exit 1; }

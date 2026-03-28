@@ -135,7 +135,7 @@ The `NODE_OPTIONS` environment variable in `~/.bashrc` still references the old 
 Run the updater to refresh the environment variable block:
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 Or manually fix it:
@@ -194,10 +194,10 @@ After the update, manually rebuild `sharp` using the provided script:
 bash ~/.openclaw-android/scripts/build-sharp.sh
 ```
 
-Alternatively, use `oa --update` instead of `openclaw update` — it handles sharp automatically:
+Alternatively, use `oa update` instead of `openclaw update` — it handles sharp automatically:
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 ## `clawdhub` fails with "Cannot find package 'undici'"
@@ -215,7 +215,7 @@ Node.js v24+ on Termux doesn't bundle the `undici` package, which `clawdhub` dep
 Run the updater to automatically install `clawdhub` and its `undici` dependency:
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 Or fix it manually:
@@ -253,7 +253,7 @@ source ~/.bashrc
 If it still prints `android`, update to the latest version (v1.0.0+ uses glibc and resolves this permanently):
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 ## `openclaw update` fails with node-llama-cpp build error

@@ -141,23 +141,19 @@ openclaw onboard
 
 ### 6단계: OpenClaw(게이트웨이) 실행
 
-설정이 끝나면 게이트웨이를 실행합니다:
-
-> **중요**: `openclaw gateway`는 SSH가 아닌, 폰의 Termux 앱에서 직접 실행하세요. SSH로 실행하면 SSH 연결이 끊어질 때 게이트웨이도 함께 종료됩니다.
-
-게이트웨이는 실행 중 터미널을 점유하므로, 별도 탭에서 실행하세요. 하단 메뉴바의 **햄버거 아이콘(☰)**을 탭하거나, 화면 왼쪽 가장자리에서 오른쪽으로 스와이프하면 (하단 메뉴바 위 영역) 사이드 메뉴가 나타납니다. **NEW SESSION**을 눌러 새 탭을 추가하세요.
-
-<img src="docs/images/termux_menu.png" width="300" alt="Termux 사이드 메뉴">
-
-새 탭에서 실행합니다:
+설정이 끝나면 게이트웨이를 실행합니다. 세션이 끊겨도 안정적으로 유지되는 **백그라운드 모드**를 권장합니다.
 
 ```bash
-openclaw gateway
+oa start
 ```
 
-<img src="docs/images/termux_tab_1.png" width="300" alt="openclaw gateway 실행 화면">
+게이트웨이가 정상적으로 실행되었는지 로그를 통해 확인할 수 있습니다:
 
-> 게이트웨이를 중지하려면 `Ctrl+C`를 누르세요. `Ctrl+Z`는 프로세스를 종료하지 않고 일시 중지만 시키므로, 반드시 `Ctrl+C`를 사용하세요.
+```bash
+oa logs
+```
+
+> **팁**: 디버깅을 위해 포그라운드에서 직접 실행하고 싶다면 `oa start:fg` 명령어를 사용하세요. 게이트웨이를 중지하고 고아 프로세스까지 깨끗하게 정리하려면 `oa stop`을 실행하면 됩니다.
 
 ## 프로세스 라이브 상태 유지
 
@@ -180,20 +176,25 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 설치 후 `oa` 명령어로 설치를 관리할 수 있습니다:
 
 | 옵션 | 설명 |
-|------|------|
-| `oa --update` | OpenClaw 및 Android 패치 업데이트 |
-| `oa --install` | 선택적 도구 설치 (tmux, code-server, AI CLI 등) |
-| `oa --uninstall` | OpenClaw on Android 제거 |
-| `oa --backup` | OpenClaw 데이터 전체 백업 생성 |
-| `oa --restore` | 백업에서 복구 |
-| `oa --status` | 설치 상태 및 모든 설치된 컴포넌트 정보 표시 |
-| `oa --version` | 버전 표시 |
-| `oa --help` | 사용 가능한 옵션 표시 |
+| :--- | :--- |
+| `oa update` | OpenClaw 및 Android 패치 업데이트 |
+| `oa fix-android` | **필수**: 'not supported on Android' 오류 패치 |
+| `oa start` | 게이트웨이를 백그라운드에서 실행 |
+| `oa start:fg` | 게이트웨이를 포그라운드에서 실행 (디버깅용) |
+| `oa stop` | 게이트웨이 중지 및 고아 프로세스 정리 |
+| `oa status` | 설치 상태 및 버전 정보 표시 |
+| `oa logs` | 게이트웨이 서비스 로그 실시간 확인 |
+| `oa install` | 선택적 도구 설치 (tmux, code-server, AI CLI 등) |
+| `oa backup` | OpenClaw 데이터 전체 백업 생성 |
+| `oa restore` | 백업에서 복원 |
+| `oa uninstall` | OpenClaw on Android 제거 |
+| `oa version` | 버전 정보 표시 (`-v`) |
+| `oa help` | 사용 가능한 모든 옵션 표시 (`-h`) |
 
 ## 업데이트
 
 ```bash
-oa --update && source ~/.bashrc
+oa update && source ~/.bashrc
 ```
 
 이 명령어 하나로 설치된 모든 컴포넌트를 한번에 업데이트합니다:

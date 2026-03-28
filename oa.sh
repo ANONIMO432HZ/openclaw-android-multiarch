@@ -40,7 +40,6 @@ show_help() {
     echo "  start        Start OpenClaw Gateway (Background)"
     echo "  start:fg     Start OpenClaw gateway (Foreground debug)"
     echo "  stop         Stop background processes"
-    echo "  restart      Restart the Gateway"
     echo "  logs         View real-time background logs"
     echo "  status       Show comprehensive system and service status"
     echo "  fix-android  Apply essential Android compatibility patches"
@@ -118,13 +117,20 @@ cmd_start_fg() {
 cmd_stop() {
     echo -e "${YELLOW}Stopping OpenClaw gateway processes...${NC}"
     
+    # Identify processes (excluding our current PID)
     local PIDS=""
     local ALL_CANDIDATES
     ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
     
-    if [ -n "$ALL_CANDIDATES" ]; then
-        echo -e "Cleaning up lingering processes ($ALL_CANDIDATES)..."
-        kill -9 $ALL_CANDIDATES 2>/dev/null || true
+    for pid in $ALL_CANDIDATES; do
+        if [ "$pid" != "$$" ]; then
+            PIDS="$PIDS $pid"
+        fi
+    done
+    
+    if [ -n "$PIDS" ]; then
+        echo -e "Stopping matching processes (IDs:$PIDS)..."
+        kill -9 $PIDS 2>/dev/null || true
     else
         echo -e "No active gateway processes found."
     fi
@@ -177,10 +183,10 @@ cmd_status() {
 cmd_backup() {
     if [ -f "$PROJECT_DIR/scripts/backup.sh" ]; then
         source "$PROJECT_DIR/scripts/backup.sh"
-        if command -v cmd_backup_create &>/dev/null; then
-            cmd_backup_create
+        if command -v perform_backup &>/dev/null; then
+            perform_backup "$@"
         else
-            echo -e "${RED}[FAIL]${NC} cmd_backup_create not found in backup.sh."
+            echo -e "${RED}[FAIL]${NC} perform_backup not found in backup.sh."
         fi
     else
         echo -e "${RED}[FAIL]${NC} Backup system not found."
@@ -190,10 +196,10 @@ cmd_backup() {
 cmd_restore() {
     if [ -f "$PROJECT_DIR/scripts/backup.sh" ]; then
         source "$PROJECT_DIR/scripts/backup.sh"
-        if command -v cmd_backup_restore &>/dev/null; then
-            cmd_backup_restore
+        if command -v perform_restore &>/dev/null; then
+            perform_restore "$@"
         else
-            echo -e "${RED}[FAIL]${NC} cmd_backup_restore not found in backup.sh."
+            echo -e "${RED}[FAIL]${NC} perform_restore not found in backup.sh."
         fi
     else
         echo -e "${RED}[FAIL]${NC} Restore system not found."
@@ -259,20 +265,19 @@ cmd_uninstall() {
 
 # ── Main Entry Point ──
 case "${1:-}" in
-    update|--update|up)     cmd_update ;;
-    install|--install|inst)  cmd_install ;;
-    start|--start|strt)      cmd_start ;;
+    update|--update|up)       cmd_update "$@" ;;
+    install|--install|inst)   cmd_install "$@" ;;
+    start|--start|strt)       cmd_start ;;
     start:fg|--start:fg|strt:fg) cmd_start_fg ;;
-    stop|--stop|stp)         cmd_stop ;;
-    restart|--restart|rst)   cmd_stop && cmd_start ;;
-    logs|--logs|log)         cmd_logs ;;
-    status|--status|st)      cmd_status ;;
-    backup|--backup|bkp)     cmd_backup ;;
-    restore|--restore|rst)   cmd_restore ;;
-    fix-android|fix)        cmd_fix_android ;;
+    stop|--stop|stp)          cmd_stop ;;
+    logs|--logs|log)          cmd_logs ;;
+    status|--status|st)       cmd_status ;;
+    backup|--backup|bkp)      cmd_backup "$2" ;;
+    restore|--restore|rst)    cmd_restore "$2" ;;
+    fix-android|fix)          cmd_fix_android ;;
     uninstall|--uninstall|uninst) cmd_uninstall ;;
-    v|version|--version|-v) echo "oa CLI v$OA_VERSION" ;;
-    help|--help|h|"")       show_help ;;
+    v|version|--version|-v)   echo "oa CLI v$OA_VERSION" ;;
+    help|--help|h|"")         show_help ;;
     *)
         echo -e "${RED}Unknown command: $1${NC}"
         show_help

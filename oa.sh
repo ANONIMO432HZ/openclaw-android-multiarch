@@ -44,7 +44,8 @@ show_help() {
     echo "Usage: oa [command]"
     echo ""
     echo "Commands:"
-    echo "  update       Update everything (OpenClaw + tools + patches)"
+    echo "  update       Update everything (OpenClaw + tools + scripts)"
+    echo "  self-update  Update ONLY the CLI scripts and patches (fast)"
     echo "  install      Install optional components (code-server, tmux, etc.)"
     echo ""
     echo "  start        Start OpenClaw Gateway (Background)"
@@ -87,6 +88,7 @@ check_and_fix_env() {
 
 cmd_update() {
     check_and_fix_env
+    maybe_backup_before_update
     banner "OpenClaw — Update Module" "$PURPLE"
     cd "$PROJECT_DIR" || { echo -e "${RED}[FAIL]${NC} Impossible to access $PROJECT_DIR"; exit 1; }
 
@@ -200,6 +202,29 @@ cmd_update() {
     echo -e "  ${BOLD}source ~/.bashrc${NC}"
 }
 
+cmd_self_update() {
+    check_and_fix_env
+    maybe_backup_before_update
+    banner "OpenClaw — CLI Self-Update" "$BLUE"
+    echo "Updating repository scripts and patches..."
+    
+    cd "$PROJECT_DIR" || { echo -e "${RED}[FAIL]${NC} Folder missing."; exit 1; }
+    
+    # Simple git pull for fast script sync
+    if git pull origin main; then
+        echo -e "${GREEN}[OK]${NC} Repository synced."
+        # Refresh executable links
+        ln -sf "$PROJECT_DIR/oa.sh" "$PREFIX/bin/oa"
+        chmod +x "$PROJECT_DIR/oa.sh"
+        bash "$PROJECT_DIR/scripts/setup-env.sh"
+        echo ""
+        echo -e "${GREEN}[SUCCESS]${NC} Scripts updated to latest version."
+        echo "Run: source ~/.bashrc"
+    else
+        echo -e "${RED}[FAIL]${NC} Git sync failed. Check connection."
+    fi
+}
+
 cmd_install() {
     check_and_fix_env
     if [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
@@ -210,8 +235,36 @@ cmd_install() {
     fi
 }
 
+# ── Helper: Apply Ultra-Light optimizations if needed ──
+apply_ultra_light_mode() {
+    if is_armv7l && is_low_ram; then
+        echo -e "${YELLOW}[LOW RAM DETECTED]${NC} Your device has limited memory (<2GB)."
+        if ask_yn "Enable 'Ultra-Light' mode for better stability (limits memory per process)?"; then
+            echo -e "${GREEN}[INFO]${NC} Memory limits applied (--max-old-space-size=256)."
+            export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=256 --gc-interval=100"
+        fi
+        echo ""
+    fi
+}
+
+# ── Helper: Optional backup before sensitive operations ──
+maybe_backup_before_update() {
+    if [ ! -d "$HOME/.openclaw" ] && [ ! -d "$HOME/.openclaw-android" ]; then
+        return 0
+    fi
+    
+    echo -e "${CYAN}${BOLD}Pre-Update Safety Check${NC}"
+    if ask_yn "Would you like to create a backup of your data before updating?"; then
+        cmd_backup "$PROJECT_DIR/backup"
+    else
+        echo -e "  ${YELLOW}[SKIP]${NC} Skipping preventive backup."
+    fi
+    echo ""
+}
+
 cmd_start() {
     check_and_fix_env
+    apply_ultra_light_mode
     
     # ── Priority 1: termux-services (sv) ──
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
@@ -244,6 +297,7 @@ cmd_start() {
 
 cmd_start_fg() {
     check_and_fix_env
+    apply_ultra_light_mode
     echo -e "${YELLOW}Starting OpenClaw gateway in foreground...${NC}"
     openclaw gateway
 }
@@ -499,7 +553,8 @@ cmd_doctor() {
 
 # ── Main Entry Point ──
 case "${1:-}" in
-    update|--update|-update|up)       cmd_update "$@" ;;
+    update|--update|-update|up|upgrade) cmd_update "$@" ;;
+    self-update|selfupdate)           cmd_self_update ;;
     install|--install|inst)           cmd_install "$@" ;;
     start|--start|strt)               cmd_start ;;
     start:fg|--start:fg|strt:fg)      cmd_start_fg ;;

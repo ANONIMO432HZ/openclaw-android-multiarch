@@ -420,7 +420,7 @@ if [ -f "$COMPAT_SRC" ]; then
     cp "$COMPAT_SRC" "$OCA_DIR/patches/glibc-compat.js"
 else
     # Fallback: download from repo
-    curl -fsSL "https://raw.githubusercontent.com/AidanPark/openclaw-android/main/patches/glibc-compat.js" \
+    curl -fsSL "https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/patches/glibc-compat.js" \
         -o "$OCA_DIR/patches/glibc-compat.js" 2>/dev/null || true
 fi
 
@@ -468,7 +468,7 @@ BASHRC
 echo -e "  ${GREEN}✓${NC} ~/.bashrc configured"
 
 # oa CLI (enables oa --update, oa --backup, etc.)
-if curl -fsSL "https://raw.githubusercontent.com/AidanPark/openclaw-android/main/oa.sh" \
+if curl -fsSL "https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/oa.sh" \
         -o "$PREFIX/bin/oa" 2>/dev/null; then
     chmod +x "$PREFIX/bin/oa"
     echo -e "  ${GREEN}✓${NC} oa CLI installed"

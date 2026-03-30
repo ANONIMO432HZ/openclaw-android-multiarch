@@ -129,7 +129,7 @@ if [ "$INSTALL_CODEX_CLI" = true ]; then npm install -g @openai/codex-cli --no-a
 
 step 8 "System Configuration & Services"
 bash "$SCRIPT_DIR/scripts/setup-cli.sh"
-bash "$SCRIPT_DIR/scripts/setup-shell.sh"
+bash "$SCRIPT_DIR/scripts/setup-env.sh"
 
 # Cleanup
 echo ""

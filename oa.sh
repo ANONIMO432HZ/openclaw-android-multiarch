@@ -20,12 +20,14 @@ CYAN="${CYAN:-\033[0;36m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
-# Fallback functions if lib.sh is not available
+# ── UI Utilities ──
 if ! command -v banner &>/dev/null; then
     banner() {
-        echo -e "${BOLD}========================================${NC}"
-        echo -e "${BOLD}  $1 v${2:-$OA_VERSION}${NC}"
-        echo -e "${BOLD}========================================${NC}"
+        local title="$1"
+        local color="${2:-$BOLD}"
+        echo -e "${color}${BOLD}========================================${NC}"
+        echo -e "${color}${BOLD}  ${title} v${OA_VERSION}${NC}"
+        echo -e "${color}${BOLD}========================================${NC}"
     }
 fi
 

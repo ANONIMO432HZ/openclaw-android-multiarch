@@ -18,6 +18,7 @@ GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"
 BLUE="${BLUE:-\033[0;34m}"
 PURPLE="${PURPLE:-\033[0;35m}"
+CYAN="${CYAN:-\033[0;36m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
@@ -37,10 +38,18 @@ show_help() {
     echo "Commands:"
     echo "  update       Update everything (OpenClaw + tools + patches)"
     echo "  install      Install optional components (code-server, tmux, etc.)"
+    echo ""
     echo "  start        Start OpenClaw Gateway (Background)"
     echo "  start:fg     Start OpenClaw gateway (Foreground debug)"
     echo "  stop         Stop background processes"
     echo "  logs         View real-time background logs"
+    echo ""
+    echo "  ui           Open the OpenClaw Dashboard (Control UI)"
+    echo "  ui-config    Open the Configuration Wizard (credentials, channels, etc.)"
+    echo "  onboard      Run the interactive Onboarding Wizard"
+    echo "  config       Non-interactive config helpers (get/set/validate)"
+    echo "  doctor       Health checks + quick fixes"
+    echo ""
     echo "  status       Show comprehensive system and service status"
     echo "  fix-android  Apply essential Android compatibility patches"
     echo "  backup       Create a full backup of OpenClaw data"
@@ -284,6 +293,51 @@ cmd_uninstall() {
     echo -e "${GREEN}[OK]${NC} OpenClaw has been removed."
 }
 
+cmd_ui() {
+    if ! command -v openclaw &>/dev/null; then
+        echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
+        exit 1
+    fi
+    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
+    openclaw dashboard
+}
+
+cmd_ui_config() {
+    if ! command -v openclaw &>/dev/null; then
+        echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
+        exit 1
+    fi
+    echo -e "${CYAN}Opening Configuration Wizard...${NC}"
+    openclaw configure
+}
+
+cmd_onboard() {
+    if ! command -v openclaw &>/dev/null; then
+        echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
+        exit 1
+    fi
+    echo -e "${CYAN}Starting Onboarding Wizard...${NC}"
+    openclaw onboard
+}
+
+cmd_config() {
+    if ! command -v openclaw &>/dev/null; then
+        echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
+        exit 1
+    fi
+    shift
+    openclaw config "$@"
+}
+
+cmd_doctor() {
+    if ! command -v openclaw &>/dev/null; then
+        echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
+        exit 1
+    fi
+    echo -e "${CYAN}Running health checks...${NC}"
+    openclaw doctor
+}
+
 # ── Main Entry Point ──
 case "${1:-}" in
     update|--update|up)       cmd_update "$@" ;;
@@ -292,6 +346,11 @@ case "${1:-}" in
     start:fg|--start:fg|strt:fg) cmd_start_fg ;;
     stop|--stop|stp)          cmd_stop ;;
     logs|--logs|log)          cmd_logs ;;
+    ui|--ui|dashboard)        cmd_ui ;;
+    ui-config|--ui-config|config-wizard) cmd_ui_config ;;
+    onboard|--onboard)        cmd_onboard ;;
+    config|--config|cfg)      cmd_config "$@" ;;
+    doctor|--doctor|doc)      cmd_doctor ;;
     status|--status|st)       cmd_status ;;
     backup|--backup|bkp)      cmd_backup "$2" ;;
     restore|--restore|rst)    cmd_restore "$2" ;;

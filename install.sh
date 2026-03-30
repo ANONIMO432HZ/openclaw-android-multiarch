@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 echo "DEBUG: SCRIPT_DIR is $SCRIPT_DIR"
 
 # Global configuration
-TOTAL_STEPS=8
+TOTAL_STEPS=9
 if [ ! -f "$SCRIPT_DIR/scripts/lib.sh" ]; then
     echo "ERROR: Could not find lib.sh at $SCRIPT_DIR/scripts/lib.sh"
     echo "Current directory: $(pwd)"
@@ -131,6 +131,35 @@ step 8 "System Configuration & Services"
 bash "$SCRIPT_DIR/scripts/setup-cli.sh"
 bash "$SCRIPT_DIR/scripts/setup-shell.sh"
 
+step 9 "Project Directory Structure (OA CLI)"
+
+mkdir -p "$PROJECT_DIR/scripts"
+mkdir -p "$PROJECT_DIR/platforms"
+mkdir -p "$PROJECT_DIR/patches"
+
+# Copy essential scripts
+cp "$SCRIPT_DIR/scripts/lib.sh" "$PROJECT_DIR/scripts/lib.sh"
+cp "$SCRIPT_DIR/scripts/setup-env.sh" "$PROJECT_DIR/scripts/setup-env.sh"
+[ -f "$SCRIPT_DIR/scripts/backup.sh" ] && cp "$SCRIPT_DIR/scripts/backup.sh" "$PROJECT_DIR/scripts/backup.sh"
+
+# Copy platform config
+rm -rf "$PROJECT_DIR/platforms/$SELECTED_PLATFORM"
+cp -R "$SCRIPT_DIR/platforms/$SELECTED_PLATFORM" "$PROJECT_DIR/platforms/$SELECTED_PLATFORM"
+
+# Copy uninstall script
+cp "$SCRIPT_DIR/uninstall.sh" "$PROJECT_DIR/uninstall.sh"
+chmod +x "$PROJECT_DIR/uninstall.sh"
+
+# Copy oa to PREFIX/bin (direct execution, like original)
+cp "$SCRIPT_DIR/oa.sh" "$PREFIX/bin/oa"
+chmod +x "$PREFIX/bin/oa"
+
+# Copy oaupdate
+cp "$SCRIPT_DIR/update.sh" "$PREFIX/bin/oaupdate"
+chmod +x "$PREFIX/bin/oaupdate"
+
+echo -e "${GREEN}[OK]${NC}   Project directory structure created"
+
 # Cleanup
 echo ""
 echo "Cleaning up temporary files..."
@@ -142,12 +171,13 @@ echo -e "${GREEN}  Installation Complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "You can now use OpenClaw by running:"
-echo -e "  ${BOLD}oa onboarding${NC}"
+echo -e "  ${BOLD}oa onboard${NC}"
 echo ""
 echo "To manage services:"
-echo -e "  ${BOLD}oa start${NC}  - Start all services"
-echo -e "  ${BOLD}oa stop${NC}   - Stop all services"
-echo -e "  ${BOLD}oa status${NC} - View service health"
+echo -e "  ${BOLD}oa start${NC}    - Start all services"
+echo -e "  ${BOLD}oa stop${NC}     - Stop all services"
+echo -e "  ${BOLD}oa status${NC}   - View service health"
+echo -e "  ${BOLD}oa dashboard${NC} - Open Control UI"
 echo ""
 
 # Verify the installation

@@ -26,8 +26,8 @@ El instalador detecta automáticamente el hardware y elige la mejor estrategia:
 Clona el repositorio y ejecuta el script principal:
 
 ```bash
-git clone https://github.com/ANONIMO432HZ/openclaw-android-bcp.git
-cd openclaw-android-bcp
+git clone https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git
+cd openclaw-android-multiarch
 bash install.sh
 ```
 
@@ -71,7 +71,7 @@ ssh -p 8022 -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 u0_aXXX@192.168.x.
 
 ### Paso 3: Iniciar y Entrar
 
-1. En Termux: `openclaw gateway --allow-unconfigured`
+1. En Termux: `oa start`
 2. En la PC: Abre `http://localhost:18789` y pega tu token.
 
 ---
@@ -81,8 +81,8 @@ ssh -p 8022 -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 u0_aXXX@192.168.x.
 | Comando | Descripción |
 | :--- | :--- |
 | `oa status` | Verifica la salud de todos los componentes instalados. |
-| `openclaw gateway` | Inicia el motor de IA y el servidor WebSocket. |
-| `openclaw onboard` | Configura tus API keys (Anthropic, OpenAI, etc.). |
+| `oa start` | Inicia el motor de IA y el servidor WebSocket. |
+| `oa onboard` | Configura tus API keys (Anthropic, OpenAI, etc.). |
 | `openclaw update` | Actualiza la plataforma a la última versión estable. |
 | `sshd` | Permite el acceso remoto mediante el túnel mencionado. |
 

@@ -10,6 +10,9 @@
 
 나야, [OpenClaw](https://github.com/openclaw). 근데 이제 Android-Termux 를 곁들인...
 
+> **🎯 이 포크(Fork)의 목적:**
+> 이 저장소는 공식 [AidanPark/openclaw-android](https://github.com/AidanPark/openclaw-android) 프로젝트의 특수 포크입니다. 이 저장소의 유일한 목적은 **루팅 권한 없이 Termux 내에서 armv7 (32비트) 및 최신 기기로부터 openclaw-android의 설치 및 작동 호환성을 유지하는 것**입니다.
+> 네이티브 CLI 게이트웨이를 Termux 환경에서 안정적으로 실행하는 것과 엄밀하게 관련되지 않은 Android APK, React UI 대시보드(`android/`) 또는 기타 기능에 대해서는 **유지보수를 제공하지 않습니다**.
 ## 리눅스 설치 없이
 
 일반적으로 Android에서 OpenClaw를 실행하려면 proot-distro로 Linux를 설치해야 하고, 700MB~1GB의 저장공간이 필요합니다. OpenClaw on Android는 glibc 동적 링커(ld.so)만 설치하여, 전체 Linux 배포판 없이 OpenClaw를 실행할 수 있게 합니다.
@@ -125,19 +128,19 @@ curl -sL myopenclawhub.com/install | bash && source ~/.bashrc
 
 명령어 하나로 모든 설치가 자동으로 진행됩니다. 3~10분 정도 소요되며 (네트워크 속도와 기기 성능에 따라 다름), Wi-Fi 환경을 권장합니다.
 
-설치가 완료되면 OpenClaw 버전이 출력되고, `openclaw onboard`로 설정을 시작하라는 안내가 나타납니다.
+설치가 완료되면 OpenClaw 버전이 출력되고, `oa onboard`로 설정을 시작하라는 안내가 나타납니다.
 
 ### 5단계: OpenClaw 설정 시작
 
 설치 완료 메시지의 안내에 따라 아래 명령어를 실행합니다.
 
 ```bash
-openclaw onboard
+oa onboard
 ```
 
 화면의 안내에 따라 초기 설정을 진행합니다.
 
-![openclaw onboard](docs/images/openclaw-onboard.png)
+![oa onboard](docs/images/openclaw-onboard.png)
 
 ### 6단계: OpenClaw(게이트웨이) 실행
 

@@ -10,6 +10,9 @@
 
 Because Android deserves a shell.
 
+> **🎯 Purpose of this Fork:**
+> This repository is a specialized fork of the official [AidanPark/openclaw-android](https://github.com/AidanPark/openclaw-android) project. Its sole purpose is to **maintain complete installation and operational compatibility for openclaw-android directly from armv7 (32-bit) and newer devices within Termux (without root)**. 
+> We **DO NOT** provide maintenance for the Android APK, the React UI dashboard (`android/`), or any other features that are not strictly related to keeping the native CLI gateway running optimally on Termux environments.
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://www.android.com/)
 [![Termux](https://img.shields.io/badge/Termux-000000?style=for-the-badge&logo=termux&logoColor=white)](https://termux.dev/)
 [![Bash](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
@@ -159,7 +162,7 @@ openclaw onboard
 
 Follow the on-screen instructions to complete the initial setup.
 
-![openclaw onboard](docs/images/openclaw-onboard.png)
+![oa onboard](docs/images/openclaw-onboard.png)
 
 ### Step 6: Start OpenClaw (Gateway)
 
@@ -196,7 +199,7 @@ If your device turns off or you restart Termux, you don't need to reinstall anyt
 
 ---
 
-<img src="docs/images/termux_tab_1.png" width="300" alt="openclaw gateway running">
+<img src="docs/images/termux_tab_1.png" width="300" alt="oa start running">
 
 > To stop the gateway, press `Ctrl+C`. Do not use `Ctrl+Z` — it only suspends the process without terminating it.
 

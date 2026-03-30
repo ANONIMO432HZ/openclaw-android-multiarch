@@ -38,7 +38,7 @@ Keeping a phone plugged in 24/7 at 100% can cause battery swelling. Limiting the
 
 ## Disable Phantom Process Killer (Android 12+)
 
-Android 12 and above includes a feature called **Phantom Process Killer** that automatically terminates background processes. This can cause Termux processes like `openclaw gateway`, `sshd`, and `ttyd` to be killed without warning.
+Android 12 and above includes a feature called **Phantom Process Killer** that automatically terminates background processes. This can cause Termux processes like `oa start`, `sshd`, and `ttyd` to be killed without warning.
 
 ## Symptoms
 

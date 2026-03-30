@@ -116,7 +116,7 @@ NODESCRIPT
     fi
 else
     echo -e "${YELLOW}[INFO]${NC} Node.js not available — manual browser configuration needed"
-    echo "       After running 'openclaw onboard', add to ~/.openclaw/openclaw.json:"
+    echo "       After running 'oa onboard', add to ~/.openclaw/openclaw.json:"
     echo "       \"browser\": {\"executablePath\": \"$CHROMIUM_BIN\", \"headless\": true, \"noSandbox\": true}"
 fi
 

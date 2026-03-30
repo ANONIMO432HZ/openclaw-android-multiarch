@@ -576,4 +576,4 @@ source "$HOME/.bashrc"
 echo ""
 echo "  Starting OpenClaw onboard..."
 echo ""
-openclaw onboard
+oa onboard

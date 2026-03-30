@@ -42,12 +42,12 @@ rm -rf $PREFIX/tmp/openclaw-*
 **Step 3: Restart the gateway**
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 ### If it still doesn't work
 
-If the above steps don't help, fully close and reopen the Termux app, then run `openclaw gateway`. Rebooting the phone will reliably clear all state.
+If the above steps don't help, fully close and reopen the Termux app, then run `oa start`. Rebooting the phone will reliably clear all state.
 
 ## Gateway disconnected: "gateway not connected"
 
@@ -65,7 +65,7 @@ The gateway process has stopped or the SSH session was disconnected.
 Check the SSH session where the gateway was running. If the session was disconnected, reconnect via SSH and start the gateway:
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 If you get a "gateway already running" error, see the [Gateway won't start](#gateway-wont-start-gateway-already-running-or-port-is-already-in-use) section above.
@@ -163,7 +163,7 @@ After running `openclaw update`, OpenClaw tries to restart the gateway service u
 Simply start the gateway manually:
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 If the gateway was already running before the update, you may need to stop the old process first. See the [Gateway won't start](#gateway-wont-start-gateway-already-running-or-port-is-already-in-use) section above.

@@ -42,12 +42,12 @@ rm -rf $PREFIX/tmp/openclaw-*
 **3단계: 게이트웨이 재시작**
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 ### 그래도 안 되면
 
-위 과정으로도 해결되지 않으면 Termux 앱을 완전히 종료했다가 다시 열고 `openclaw gateway`를 실행하세요. 폰을 재시작하면 확실하게 모든 상태가 초기화됩니다.
+위 과정으로도 해결되지 않으면 Termux 앱을 완전히 종료했다가 다시 열고 `oa start`를 실행하세요. 폰을 재시작하면 확실하게 모든 상태가 초기화됩니다.
 
 ## 게이트웨이 연결 끊김: "gateway not connected"
 
@@ -65,7 +65,7 @@ disconnected | error
 게이트웨이를 실행했던 SSH 세션을 확인하세요. 세션이 끊어졌다면 다시 SSH 접속 후 게이트웨이를 시작합니다:
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 "gateway already running" 에러가 나오면 위의 [게이트웨이가 시작되지 않음](#게이트웨이가-시작되지-않음-gateway-already-running-또는-port-is-already-in-use) 섹션을 참고하세요.
@@ -163,7 +163,7 @@ Gateway service check failed: Error: systemctl --user unavailable: spawn systemc
 수동으로 게이트웨이를 시작하면 됩니다:
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 업데이트 전에 게이트웨이가 실행 중이었다면 기존 프로세스를 먼저 종료해야 할 수 있습니다. 위의 [게이트웨이가 시작되지 않음](#게이트웨이가-시작되지-않음-gateway-already-running-또는-port-is-already-in-use) 섹션을 참고하세요.

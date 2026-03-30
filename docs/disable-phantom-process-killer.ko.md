@@ -38,7 +38,7 @@ OpenClaw는 서버로 동작하므로 Android의 전원 관리 및 프로세스 
 
 ## Phantom Process Killer 비활성화 (Android 12+)
 
-Android 12 이상에는 **Phantom Process Killer**라는 기능이 포함되어 있어, 백그라운드 프로세스를 자동으로 종료합니다. 이로 인해 Termux에서 실행 중인 `openclaw gateway`, `sshd`, `ttyd` 등이 예고 없이 종료될 수 있습니다.
+Android 12 이상에는 **Phantom Process Killer**라는 기능이 포함되어 있어, 백그라운드 프로세스를 자동으로 종료합니다. 이로 인해 Termux에서 실행 중인 `oa start`, `sshd`, `ttyd` 등이 예고 없이 종료될 수 있습니다.
 
 ## 증상
 

@@ -220,21 +220,26 @@ If you run OpenClaw on multiple devices on the same network, use the <a href="ht
 
 After installation, the `oa` command is available for managing your installation:
 
-| Option | Description |
-| :--- | :--- |
-| `oa update` | Updates OpenClaw and Android patches |
-| `oa fix-android` | **Essential**: Patches 'not supported on Android' errors |
-| `oa start` | Starts the Gateway in the background |
-| `oa start:fg` | Starts the Gateway in the foreground (ideal for debugging) |
-| `oa stop` | Stops the Gateway and cleans up orphan processes |
-| `oa status` | Shows complete installation status and version |
-| `oa logs` | View live logs of the Gateway service |
-| `oa install` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
-| `oa backup` | Create a full backup of OpenClaw data |
-| `oa restore` | Restore from a previous backup |
-| `oa uninstall` | Remove OpenClaw from Android |
-| `oa version` | Show version information (`-v`) |
-| `oa help` | Show all available options (`-h`) |
+| Option | Aliases | Description |
+| :--- | :--- | :--- |
+| `oa update` | `up` | Updates OpenClaw and Android patches |
+| `oa install` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
+| `oa start` | `strt` | Starts the Gateway in the background |
+| `oa start:fg` | `strt:fg` | Starts the Gateway in the foreground (ideal for debugging) |
+| `oa stop` | `stp` | Stops the Gateway and cleans up orphan processes |
+| `oa logs` | `log` | View live logs of the Gateway service |
+| `oa dashboard` | `ui` | Open the OpenClaw Dashboard (Control UI) |
+| `oa configure` | `setup` | Interactive Configuration Wizard (credentials, channels, etc.) |
+| `oa onboard` | — | Run the Onboarding Wizard |
+| `oa config` | `cfg` | Non-interactive config helpers (`get`/`set`/`validate`) |
+| `oa doctor` | `doc` | Health checks + quick fixes |
+| `oa status` | `st` | Shows complete installation status and version |
+| `oa fix-android` | `fix` | **Essential**: Patches 'not supported on Android' errors |
+| `oa backup` | `bkp` | Create a full backup of OpenClaw data |
+| `oa restore` | `rst` | Restore from a previous backup |
+| `oa uninstall` | `uninst` | Remove OpenClaw from Android |
+| `oa version` | `v`, `-v` | Show version information |
+| `oa help` | `-h`, `h` | Show all available options |
 
 ## Update
 

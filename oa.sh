@@ -20,26 +20,7 @@ CYAN="${CYAN:-\033[0;36m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
-# ── UI Utilities ──
-if ! command -v banner &>/dev/null; then
-    banner() {
-        local title="$1"
-        local color="${2:-$BOLD}"
-        echo -e "${color}${BOLD}========================================${NC}"
-        echo -e "${color}${BOLD}  ${title} v${OA_VERSION}${NC}"
-        echo -e "${color}${BOLD}========================================${NC}"
-    }
-fi
-
-if ! command -v ask_yn &>/dev/null; then
-    ask_yn() {
-        local prompt="$1"
-        local reply
-        read -rp "$prompt [Y/n] " reply < /dev/tty
-        [[ "${reply:-}" =~ ^[Nn]$ ]] && return 1
-        return 0
-    }
-fi
+# ── Commands ──
 
 show_help() {
     banner "OpenClaw Android Professional CLI" "$PURPLE"

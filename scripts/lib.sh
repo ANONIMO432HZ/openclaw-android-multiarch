@@ -13,22 +13,18 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-show_banner() {
-    local TITLE="$1"
-    local COLOR="${2:-$PURPLE}"
-    echo -e "${BOLD}========================================${NC}"
-    echo -e "${COLOR}  ${BOLD}$TITLE${NC}"
-    echo -e "${BOLD}========================================${NC}"
+# ── UI Utilities ──
+banner() {
+    local title="$1"
+    local color="${2:-$BOLD}"
+    local version="${3:-$OA_VERSION}"
+    echo -e "${color}${BOLD}========================================${NC}"
+    echo -e "${color}${BOLD}  ${title} v${version}${NC}"
+    echo -e "${color}${BOLD}========================================${NC}"
 }
 
-banner() {
-    local TITLE="$1"
-    local VERSION="$2"
-    echo ""
-    echo -e "${BOLD}========================================${NC}"
-    echo -e "${BOLD}  $TITLE v$VERSION${NC}"
-    echo -e "${BOLD}========================================${NC}"
-    echo ""
+show_banner() {
+    banner "$@"
 }
 
 # ── Project constants ──

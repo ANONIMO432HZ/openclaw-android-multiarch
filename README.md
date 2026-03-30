@@ -145,12 +145,6 @@ pkg update -y && pkg install -y curl git
 Paste the following command in Termux.
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash && source ~/.bashrc
-```
-
-Or clone directly with git (faster, enables future updates via `git pull`):
-
-```bash
 git clone --depth=1 --branch main https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git ~/.openclaw-android && bash ~/.openclaw-android/install.sh && source ~/.bashrc
 ```
 

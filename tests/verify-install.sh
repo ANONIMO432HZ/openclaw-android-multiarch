@@ -164,4 +164,14 @@ if [ "$FAIL" -gt 0 ]; then
     exit 1
 else
     echo -e "${GREEN}Installation verification PASSED!${NC}"
+    echo ""
+    echo "You can now use OpenClaw by running:"
+    echo -e "  ${BOLD}oa onboard${NC}"
+    echo ""
+    echo "To manage services:"
+    echo -e "  ${BOLD}oa start${NC}    - Start all services"
+    echo -e "  ${BOLD}oa stop${NC}     - Stop all services"
+    echo -e "  ${BOLD}oa status${NC}   - View service health"
+    echo -e "  ${BOLD}oa ui${NC}       - Open Control UI"
+    echo ""
 fi

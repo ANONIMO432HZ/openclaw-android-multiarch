@@ -167,11 +167,10 @@ perform_backup() {
     archive_root=$(_backup_archive_root "$basename")
 
     # Build manifest.json in a temp dir, then pack everything
+    # Create temp directory
     local tmpdir
     tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/oa-backup.XXXXXX")
-    # Use a localized cleanup to avoid EXIT trap scope issues
-    cleanup_backup_tmp() { rm -rf "$tmpdir"; }
-    trap cleanup_backup_tmp RETURN
+    trap "rm -rf '$tmpdir'" RETURN
 
     local staging="$tmpdir/$archive_root"
     local payload_dir="$staging/payload"

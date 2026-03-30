@@ -2,9 +2,7 @@
 # oa.sh — OpenClaw Management Orchestrator for Android
 set -euo pipefail
 
-# Cambiamos esto para que no falle si se usa 'curl | bash'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-
 
 PROJECT_DIR="$HOME/.openclaw-android"
 if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
@@ -72,6 +70,20 @@ show_help() {
     echo ""
 }
 
+# ── Helper: Verify and repair environment if needed (fast) ──
+check_and_fix_env() {
+    if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
+        return 0
+    fi
+    if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
+        source "$HOME/.bashrc" 2>/dev/null || true
+    fi
+    if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
+        bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
+        source "$HOME/.bashrc" 2>/dev/null || true
+    fi
+}
+
 # ── Command Implementations ──
 
 cmd_update() {
@@ -83,27 +95,19 @@ cmd_update() {
     if [ -f "$PROJECT_DIR/platforms/openclaw/config.env" ]; then
         source "$PROJECT_DIR/platforms/openclaw/config.env"
     fi
-    OPENCLAW_VERSION_SPEC="${OPENCLAW_STABLE_VERSION:-latest}"
 
     echo "Checking for script updates..."
-    
-    # Advanced Version Checking (Ported from omni.sh)
     git fetch --tags --force >/dev/null 2>&1 || true
-    
+
     local LOCAL REMOTE
     LOCAL=$(git rev-parse HEAD 2>/dev/null || echo "0")
     REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "1")
 
     if [ "$LOCAL" != "$REMOTE" ]; then
         echo -e "${YELLOW}[UPDATE]${NC} New scripts found. Syncing repository..."
-        
-        # Protect local changes
         git stash push -m "oa-auto-stash" >/dev/null 2>&1 || true
-        
         if git pull origin main; then
             git stash pop >/dev/null 2>&1 || true
-            
-            # Refresh formatting for Android
             find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
             [ -w "$PREFIX/bin/oa" ] && sed -i 's/\r$//' "$PREFIX/bin/oa" 2>/dev/null || true
             echo -e "${GREEN}[OK]${NC} Repository synchronized."
@@ -111,13 +115,12 @@ cmd_update() {
     else
         echo -e "${GREEN}[OK]${NC} Scripts are up-to-date."
     fi
-    
+
     # ── Update OpenClaw Core (with confirmation) ──
     if command -v openclaw &>/dev/null; then
         echo ""
         echo -e "${BOLD}OpenClaw Core Update${NC}"
-        
-        # Save current version for potential rollback
+
         local PREV_VERSION
         PREV_VERSION=$(openclaw --version 2>/dev/null | head -1 || echo "unknown")
         echo "  Current version: $PREV_VERSION"
@@ -126,34 +129,31 @@ cmd_update() {
         if [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
             echo "  Stable fallback: $OPENCLAW_STABLE_VERSION"
         fi
-        
+
         if ask_yn "Proceed with updating OpenClaw Core?"; then
             echo "Updating OpenClaw Core via NPM (latest first)..."
-            
-            # Try npm update with error handling
+
             local NPM_OUTPUT
             local NPM_EXIT=0
             NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-            
+
             if [ $NPM_EXIT -eq 0 ]; then
                 echo -e "${GREEN}[OK]${NC} OpenClaw Core updated successfully (latest)."
             else
                 echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed (latest)."
                 echo "$NPM_OUTPUT" | head -20
                 echo ""
-                
-                # Try stable version fallback
+
                 if [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
                     echo -e "${YELLOW}[FALLBACK]${NC} Trying stable version $OPENCLAW_STABLE_VERSION..."
                     NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-                    
+
                     if [ $NPM_EXIT -eq 0 ]; then
                         echo -e "${GREEN}[OK]${NC} OpenClaw Core installed (stable: $OPENCLAW_STABLE_VERSION)."
                     else
                         echo -e "${RED}[FAIL]${NC} Stable version also failed."
                         echo "$NPM_OUTPUT" | head -10
-                        
-                        # Offer rollback
+
                         if [ "$PREV_VERSION" != "unknown" ]; then
                             echo ""
                             if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
@@ -169,19 +169,18 @@ cmd_update() {
                     echo "  2. Install specific version"
                     echo "  3. Rollback to previous version"
                     echo ""
-                    
+
                     if ask_yn "Clear npm cache and retry?"; then
                         echo "Clearing npm cache..."
                         npm cache clean --force 2>/dev/null || true
                         NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-                        
+
                         if [ $NPM_EXIT -eq 0 ]; then
                             echo -e "${GREEN}[OK]${NC} Retry successful."
                         else
                             echo -e "${RED}[FAIL]${NC} Retry failed."
                             echo "$NPM_OUTPUT" | head -10
-                            
-                            # Offer rollback
+
                             if [ "$PREV_VERSION" != "unknown" ]; then
                                 echo ""
                                 if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
@@ -199,107 +198,7 @@ cmd_update() {
         fi
     fi
 
-    echo "Checking for script updates..."
-    
-    # Advanced Version Checking (Ported from omni.sh)
-    git fetch --tags --force >/dev/null 2>&1 || true
-    
-    local LOCAL REMOTE
-    LOCAL=$(git rev-parse HEAD 2>/dev/null || echo "0")
-    REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "1")
-
-    if [ "$LOCAL" != "$REMOTE" ]; then
-        echo -e "${YELLOW}[UPDATE]${NC} New scripts found. Syncing repository..."
-        
-        # Protect local changes
-        git stash push -m "oa-auto-stash" >/dev/null 2>&1 || true
-        
-        if git pull origin main; then
-            git stash pop >/dev/null 2>&1 || true
-            
-            # Refresh formatting for Android
-            find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
-            [ -w "$PREFIX/bin/oa" ] && sed -i 's/\r$//' "$PREFIX/bin/oa" 2>/dev/null || true
-            echo -e "${GREEN}[OK]${NC} Repository synchronized."
-        fi
-    else
-        echo -e "${GREEN}[OK]${NC} Scripts are up-to-date."
-    fi
-    
-    # ── Update OpenClaw Core (with confirmation) ──
-    if command -v openclaw &>/dev/null; then
-        echo ""
-        echo -e "${BOLD}OpenClaw Core Update${NC}"
-        
-        # Show version pin info
-        if [ "$OPENCLAW_VERSION_SPEC" != "latest" ]; then
-            echo -e "  ${YELLOW}[PINNED]${NC} Stable version: $OPENCLAW_VERSION_SPEC"
-        else
-            echo -e "  Channel: latest (unpinned)"
-        fi
-        
-        # Save current version for potential rollback
-        local PREV_VERSION
-        PREV_VERSION=$(openclaw --version 2>/dev/null | head -1 || echo "unknown")
-        echo "  Current version: $PREV_VERSION"
-        
-        echo ""
-        if [ "$OPENCLAW_VERSION_SPEC" != "latest" ]; then
-            echo "This will update OpenClaw via npm to stable version $OPENCLAW_VERSION_SPEC."
-        else
-            echo "This will update OpenClaw via npm to the latest version."
-        fi
-        
-        if ask_yn "Proceed with updating OpenClaw Core?"; then
-            echo "Updating OpenClaw Core via NPM..."
-            
-            # Try npm update with error handling
-            local NPM_OUTPUT
-            local NPM_EXIT=0
-            NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_VERSION_SPEC}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-            
-            if [ $NPM_EXIT -eq 0 ]; then
-                echo -e "${GREEN}[OK]${NC} OpenClaw Core updated successfully."
-            else
-                echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed."
-                echo "$NPM_OUTPUT" | head -20
-                echo ""
-                echo -e "${YELLOW}Troubleshooting options:${NC}"
-                echo "  1. Retry with npm cache clean"
-                echo "  2. Install specific version"
-                echo "  3. Rollback to previous version"
-                echo ""
-                
-                if ask_yn "Clear npm cache and retry?"; then
-                    echo "Clearing npm cache..."
-                    npm cache clean --force 2>/dev/null || true
-                    NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_VERSION_SPEC}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-                    
-                    if [ $NPM_EXIT -eq 0 ]; then
-                        echo -e "${GREEN}[OK]${NC} Retry successful."
-                    else
-                        echo -e "${RED}[FAIL]${NC} Retry failed."
-                        echo "$NPM_OUTPUT" | head -10
-                        
-                        # Offer rollback
-                        if [ "$PREV_VERSION" != "unknown" ]; then
-                            echo ""
-                            if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
-                                echo "Rolling back..."
-                                npm install -g "openclaw@$PREV_VERSION" --no-audit --no-fund 2>&1 || true
-                                echo -e "${YELLOW}[INFO]${NC} Rollback attempted. Check with: openclaw --version"
-                            fi
-                        fi
-                    fi
-                fi
-            fi
-        else
-            echo -e "${YELLOW}[SKIP]${NC} OpenClaw Core update skipped."
-        fi
-    fi
-    
     # ── Critical Reconstruction Step ──
-    # Always re-patch after 'npm install -g' as it overwrites our Android fixes
     echo ""
     echo "Re-applying Android compatibility patches..."
     if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
@@ -307,7 +206,7 @@ cmd_update() {
     elif [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
         bash "$PROJECT_DIR/scripts/patch-core.sh"
     fi
-    
+
     echo -e "${GREEN}[OK]${NC} Update cycle completed."
 }
 
@@ -321,57 +220,17 @@ cmd_install() {
     fi
 }
 
-# ── Helper: Verify and repair environment if needed (fast) ──
-check_and_fix_env() {
-    # Fast path: if variables are already set, skip
-    if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
-        return 0
-    fi
-    
-    # Quick check: grep the .bashrc file (faster than sourcing)
-    if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
-        source "$HOME/.bashrc" 2>/dev/null || true
-    fi
-    
-    # If still missing, run fix-env (rare case)
-    if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
-        bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
-        source "$HOME/.bashrc" 2>/dev/null || true
-    fi
-}
-
-cmd_update() {
-    # Fast path: if variables are already set, skip
-    if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
-        return 0
-    fi
-    
-    # Quick check: grep the .bashrc file (faster than sourcing)
-    if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
-        source "$HOME/.bashrc" 2>/dev/null || true
-    fi
-    
-    # If still missing, run fix-env (rare case)
-    if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
-        bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
-        source "$HOME/.bashrc" 2>/dev/null || true
-    fi
-}
-
 cmd_start() {
-    # Verify environment before starting
     check_and_fix_env
-    
     echo -e "${CYAN}Starting OpenClaw gateway in background...${NC}"
-    # Prevent double starting
     cmd_stop >/dev/null 2>&1 || true
-    
+
     mkdir -p "$PROJECT_DIR/logs"
     nohup openclaw gateway > "$PROJECT_DIR/server.log" 2>&1 &
-    
+
     echo -e "  Waiting for server to initialize (approx. 5s)..."
     sleep 5
-    
+
     if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
         echo -e "${GREEN}[OK]${NC} OpenClaw is running in the background."
         echo -e "     Logs: ${BOLD}oa logs${NC}"
@@ -389,18 +248,17 @@ cmd_start_fg() {
 cmd_stop() {
     check_and_fix_env
     echo -e "${YELLOW}Stopping OpenClaw gateway processes...${NC}"
-    
-    # Identify processes (excluding our current PID)
+
     local PIDS=""
     local ALL_CANDIDATES
     ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
-    
+
     for pid in $ALL_CANDIDATES; do
         if [ "$pid" != "$$" ]; then
             PIDS="$PIDS $pid"
         fi
     done
-    
+
     if [ -n "$PIDS" ]; then
         echo -e "Stopping matching processes (IDs:$PIDS)..."
         kill -9 $PIDS 2>/dev/null || true
@@ -413,11 +271,10 @@ cmd_stop() {
 cmd_status() {
     check_and_fix_env
     banner "OpenClaw Android — Status" "$PURPLE"
-    
+
     echo -e "Version: v$OA_VERSION"
     echo -e "Root Directory: $PROJECT_DIR"
-    
-    # ── Platform Checks ──
+
     echo ""
     echo -e "${BOLD}Platform Environment${NC}"
     if [ -f "/data/data/com.termux/files/usr/bin/termux-info" ]; then
@@ -428,8 +285,7 @@ cmd_status() {
     else
         echo -e "  OS: Non-Termux / Unsupported"
     fi
-    
-    # ── Tool Availability ──
+
     echo ""
     echo -e "${BOLD}Installed Components${NC}"
     local TOOLS=("openclaw" "code-server" "node" "git" "ssh")
@@ -443,7 +299,6 @@ cmd_status() {
         fi
     done
 
-    # ── Gateway Status ──
     echo ""
     echo -e "${BOLD}Service Status${NC}"
     if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
@@ -486,14 +341,11 @@ cmd_fix_env() {
     banner "OpenClaw — Fix Environment" "$YELLOW"
     echo "This will repair the environment variables in ~/.bashrc"
     echo ""
-    
+
     if [ -f "$PROJECT_DIR/scripts/setup-env.sh" ]; then
         echo "Running setup-env.sh..."
         bash "$PROJECT_DIR/scripts/setup-env.sh"
-        
-        # Reload bashrc
         source "$HOME/.bashrc"
-        
         echo ""
         echo -e "${GREEN}[OK]${NC} Environment variables fixed."
         echo "  OA_GLIBC=$OA_GLIBC"
@@ -518,11 +370,10 @@ cmd_fix_android() {
 cmd_logs() {
     check_and_fix_env
     local LOGFILE="$PROJECT_DIR/server.log"
-    # Fallback to old path if present
     if [ ! -f "$LOGFILE" ]; then
          LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
     fi
-    
+
     if [ -f "$LOGFILE" ]; then
          tail -f "$LOGFILE"
     else
@@ -541,33 +392,27 @@ cmd_uninstall() {
         echo "Canceled."
         exit 0
     fi
-    
-    # 1. Stop and disable processes
+
     echo -e "  Stopping and cleaning up processes..."
     cmd_stop >/dev/null 2>&1 || true
-    
-    # Support legacy removal
+
     if command -v sv &>/dev/null; then
         sv-disable openclaw-gateway 2>/dev/null || true
     fi
-    
-    # 2. Remove files
+
     echo -e "  Removing CLI and files..."
     rm -rf "$PROJECT_DIR"
     rm -f "$PREFIX/bin/oa"
-    
-    # Remove bashrc markers
+
     if [ -f "$HOME/.bashrc" ]; then
         sed -i "/# >>> OpenClaw on Android >>>/,/# <<< OpenClaw on Android <<</d" "$HOME/.bashrc"
     fi
-    
+
     echo -e "${GREEN}[OK]${NC} OpenClaw has been removed."
 }
 
 cmd_ui() {
-    # Verify environment before running
     check_and_fix_env
-    
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -577,9 +422,7 @@ cmd_ui() {
 }
 
 cmd_ui_config() {
-    # Verify environment before running
     check_and_fix_env
-    
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -589,9 +432,7 @@ cmd_ui_config() {
 }
 
 cmd_onboard() {
-    # Verify environment before running
     check_and_fix_env
-    
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -622,25 +463,25 @@ cmd_doctor() {
 
 # ── Main Entry Point ──
 case "${1:-}" in
-    update|--update|up)       cmd_update "$@" ;;
-    install|--install|inst)   cmd_install "$@" ;;
-    start|--start|strt)       cmd_start ;;
-    start:fg|--start:fg|strt:fg) cmd_start_fg ;;
-    stop|--stop|stp)          cmd_stop ;;
-    logs|--logs|log)          cmd_logs ;;
-    ui|--ui|dashboard)        cmd_ui ;;
+    update|--update|-update|up)       cmd_update "$@" ;;
+    install|--install|inst)           cmd_install "$@" ;;
+    start|--start|strt)               cmd_start ;;
+    start:fg|--start:fg|strt:fg)      cmd_start_fg ;;
+    stop|--stop|stp)                  cmd_stop ;;
+    logs|--logs|log)                  cmd_logs ;;
+    ui|--ui|dashboard)                cmd_ui ;;
     ui-config|--ui-config|config-wizard) cmd_ui_config ;;
-    onboard|--onboard|obd)        cmd_onboard ;;
-    config|--config|cfg)      cmd_config "$@" ;;
-    doctor|--doctor|doc)      cmd_doctor ;;
-    status|--status|st)       cmd_status ;;
-    backup|--backup|bkp)      cmd_backup "$2" ;;
-    restore|--restore|rst)    cmd_restore "$2" ;;
-    fix-env|fix-env)         cmd_fix_env ;;
-    fix-android|fix)          cmd_fix_android ;;
-    uninstall|--uninstall|uninst) cmd_uninstall ;;
-    v|version|--version|-v)   echo "oa CLI v$OA_VERSION" ;;
-    help|--help|h|"")         show_help ;;
+    onboard|--onboard|obd)            cmd_onboard ;;
+    config|--config|cfg)              cmd_config "$@" ;;
+    doctor|--doctor|doc)              cmd_doctor ;;
+    status|--status|st)               cmd_status ;;
+    backup|--backup|bkp)              cmd_backup "$2" ;;
+    restore|--restore|rst)            cmd_restore "$2" ;;
+    fix-env)                          cmd_fix_env ;;
+    fix-android|fix)                  cmd_fix_android ;;
+    uninstall|--uninstall|uninst)     cmd_uninstall ;;
+    v|version|--version|-v)           echo "oa CLI v$OA_VERSION" ;;
+    help|--help|-h|h|"")              show_help ;;
     *)
         echo -e "${RED}Unknown command: $1${NC}"
         show_help

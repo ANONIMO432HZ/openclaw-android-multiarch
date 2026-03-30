@@ -395,6 +395,12 @@ cmd_uninstall() {
     rm -rf "$PROJECT_DIR"
     rm -f "$PREFIX/bin/oa"
 
+    # Remove visible symlink
+    if [ -L "$HOME/openclaw-android" ]; then
+        rm -f "$HOME/openclaw-android"
+        echo -e "${GREEN}[OK]${NC}   Removed ~/openclaw-android symlink"
+    fi
+
     if [ -f "$HOME/.bashrc" ]; then
         sed -i "/# >>> OpenClaw on Android >>>/,/# <<< OpenClaw on Android <<</d" "$HOME/.bashrc"
     fi

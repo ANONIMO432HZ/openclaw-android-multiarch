@@ -142,6 +142,10 @@ cp "$SCRIPT_DIR/scripts/lib.sh" "$PROJECT_DIR/scripts/lib.sh"
 cp "$SCRIPT_DIR/scripts/setup-env.sh" "$PROJECT_DIR/scripts/setup-env.sh"
 [ -f "$SCRIPT_DIR/scripts/backup.sh" ] && cp "$SCRIPT_DIR/scripts/backup.sh" "$PROJECT_DIR/scripts/backup.sh"
 
+# Copy oa.sh to PROJECT_DIR (required by ~/bin/oa wrapper)
+cp "$SCRIPT_DIR/oa.sh" "$PROJECT_DIR/oa.sh"
+chmod +x "$PROJECT_DIR/oa.sh"
+
 # Copy platform config
 rm -rf "$PROJECT_DIR/platforms/$SELECTED_PLATFORM"
 cp -R "$SCRIPT_DIR/platforms/$SELECTED_PLATFORM" "$PROJECT_DIR/platforms/$SELECTED_PLATFORM"

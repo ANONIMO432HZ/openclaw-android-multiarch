@@ -52,17 +52,22 @@ else
 fi
 
 if is_armv7l; then
-    if [ "${OA_GLIBC:-}" = "0" ]; then
-        check_pass "OA_GLIBC=0 (native architecture)"
-    else
-        check_fail "OA_GLIBC should be 0 for native architecture (got: ${OA_GLIBC:-})"
-    fi
+    # OA_GLIBC should be 0 for native armv7l (set in .bashrc, may not be in current shell)
+    EXPECTED_GLIBC="0"
 else
-    if [ "${OA_GLIBC:-}" = "1" ]; then
-        check_pass "OA_GLIBC=1 (glibc architecture)"
-    else
-        check_fail "OA_GLIBC not set to 1 for glibc architecture"
-    fi
+    EXPECTED_GLIBC="1"
+fi
+
+# Check current shell OR .bashrc for correct value
+GLIBC_VALUE="${OA_GLIBC:-}"
+if [ -z "$GLIBC_VALUE" ]; then
+    GLIBC_VALUE=$(grep -o 'OA_GLIBC=[0-9]' "$HOME/.bashrc" 2>/dev/null | tail -1 | cut -d= -f2 || true)
+fi
+
+if [ "$GLIBC_VALUE" = "$EXPECTED_GLIBC" ]; then
+    check_pass "OA_GLIBC=$EXPECTED_GLIBC (native architecture)"
+else
+    check_fail "OA_GLIBC should be $EXPECTED_GLIBC for architecture $(uname -m) (got: ${GLIBC_VALUE:-empty})"
 fi
 
 COMPAT_FILE="$PROJECT_DIR/patches/glibc-compat.js"

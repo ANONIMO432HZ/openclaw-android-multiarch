@@ -42,4 +42,4 @@ for f in "${files_to_patch[@]}"; do
 done
 
 echo ""
-echo -e "${GREEN}[OK]${NC}   Core patched successfully. You can now run 'openclaw onboarding'."
+echo -e "${GREEN}[OK]${NC}   Core patched successfully. You can now run 'oa onboard'."

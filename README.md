@@ -87,11 +87,11 @@ A standalone Android app is also available. It bundles a terminal emulator and a
 * Built-in dashboard for gateway control, runtime info, and tool management
 * Works independently of Termux — installing the app does not affect an existing Termux + `oa` setup
 
-Download the APK from the [Releases](https://github.com/ANONIMO432HZ/openclaw-android-multiarch/releases) page.
+Download the APK from the [Releases](https://github.com/AidanPark/openclaw-android/releases) page.
 
 ## Requirements
 
-* Android 7.0 or higher (Android 10+ recommended)
+* Android 7.0 64 bits or higher (Android 10+ recommended)
 * ~1GB free storage
 * Wi-Fi or mobile data connection
 

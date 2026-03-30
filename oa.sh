@@ -481,12 +481,20 @@ cmd_config() {
 
 cmd_doctor() {
     check_and_fix_env
-    if ! command -v openclaw &>/dev/null; then
-        echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
-        exit 1
+    if [ -f "$PROJECT_DIR/scripts/doctor.sh" ]; then
+        bash "$PROJECT_DIR/scripts/doctor.sh"
+    elif [ -f "$SCRIPT_DIR/scripts/doctor.sh" ]; then
+        bash "$SCRIPT_DIR/scripts/doctor.sh"
+    else
+        # Fallback if scripts are missing
+        echo -e "${CYAN}Running health checks (legacy mode)...${NC}"
+        if command -v openclaw &>/dev/null; then
+            openclaw doctor
+        else
+            echo -e "${RED}[FAIL]${NC} Diagnostic tools not found."
+            exit 1
+        fi
     fi
-    echo -e "${CYAN}Running health checks...${NC}"
-    openclaw doctor
 }
 
 # ── Main Entry Point ──

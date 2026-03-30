@@ -133,7 +133,7 @@ cmd_update() {
         fi
     fi
 
-    # ── Step 2: Update OpenClaw Core (npm) ──
+    # ── Step 2: Update OpenClaw Core (npm) with confirmation ──
     if command -v openclaw &>/dev/null; then
         echo ""
         echo -e "${BOLD}OpenClaw Core Update${NC}"
@@ -141,33 +141,42 @@ cmd_update() {
         local PREV_VERSION
         PREV_VERSION=$(openclaw --version 2>/dev/null | head -1 || echo "unknown")
         echo "  Current version: $PREV_VERSION"
+        echo ""
+        echo "This will update OpenClaw via npm to the latest version."
+        if [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
+            echo "  Stable fallback: $OPENCLAW_STABLE_VERSION"
+        fi
 
-        echo "Updating OpenClaw Core via NPM (latest first)..."
-        local NPM_OUTPUT
-        local NPM_EXIT=0
-        NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
+        if ask_yn "Proceed with updating OpenClaw Core?"; then
+            echo "Updating OpenClaw Core via NPM (latest first)..."
+            local NPM_OUTPUT
+            local NPM_EXIT=0
+            NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
 
-        if [ $NPM_EXIT -eq 0 ]; then
-            echo -e "${GREEN}[OK]${NC} OpenClaw Core updated (latest)."
-        elif [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
-            echo -e "${YELLOW}[FALLBACK]${NC} latest failed — trying stable version $OPENCLAW_STABLE_VERSION..."
-            NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
             if [ $NPM_EXIT -eq 0 ]; then
-                echo -e "${GREEN}[OK]${NC} OpenClaw Core installed (stable: $OPENCLAW_STABLE_VERSION)."
-            else
-                echo -e "${RED}[FAIL]${NC} Stable version also failed."
-                echo "$NPM_OUTPUT" | head -10
-                if [ "$PREV_VERSION" != "unknown" ]; then
-                    echo ""
-                    if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
-                        npm install -g "openclaw@$PREV_VERSION" --no-audit --no-fund 2>&1 || true
-                        echo -e "${YELLOW}[INFO]${NC} Rollback attempted."
+                echo -e "${GREEN}[OK]${NC} OpenClaw Core updated (latest)."
+            elif [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
+                echo -e "${YELLOW}[FALLBACK]${NC} latest failed — trying stable version $OPENCLAW_STABLE_VERSION..."
+                NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
+                if [ $NPM_EXIT -eq 0 ]; then
+                    echo -e "${GREEN}[OK]${NC} OpenClaw Core installed (stable: $OPENCLAW_STABLE_VERSION)."
+                else
+                    echo -e "${RED}[FAIL]${NC} Stable version also failed."
+                    echo "$NPM_OUTPUT" | head -10
+                    if [ "$PREV_VERSION" != "unknown" ]; then
+                        echo ""
+                        if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
+                            npm install -g "openclaw@$PREV_VERSION" --no-audit --no-fund 2>&1 || true
+                            echo -e "${YELLOW}[INFO]${NC} Rollback attempted."
+                        fi
                     fi
                 fi
+            else
+                echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed."
+                echo "$NPM_OUTPUT" | head -20
             fi
         else
-            echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed."
-            echo "$NPM_OUTPUT" | head -20
+            echo -e "${YELLOW}[SKIP]${NC} OpenClaw Core update skipped."
         fi
     else
         echo -e "${YELLOW}[SKIP]${NC} OpenClaw Core not installed."
@@ -182,90 +191,14 @@ cmd_update() {
         bash "$PROJECT_DIR/scripts/patch-core.sh"
     fi
 
+    # ── Step 4: Auto-reload environment safely ──
     echo ""
-    echo -e "${GREEN}[OK]${NC} Update cycle completed."
-    echo "Run: source ~/.bashrc"
-}
-
-    local LOCAL REMOTE
-    LOCAL=$(git rev-parse HEAD 2>/dev/null || echo "0")
-    REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "1")
-
-    if [ "$LOCAL" = "$REMOTE" ]; then
-        echo -e "${GREEN}[OK]${NC} Scripts already up-to-date (v$OA_VERSION)."
-    else
-        echo -e "${YELLOW}[UPDATE]${NC} New scripts found. Syncing repository..."
-        git stash push -m "oa-auto-stash" >/dev/null 2>&1 || true
-
-        if git pull origin main; then
-            git stash pop >/dev/null 2>&1 || true
-            find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
-            if [ -w "$PREFIX/bin" ]; then
-                ln -sf "$PROJECT_DIR/oa.sh" "$PREFIX/bin/oa"
-                chmod +x "$PROJECT_DIR/oa.sh"
-            fi
-            local NEW_VERSION
-            NEW_VERSION=$(grep OA_VERSION "$PROJECT_DIR/scripts/lib.sh" 2>/dev/null | cut -d'"' -f2 || echo "Updated")
-            echo -e "${GREEN}[OK]${NC} Scripts updated to v$NEW_VERSION."
-        else
-            echo -e "${RED}[FAIL]${NC} Pull failed. Try: git reset --hard origin/main"
-            git stash pop >/dev/null 2>&1 || true
-            exit 1
-        fi
-    fi
-
-    # ── Step 2: Update OpenClaw Core (npm) ──
-    if command -v openclaw &>/dev/null; then
-        echo ""
-        echo -e "${BOLD}OpenClaw Core Update${NC}"
-
-        local PREV_VERSION
-        PREV_VERSION=$(openclaw --version 2>/dev/null | head -1 || echo "unknown")
-        echo "  Current version: $PREV_VERSION"
-
-        echo "Updating OpenClaw Core via NPM (latest first)..."
-        local NPM_OUTPUT
-        local NPM_EXIT=0
-        NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-
-        if [ $NPM_EXIT -eq 0 ]; then
-            echo -e "${GREEN}[OK]${NC} OpenClaw Core updated (latest)."
-        elif [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
-            echo -e "${YELLOW}[FALLBACK]${NC} latest failed — trying stable version $OPENCLAW_STABLE_VERSION..."
-            NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
-            if [ $NPM_EXIT -eq 0 ]; then
-                echo -e "${GREEN}[OK]${NC} OpenClaw Core installed (stable: $OPENCLAW_STABLE_VERSION)."
-            else
-                echo -e "${RED}[FAIL]${NC} Stable version also failed."
-                echo "$NPM_OUTPUT" | head -10
-                if [ "$PREV_VERSION" != "unknown" ]; then
-                    echo ""
-                    if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
-                        npm install -g "openclaw@$PREV_VERSION" --no-audit --no-fund 2>&1 || true
-                        echo -e "${YELLOW}[INFO]${NC} Rollback attempted."
-                    fi
-                fi
-            fi
-        else
-            echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed."
-            echo "$NPM_OUTPUT" | head -20
-        fi
-    else
-        echo -e "${YELLOW}[SKIP]${NC} OpenClaw Core not installed."
-    fi
-
-    # ── Step 3: Re-apply Android patches ──
-    echo ""
-    echo "Re-applying Android compatibility patches..."
-    if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
-        bash "$PROJECT_DIR/scripts/patch-android.sh"
-    elif [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
-        bash "$PROJECT_DIR/scripts/patch-core.sh"
-    fi
+    echo "Refreshing environment variables..."
+    source "$HOME/.bashrc" 2>/dev/null || true
+    echo -e "${GREEN}[OK]${NC} Environment reloaded."
 
     echo ""
     echo -e "${GREEN}[OK]${NC} Update cycle completed."
-    echo "Run: source ~/.bashrc"
 }
 
 cmd_install() {

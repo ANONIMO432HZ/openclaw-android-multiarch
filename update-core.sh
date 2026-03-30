@@ -49,9 +49,28 @@ if is_low_ram && is_armv7l; then
     export NODE_OPTIONS="--max-old-space-size=512"
 fi
 
-echo "Installing latest openclaw via npm..."
-npm install -g openclaw@latest --no-audit --no-fund --ignore-scripts
-echo -e "${GREEN}[OK]${NC} OpenClaw core updated."
+# Load stable version pin from config
+STABLE_VER=""
+if [ -f "$PROJECT_DIR/platforms/openclaw/config.env" ]; then
+    source "$PROJECT_DIR/platforms/openclaw/config.env"
+    STABLE_VER="${OPENCLAW_STABLE_VERSION:-}"
+fi
+
+echo "Attempting to install OpenClaw Core (latest)..."
+if npm install -g openclaw@latest --no-audit --no-fund --ignore-scripts 2>&1; then
+    echo -e "${GREEN}[OK]${NC} OpenClaw core updated (latest)."
+elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ]; then
+    echo -e "${YELLOW}[WARN]${NC} latest failed — trying stable version $STABLE_VER"
+    if npm install -g "openclaw@${STABLE_VER}" --no-audit --no-fund --ignore-scripts 2>&1; then
+        echo -e "${GREEN}[OK]${NC} OpenClaw core updated (stable: $STABLE_VER)."
+    else
+        echo -e "${RED}[FAIL]${NC} Both latest and stable version failed"
+        exit 1
+    fi
+else
+    echo -e "${RED}[FAIL]${NC} OpenClaw core update failed"
+    exit 1
+fi
 
 step 4 "Patch Application"
 echo -e "${BOLD}Applying Android-specific patches...${NC}"

@@ -16,20 +16,40 @@ fi
 
 CURRENT_VER=$(npm list -g openclaw 2>/dev/null | grep 'openclaw@' | sed 's/.*openclaw@//' | tr -d '[:space:]')
 LATEST_VER=$(npm view openclaw version 2>/dev/null || echo "")
+STABLE_VER="${OPENCLAW_STABLE_VERSION:-}"
 OPENCLAW_UPDATED=false
 
-if [ -n "$CURRENT_VER" ] && [ -n "$LATEST_VER" ] && [ "$CURRENT_VER" = "$LATEST_VER" ]; then
-    echo -e "${GREEN}[OK]${NC}   openclaw $CURRENT_VER is already the latest"
-else
+echo "Current: $CURRENT_VER | Latest: $LATEST_VER | Stable pin: ${STABLE_VER:-none}"
+
+if [ -n "$LATEST_VER" ] && [ "$CURRENT_VER" != "$LATEST_VER" ]; then
     echo "Updating openclaw npm package... ($CURRENT_VER → $LATEST_VER)"
     echo "  (This may take several minutes depending on network speed)"
-    if npm install -g openclaw@latest --no-fund --no-audit --ignore-scripts; then
-        echo -e "${GREEN}[OK]${NC}   openclaw $LATEST_VER updated"
+    if npm install -g "openclaw@$LATEST_VER" --no-fund --no-audit --ignore-scripts; then
+        echo -e "${GREEN}[OK]${NC}   openclaw $LATEST_VER installed"
         OPENCLAW_UPDATED=true
+    elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ] && [ "$CURRENT_VER" != "$STABLE_VER" ]; then
+        echo -e "${YELLOW}[WARN]${NC} latest version failed — trying stable version $STABLE_VER"
+        if npm install -g "openclaw@${STABLE_VER}" --no-fund --no-audit --ignore-scripts; then
+            echo -e "${GREEN}[OK]${NC}   openclaw $STABLE_VER installed (stable fallback)"
+            OPENCLAW_UPDATED=true
+        else
+            echo -e "${YELLOW}[WARN]${NC} Both latest and stable version failed"
+            echo "       Retry manually: npm install -g openclaw@${STABLE_VER}"
+        fi
     else
         echo -e "${YELLOW}[WARN]${NC} Package update failed (non-critical)"
         echo "       Retry manually: npm install -g openclaw@latest"
     fi
+elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ] && [ "$CURRENT_VER" != "$STABLE_VER" ]; then
+    echo "Current version differs from stable pin — installing $STABLE_VER"
+    if npm install -g "openclaw@${STABLE_VER}" --no-fund --no-audit --ignore-scripts; then
+        echo -e "${GREEN}[OK]${NC}   openclaw $STABLE_VER installed"
+        OPENCLAW_UPDATED=true
+    else
+        echo -e "${YELLOW}[WARN]${NC} Stable version install failed"
+    fi
+else
+    echo -e "${GREEN}[OK]${NC}   openclaw $CURRENT_VER is already up-to-date"
 fi
 
 # Fix native bindings broken by --ignore-scripts (npm/cli#4828 workaround)

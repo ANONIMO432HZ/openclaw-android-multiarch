@@ -30,10 +30,28 @@ fi
 
 # OpenClaw update requires standard performance
 
-echo "Running: npm install -g openclaw@latest --ignore-scripts"
+# Try latest first, fallback to stable version if it fails
+echo "Attempting to install OpenClaw Core (latest)..."
 echo "This may take several minutes..."
 echo ""
-npm install -g openclaw@latest --ignore-scripts
+
+STABLE_VER="${OPENCLAW_STABLE_VERSION:-}"
+
+if npm install -g openclaw@latest --ignore-scripts 2>&1; then
+    echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed (latest)"
+elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ]; then
+    echo -e "${YELLOW}[WARN]${NC} latest version failed — trying stable version $STABLE_VER"
+    if npm install -g "openclaw@${STABLE_VER}" --ignore-scripts 2>&1; then
+        echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed (stable: $STABLE_VER)"
+    else
+        echo -e "${RED}[FAIL]${NC} Both latest and stable version failed"
+        exit 1
+    fi
+else
+    echo -e "${RED}[FAIL]${NC} OpenClaw Core installation failed"
+    echo "       No stable version pin configured for fallback"
+    exit 1
+fi
 
 # OOM prevention for openclaw update
 export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=512"

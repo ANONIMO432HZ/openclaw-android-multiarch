@@ -443,38 +443,14 @@ cmd_logs() {
 }
 
 cmd_uninstall() {
-    check_and_fix_env
-    banner "OpenClaw — Uninstaller" "$RED"
-    echo -e "${YELLOW}[WARNING]${NC} This will remove OpenClaw and all its configuration."
-    read -p "Are you sure? (y/n): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Canceled."
-        exit 0
+    if [ -f "$PROJECT_DIR/uninstall.sh" ]; then
+        bash "$PROJECT_DIR/uninstall.sh"
+    elif [ -f "$SCRIPT_DIR/uninstall.sh" ]; then
+        bash "$SCRIPT_DIR/uninstall.sh"
+    else
+        echo -e "${RED}[FAIL]${NC} Uninstall script not found at $PROJECT_DIR/uninstall.sh"
+        exit 1
     fi
-
-    echo -e "  Stopping and cleaning up processes..."
-    cmd_stop >/dev/null 2>&1 || true
-
-    if command -v sv &>/dev/null; then
-        sv-disable openclaw-gateway 2>/dev/null || true
-    fi
-
-    echo -e "  Removing CLI and files..."
-    rm -rf "$PROJECT_DIR"
-    rm -f "$PREFIX/bin/oa"
-
-    # Remove visible symlink
-    if [ -L "$HOME/openclaw-android" ]; then
-        rm -f "$HOME/openclaw-android"
-        echo -e "${GREEN}[OK]${NC}   Removed ~/openclaw-android symlink"
-    fi
-
-    if [ -f "$HOME/.bashrc" ]; then
-        sed -i "/# >>> OpenClaw on Android >>>/,/# <<< OpenClaw on Android <<</d" "$HOME/.bashrc"
-    fi
-
-    echo -e "${GREEN}[OK]${NC} OpenClaw has been removed."
 }
 
 cmd_ui() {

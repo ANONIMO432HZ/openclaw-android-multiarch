@@ -38,7 +38,7 @@ REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multi
 
 BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
 BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
-OA_VERSION="1.1.0"
+export OA_VERSION="1.1.2" # Incremented to reflect bug fixes
 
 # ── Platform detection ──
 # 1. Explicit marker file (new install and after first update)

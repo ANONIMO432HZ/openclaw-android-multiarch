@@ -76,21 +76,21 @@ touch "$BASHRC"
 # Clean up old blocks (both new markers AND legacy blocks without markers)
 # Remove any existing OpenClaw environment blocks
 if grep -qF "$BASHRC_MARKER_START" "$BASHRC"; then
+    # Use a simpler and safer approach to remove the entire block including markers
     sed -i "/${BASHRC_MARKER_START//\//\\/}/,/${BASHRC_MARKER_END//\//\\/}/d" "$BASHRC"
 fi
 
-# Also clean up legacy block from setup-shell.sh if exists
-if grep -q 'OpenClaw on Android - bin path' "$BASHRC"; then
-    sed -i '/# OpenClaw on Android - bin path/,/^$/d' "$BASHRC"
-fi
-if grep -q 'OPENCLAW_ANDROID_DIR=' "$BASHRC"; then
-    sed -i '/export OPENCLAW_ANDROID_DIR=/d' "$BASHRC"
-fi
+# Clean up legacy individual exports to prevent pollution
+sed -i "/# OpenClaw on Android - bin path/,/^$/d" "$BASHRC" 2>/dev/null || true
+sed -i "/export OPENCLAW_ANDROID_DIR=/d" "$BASHRC" 2>/dev/null || true
+sed -i "/export OA_GLIBC=/d" "$BASHRC" 2>/dev/null || true
+sed -i "/export CONTAINER=/d" "$BASHRC" 2>/dev/null || true
+sed -i "/export TMPDIR=/d" "$BASHRC" 2>/dev/null || true
+sed -i "/export TMP=/d" "$BASHRC" 2>/dev/null || true
+sed -i "/export TEMP=/d" "$BASHRC" 2>/dev/null || true
 
-# Also clean up any CONTAINER=1 or OA_GLIBC= that might be orphaned
-sed -i '/export OA_GLIBC=/d' "$BASHRC" 2>/dev/null || true
-sed -i '/export CONTAINER=/d' "$BASHRC" 2>/dev/null || true
-sed -i '/export TMPDIR=/d' "$BASHRC" 2>/dev/null || true
+# Remove excess empty lines at the end of the file
+sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$BASHRC" 2>/dev/null || true
 
 echo "" >> "$BASHRC"
 echo "$ENV_BLOCK" >> "$BASHRC"

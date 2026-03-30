@@ -4,7 +4,11 @@ set -euo pipefail
 # This script updates OpenClaw on Android while maintaining architecture compatibility.
 PROJECT_DIR="$HOME/.openclaw-android"
 TOTAL_STEPS=5
-OA_VERSION="1.1.0"
+
+if [ ! -f "$PROJECT_DIR/scripts/lib.sh" ]; then
+    echo "ERROR: lib.sh not found. Installation might be corrupted."
+    exit 1
+fi
 source "$PROJECT_DIR/scripts/lib.sh"
 
 banner "OpenClaw on Android - Updater" "$OA_VERSION"

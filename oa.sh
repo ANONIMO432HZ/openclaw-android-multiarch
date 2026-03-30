@@ -10,7 +10,7 @@ if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
 fi
 
 # Fallback values if lib.sh is NOT found
-OA_VERSION="${OA_VERSION:-1.1.0}"
+OA_VERSION="${OA_VERSION:-1.1.2}"
 RED="${RED:-\033[0;31m}"
 GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"
@@ -20,7 +20,7 @@ CYAN="${CYAN:-\033[0;36m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
-# Fallback banner if lib.sh is not available
+# Fallback functions if lib.sh is not available
 if ! command -v banner &>/dev/null; then
     banner() {
         echo -e "${BOLD}========================================${NC}"
@@ -29,7 +29,6 @@ if ! command -v banner &>/dev/null; then
     }
 fi
 
-# Fallback ask_yn if lib.sh is not available
 if ! command -v ask_yn &>/dev/null; then
     ask_yn() {
         local prompt="$1"
@@ -195,10 +194,10 @@ cmd_update() {
     echo ""
     echo "Refreshing environment variables..."
     source "$HOME/.bashrc" 2>/dev/null || true
-    echo -e "${GREEN}[OK]${NC} Environment reloaded."
-
-    echo ""
     echo -e "${GREEN}[OK]${NC} Update cycle completed."
+    echo ""
+    echo -e "${YELLOW}[IMPORTANT]${NC} To apply changes to your current terminal, run:"
+    echo -e "  ${BOLD}source ~/.bashrc${NC}"
 }
 
 cmd_install() {
@@ -213,14 +212,27 @@ cmd_install() {
 
 cmd_start() {
     check_and_fix_env
-    echo -e "${CYAN}Starting OpenClaw gateway in background...${NC}"
+    
+    # ── Priority 1: termux-services (sv) ──
+    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
+        sv up openclaw-gateway
+        sleep 2
+        if sv status openclaw-gateway | grep -q "run:"; then
+            echo -e "${GREEN}[OK]${NC} Service is running."
+            return 0
+        fi
+    fi
+
+    # ── Priority 2: Manual background execution ──
+    echo -e "${CYAN}Starting OpenClaw gateway in background (nohup)...${NC}"
     cmd_stop >/dev/null 2>&1 || true
 
     mkdir -p "$PROJECT_DIR/logs"
     nohup openclaw gateway > "$PROJECT_DIR/server.log" 2>&1 &
 
-    echo -e "  Waiting for server to initialize (approx. 5s)..."
-    sleep 5
+    echo -e "  Waiting for server to initialize..."
+    sleep 4
 
     if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
         echo -e "${GREEN}[OK]${NC} OpenClaw is running in the background."
@@ -238,12 +250,20 @@ cmd_start_fg() {
 
 cmd_stop() {
     check_and_fix_env
-    echo -e "${YELLOW}Stopping OpenClaw gateway processes...${NC}"
+    
+    # ── Priority 1: termux-services (sv) ──
+    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        echo -e "${YELLOW}Stopping OpenClaw gateway via termux-services...${NC}"
+        sv down openclaw-gateway || true
+    fi
 
-    local PIDS=""
+    # ── Priority 2: Manual process killing ──
+    echo -e "${YELLOW}Cleaning up any orphaned gateway processes...${NC}"
+
     local ALL_CANDIDATES
     ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
 
+    local PIDS=""
     for pid in $ALL_CANDIDATES; do
         if [ "$pid" != "$$" ]; then
             PIDS="$PIDS $pid"
@@ -251,10 +271,13 @@ cmd_stop() {
     done
 
     if [ -n "$PIDS" ]; then
-        echo -e "Stopping matching processes (IDs:$PIDS)..."
+        echo -e "  Sending SIGTERM to PIDs: $PIDS"
+        kill $PIDS 2>/dev/null || true
+        sleep 2
+        # Final cleanup for stubborn processes
         kill -9 $PIDS 2>/dev/null || true
     else
-        echo -e "No active gateway processes found."
+        echo -e "  No active gateway processes found."
     fi
     echo -e "${GREEN}[OK]${NC} Stopped."
 }
@@ -360,15 +383,23 @@ cmd_fix_android() {
 
 cmd_logs() {
     check_and_fix_env
-    local LOGFILE="$PROJECT_DIR/server.log"
-    if [ ! -f "$LOGFILE" ]; then
-         LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
+    local LOGFILE=""
+
+    # Check termux-services log first if available
+    if [ -d "$HOME/.termux/services/openclaw-gateway/log" ]; then
+        LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
+    fi
+
+    # Fallback to nohup log if service log is missing or empty
+    if [ -z "$LOGFILE" ] || [ ! -s "$LOGFILE" ]; then
+        LOGFILE="$PROJECT_DIR/server.log"
     fi
 
     if [ -f "$LOGFILE" ]; then
+         echo -e "${CYAN}Following logs from: $LOGFILE${NC}"
          tail -f "$LOGFILE"
     else
-         echo -e "${RED}[FAIL]${NC} No logs found at $LOGFILE"
+         echo -e "${RED}[FAIL]${NC} No logs found."
          exit 1
     fi
 }

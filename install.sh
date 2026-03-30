@@ -130,6 +130,9 @@ step 8 "System Configuration & Services"
 bash "$SCRIPT_DIR/scripts/setup-cli.sh"
 bash "$SCRIPT_DIR/scripts/setup-env.sh"
 
+# Reload environment so verify script sees correct values
+source "$HOME/.bashrc" 2>/dev/null || true
+
 # Cleanup
 echo ""
 echo "Cleaning up temporary files..."

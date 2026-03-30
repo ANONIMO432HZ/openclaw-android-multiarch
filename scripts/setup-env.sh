@@ -19,12 +19,16 @@ INFRA_VARS="export TMPDIR=\"\$PREFIX/tmp\"
 export TMP=\"\$TMPDIR\"
 export TEMP=\"\$TMPDIR\""
 
-if is_armv7l; then
+# Detect architecture: use IS_ARMV7L from lib.sh, fallback to uname -m
+ARCH_DETECTED=$(uname -m)
+if [ "${IS_ARMV7L:-}" = true ] || [[ "$ARCH_DETECTED" == "armv7l" || "$ARCH_DETECTED" == "armhf" || "$ARCH_DETECTED" == "arm" ]]; then
     INFRA_VARS="${INFRA_VARS}
-export OA_GLIBC=0"
+export OA_GLIBC=0
+export CONTAINER=1"
 else
     INFRA_VARS="${INFRA_VARS}
-export OA_GLIBC=1"
+export OA_GLIBC=1
+export CONTAINER=1"
 fi
 
 PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\""

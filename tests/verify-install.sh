@@ -68,6 +68,7 @@ if [ "$GLIBC_VALUE" = "$EXPECTED_GLIBC" ]; then
     check_pass "OA_GLIBC=$EXPECTED_GLIBC (native architecture)"
 else
     check_fail "OA_GLIBC should be $EXPECTED_GLIBC for architecture $(uname -m) (got: ${GLIBC_VALUE:-empty})"
+    echo -e "       Run: ${BOLD}oa fix-env${NC} to repair"
 fi
 
 COMPAT_FILE="$PROJECT_DIR/patches/glibc-compat.js"

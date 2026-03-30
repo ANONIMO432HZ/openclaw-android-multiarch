@@ -51,6 +51,7 @@ show_help() {
     echo "  doctor       Health checks + quick fixes"
     echo ""
     echo "  status       Show comprehensive system and service status"
+    echo "  fix-env      Fix environment variables in .bashrc"
     echo "  fix-android  Apply essential Android compatibility patches"
     echo "  backup       Create a full backup of OpenClaw data"
     echo "  restore      Restore OpenClaw data from a backup"
@@ -63,6 +64,7 @@ show_help() {
 # ── Command Implementations ──
 
 cmd_update() {
+    check_and_fix_env
     banner "OpenClaw — Update Module" "$PURPLE"
     cd "$PROJECT_DIR" || { echo -e "${RED}[FAIL]${NC} Impossible to access $PROJECT_DIR"; exit 1; }
 
@@ -112,6 +114,7 @@ cmd_update() {
 }
 
 cmd_install() {
+    check_and_fix_env
     if [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
         bash "$PROJECT_DIR/scripts/install-tools.sh"
     else
@@ -120,7 +123,47 @@ cmd_install() {
     fi
 }
 
+# ── Helper: Verify and repair environment if needed (fast) ──
+check_and_fix_env() {
+    # Fast path: if variables are already set, skip
+    if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
+        return 0
+    fi
+    
+    # Quick check: grep the .bashrc file (faster than sourcing)
+    if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
+        source "$HOME/.bashrc" 2>/dev/null || true
+    fi
+    
+    # If still missing, run fix-env (rare case)
+    if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
+        bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
+        source "$HOME/.bashrc" 2>/dev/null || true
+    fi
+}
+
+cmd_update() {
+    # Fast path: if variables are already set, skip
+    if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
+        return 0
+    fi
+    
+    # Quick check: grep the .bashrc file (faster than sourcing)
+    if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
+        source "$HOME/.bashrc" 2>/dev/null || true
+    fi
+    
+    # If still missing, run fix-env (rare case)
+    if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
+        bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
+        source "$HOME/.bashrc" 2>/dev/null || true
+    fi
+}
+
 cmd_start() {
+    # Verify environment before starting
+    check_and_fix_env
+    
     echo -e "${CYAN}Starting OpenClaw gateway in background...${NC}"
     # Prevent double starting
     cmd_stop >/dev/null 2>&1 || true
@@ -140,11 +183,13 @@ cmd_start() {
 }
 
 cmd_start_fg() {
+    check_and_fix_env
     echo -e "${YELLOW}Starting OpenClaw gateway in foreground...${NC}"
     openclaw gateway
 }
 
 cmd_stop() {
+    check_and_fix_env
     echo -e "${YELLOW}Stopping OpenClaw gateway processes...${NC}"
     
     # Identify processes (excluding our current PID)
@@ -168,6 +213,7 @@ cmd_stop() {
 }
 
 cmd_status() {
+    check_and_fix_env
     banner "OpenClaw Android — Status" "$PURPLE"
     
     echo -e "Version: v$OA_VERSION"
@@ -211,6 +257,7 @@ cmd_status() {
 }
 
 cmd_backup() {
+    check_and_fix_env
     if [ -f "$PROJECT_DIR/scripts/backup.sh" ]; then
         source "$PROJECT_DIR/scripts/backup.sh"
         if command -v perform_backup &>/dev/null; then
@@ -224,6 +271,7 @@ cmd_backup() {
 }
 
 cmd_restore() {
+    check_and_fix_env
     if [ -f "$PROJECT_DIR/scripts/backup.sh" ]; then
         source "$PROJECT_DIR/scripts/backup.sh"
         if command -v perform_restore &>/dev/null; then
@@ -233,6 +281,29 @@ cmd_restore() {
         fi
     else
         echo -e "${RED}[FAIL]${NC} Restore system not found."
+    fi
+}
+
+cmd_fix_env() {
+    banner "OpenClaw — Fix Environment" "$YELLOW"
+    echo "This will repair the environment variables in ~/.bashrc"
+    echo ""
+    
+    if [ -f "$PROJECT_DIR/scripts/setup-env.sh" ]; then
+        echo "Running setup-env.sh..."
+        bash "$PROJECT_DIR/scripts/setup-env.sh"
+        
+        # Reload bashrc
+        source "$HOME/.bashrc"
+        
+        echo ""
+        echo -e "${GREEN}[OK]${NC} Environment variables fixed."
+        echo "  OA_GLIBC=$OA_GLIBC"
+        echo "  CONTAINER=$CONTAINER"
+        echo "  TMPDIR=$TMPDIR"
+    else
+        echo -e "${RED}[FAIL]${NC} setup-env.sh not found."
+        exit 1
     fi
 }
 
@@ -247,6 +318,7 @@ cmd_fix_android() {
 }
 
 cmd_logs() {
+    check_and_fix_env
     local LOGFILE="$PROJECT_DIR/server.log"
     # Fallback to old path if present
     if [ ! -f "$LOGFILE" ]; then
@@ -262,6 +334,7 @@ cmd_logs() {
 }
 
 cmd_uninstall() {
+    check_and_fix_env
     banner "OpenClaw — Uninstaller" "$RED"
     echo -e "${YELLOW}[WARNING]${NC} This will remove OpenClaw and all its configuration."
     read -p "Are you sure? (y/n): " -n 1 -r
@@ -294,6 +367,9 @@ cmd_uninstall() {
 }
 
 cmd_ui() {
+    # Verify environment before running
+    check_and_fix_env
+    
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -303,6 +379,9 @@ cmd_ui() {
 }
 
 cmd_ui_config() {
+    # Verify environment before running
+    check_and_fix_env
+    
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -312,6 +391,9 @@ cmd_ui_config() {
 }
 
 cmd_onboard() {
+    # Verify environment before running
+    check_and_fix_env
+    
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -321,6 +403,7 @@ cmd_onboard() {
 }
 
 cmd_config() {
+    check_and_fix_env
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -330,6 +413,7 @@ cmd_config() {
 }
 
 cmd_doctor() {
+    check_and_fix_env
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
@@ -354,6 +438,7 @@ case "${1:-}" in
     status|--status|st)       cmd_status ;;
     backup|--backup|bkp)      cmd_backup "$2" ;;
     restore|--restore|rst)    cmd_restore "$2" ;;
+    fix-env|fix-env)         cmd_fix_env ;;
     fix-android|fix)          cmd_fix_android ;;
     uninstall|--uninstall|uninst) cmd_uninstall ;;
     v|version|--version|-v)   echo "oa CLI v$OA_VERSION" ;;

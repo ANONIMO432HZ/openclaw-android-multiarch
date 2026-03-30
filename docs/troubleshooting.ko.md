@@ -118,6 +118,66 @@ source ~/.bashrc
 
 또는 Termux 앱을 완전히 종료했다가 다시 여세요.
 
+## "OA_GLIBC should be 0 for architecture armv7l (got: empty)" 에러
+
+```
+[PASS] Node.js v25.8.2 (>= 22)
+...
+[FAIL] OA_GLIBC should be 0 for architecture armv7l (got: empty)
+...
+Installation verification FAILED.
+```
+
+### 원인
+
+환경 변수(`OA_GLIBC`, `CONTAINER`, `TMPDIR`)가 `~/.bashrc`에 설정되지 않았습니다. 다음과 같은 경우에 발생할 수 있습니다:
+- 설치가 제대로 완료되지 않음
+- 이전 버전에서 업데이트함
+- `.bashrc`에 중복되거나 충돌하는 항목이 있음
+
+### 해결 방법
+
+fix-env 명령어를 실행하여 환경 변수를 복구하세요:
+
+```bash
+oa fix-env
+```
+
+그런 다음 셸을 다시 로드합니다:
+```bash
+source ~/.bashrc
+```
+
+복구 확인:
+```bash
+echo "OA_GLIBC=$OA_GLIBC"
+echo "CONTAINER=$CONTAINER"
+```
+
+예상 출력:
+```
+OA_GLIBC=0
+CONTAINER=1
+```
+
+### 대안 (수동)
+
+`oa fix-env`가 작동하지 않으면 `~/.bashrc`를 수동으로 편집하세요:
+
+```bash
+# 이전 OpenClaw 항목 제거
+sed -i '/# OpenClaw/d' ~/.bashrc
+sed -i '/export OA_GLIBC=/d' ~/.bashrc
+sed -i '/export CONTAINER=/d' ~/.bashrc
+sed -i '/export TMPDIR=/d' ~/.bashrc
+sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
+sed -i '/export OPENCLAW_ANDROID_DIR=/d' ~/.bashrc
+
+# 환경 블록 다시 생성
+source ~/.openclaw-android/scripts/setup-env.sh
+source ~/.bashrc
+```
+
 ## "Cannot find module glibc-compat.js" 에러
 
 ```

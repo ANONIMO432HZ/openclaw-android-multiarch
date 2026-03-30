@@ -231,12 +231,13 @@ After installation, the `oa` command is available for managing your installation
 | `oa start:fg` | `strt:fg` | Starts the Gateway in the foreground (ideal for debugging) |
 | `oa stop` | `stp` | Stops the Gateway and cleans up orphan processes |
 | `oa logs` | `log` | View live logs of the Gateway service |
-| `oa dashboard` | `ui` | Open the OpenClaw Dashboard (Control UI) |
-| `oa configure` | `setup` | Interactive Configuration Wizard (credentials, channels, etc.) |
+| `oa ui` | `dashboard` | Open the OpenClaw Dashboard (Control UI) |
+| `oa ui-config` | `config-wizard` | Interactive Configuration Wizard (credentials, channels, etc.) |
 | `oa onboard` | — | Run the Onboarding Wizard |
 | `oa config` | `cfg` | Non-interactive config helpers (`get`/`set`/`validate`) |
 | `oa doctor` | `doc` | Health checks + quick fixes |
 | `oa status` | `st` | Shows complete installation status and version |
+| `oa fix-env` | — | **Fix environment variables** in `~/.bashrc` (run if you see OA_GLIBC errors) |
 | `oa fix-android` | `fix` | **Essential**: Patches 'not supported on Android' errors |
 | `oa backup` | `bkp` | Create a full backup of OpenClaw data |
 | `oa restore` | `rst` | Restore from a previous backup |

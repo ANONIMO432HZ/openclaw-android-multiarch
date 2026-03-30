@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.12] - 2026-03-30
+
+### Added
+
+- **New command `oa fix-env`**: Repairs environment variables in `~/.bashrc`. Run this command when you see errors about `OA_GLIBC` or `CONTAINER` not being set.
+- **Fast environment verification**: Added ultra-fast environment check to all CLI commands. The check runs in microseconds when variables are already configured.
+- **Smart error messages**: Verification scripts now suggest running `oa fix-env` instead of attempting auto-repair, giving users more control.
+
+### Fixed
+
+- **Environment setup bug**: Fixed `setup-env.sh` to correctly detect both installed and source-based execution paths, resolving the "lib.sh not found" error.
+- **Duplicate .bashrc entries**: Added cleanup logic to remove legacy environment blocks before writing new ones, preventing duplicate/conflicting entries.
+- **armv7l architecture detection**: Corrected logic for native Node.js detection on 32-bit devices.
+
+### Changed
+
+- **Simplified verification**: Removed auto-repair from verification scripts. Users can now run `oa fix-env` manually when needed, making the process more transparent.
+- **Performance**: Environment checks now use fast-path optimization (instant return when variables are already set).
+
 ## [1.2.0-beta] - 2026-03-25
 
 ### Added

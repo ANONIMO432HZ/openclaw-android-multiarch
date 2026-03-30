@@ -40,6 +40,7 @@ if [ "${CONTAINER:-}" = "1" ]; then
     check_pass "CONTAINER=1"
 else
     check_warn "CONTAINER is not set to 1"
+    echo "       Run: ${BOLD}oa fix-env${NC} to repair"
 fi
 
 if command -v clawdhub &>/dev/null; then

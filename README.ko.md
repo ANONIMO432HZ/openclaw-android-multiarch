@@ -173,18 +173,24 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | 옵션 | 설명 |
 | :--- | :--- |
 | `oa update` | OpenClaw 및 Android 패치 업데이트 |
-| `oa fix-android` | **필수**: 'not supported on Android' 오류 패치 |
+| `oa install` | 선택적 도구 설치 (tmux, code-server, AI CLI 등) |
 | `oa start` | 게이트웨이를 백그라운드에서 실행 |
 | `oa start:fg` | 게이트웨이를 포그라운드에서 실행 (디버깅용) |
 | `oa stop` | 게이트웨이 중지 및 고아 프로세스 정리 |
-| `oa status` | 설치 상태 및 버전 정보 표시 |
 | `oa logs` | 게이트웨이 서비스 로그 실시간 확인 |
-| `oa install` | 선택적 도구 설치 (tmux, code-server, AI CLI 등) |
+| `oa ui` | OpenClaw 대시보드 열기 (컨트롤 UI) |
+| `oa ui-config` | 설정 마법사 (크레덴셜, 채널 등) |
+| `oa onboard` | 온보딩 마법사 실행 |
+| `oa config` | 비대화형 설정 유틸리티 (`get`/`set`/`validate`) |
+| `oa doctor` | 헬스 체크 + 빠른 수정 |
+| `oa status` | 설치 상태 및 버전 정보 표시 |
+| `oa fix-env` | **환경 변수 복구** - `OA_GLIBC` 오류가 발생하면 실행 |
+| `oa fix-android` | **필수**: 'not supported on Android' 오류 패치 |
 | `oa backup` | OpenClaw 데이터 전체 백업 생성 |
 | `oa restore` | 백업에서 복원 |
 | `oa uninstall` | OpenClaw on Android 제거 |
-| `oa version` | 버전 정보 표시 (`-v`) |
-| `oa help` | 사용 가능한 모든 옵션 표시 (`-h`) |
+| `oa version` | 버전 정보 표시 (`v`, `-v`) |
+| `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) | |
 
 ## 업데이트
 

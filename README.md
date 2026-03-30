@@ -143,11 +143,20 @@ pkg update -y && pkg install -y curl git
 > From this step on, you can type commands from your computer keyboard instead of the phone screen. See the [Termux SSH Setup Guide](docs/termux-ssh-guide.md) for details.
 
 Paste the following command in Termux.
+
+```bash
+curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash && source ~/.bashrc
+```
+
+Or clone directly with git (faster, enables future updates via `git pull`):
+
 ```bash
 git clone --depth=1 --branch main https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git ~/.openclaw-android && bash ~/.openclaw-android/install.sh && source ~/.bashrc
 ```
 
 Everything is installed automatically with a single command. This takes 3–10 minutes depending on network speed and device. Wi-Fi is recommended.
+
+After installation, a visible symlink `~/openclaw-android` is created pointing to `~/.openclaw-android`, so you can access the repo directory with a regular `ls` command.
 
 Once complete, the OpenClaw version is displayed along with instructions to run `openclaw onboard`.
 
@@ -252,13 +261,17 @@ oa update && source ~/.bashrc
 
 This single command updates all installed components at once:
 
-* **OpenClaw** — Core package (`openclaw@latest`)
+* **OpenClaw** — Core package (tries `openclaw@latest` first, falls back to stable version if incompatible)
 * **code-server** — Browser IDE
 * **OpenCode** — AI coding assistant
 * **AI CLI tools** — Claude Code, Gemini CLI, Codex CLI
 * **Android patches** — Compatibility patches from this project
 
 Already up-to-date components are skipped. Components you haven't installed are not touched — only what's already on your device gets updated. Safe to run multiple times.
+
+### Stable Version Fallback
+
+The installer and updater always try `@latest` first. If the latest version fails to install or is incompatible with Android patches, they automatically fall back to the pinned stable version defined in `platforms/openclaw/config.env` (`OPENCLAW_STABLE_VERSION`). This ensures your installation remains functional even when upstream releases breaking changes.
 
 > If the `oa` command is not available (older installations), run it with curl:
 >

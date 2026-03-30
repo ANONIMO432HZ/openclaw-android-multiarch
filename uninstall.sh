@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_DIR="$HOME/.openclaw-android"
 TOTAL_STEPS=7
-OA_VERSION="1.0.12"
+OA_VERSION="1.1.0"
 
 # Try to load global library, but provide robust fallbacks
 if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
@@ -141,6 +141,12 @@ else
 fi
 
 step 7 "installation directory"
+
+# Remove visible symlink
+if [ -L "$HOME/openclaw-android" ]; then
+    rm -f "$HOME/openclaw-android"
+    echo -e "${GREEN}[OK]${NC}   Removed ~/openclaw-android symlink"
+fi
 
 if [ -d "$PROJECT_DIR" ]; then
     if ask_yn "Remove installation directory (~/.openclaw-android)? Includes Node.js, patches, configs."; then

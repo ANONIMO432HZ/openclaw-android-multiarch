@@ -55,6 +55,13 @@ fi
 
 echo -e "${GREEN}[OK]${NC} Repository cloned successfully."
 
+# Create a visible symlink in $HOME for easy access
+if [ -L "$HOME/openclaw-android" ]; then
+    rm -f "$HOME/openclaw-android"
+fi
+ln -sf "$INSTALL_DIR" "$HOME/openclaw-android"
+echo -e "${GREEN}[OK]${NC} Visible symlink created: ~/openclaw-android -> ~/.openclaw-android"
+
 # Run the installer
 bash "$INSTALL_DIR/install.sh"
 

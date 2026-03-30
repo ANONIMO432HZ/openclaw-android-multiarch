@@ -15,8 +15,8 @@ NC='\033[0m'
 
 PROJECT_DIR="$HOME/.openclaw-android"
 PLATFORM_MARKER="$PROJECT_DIR/.platform"
-OA_VERSION="1.0.12"
-REPO_TARBALL="https://github.com/ANONIMO432HZ/openclaw-android-multiarch/archive/refs/heads/main.tar.gz"
+OA_VERSION="1.1.0"
+REPO_URL="https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git"
 
 echo ""
 echo -e "${BOLD}========================================${NC}"
@@ -163,12 +163,13 @@ if [ "$NEEDS_TARBALL" = true ]; then
     }
     trap 'rm -rf "$RELEASE_TMP"' EXIT
 
-    if curl -sfL "$REPO_TARBALL" | tar xz -C "$RELEASE_TMP" --strip-components=1; then
+    if git clone --depth=1 --branch main "$REPO_URL" "$RELEASE_TMP" 2>/dev/null; then
         echo -e "${GREEN}[OK]${NC}   Downloaded install scripts"
     else
         echo -e "${RED}[FAIL]${NC} Failed to download scripts"
         exit 1
     fi
+fi
 fi
 
 # --- Install selected tools ---

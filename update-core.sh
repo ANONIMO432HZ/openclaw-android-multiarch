@@ -4,7 +4,7 @@ set -euo pipefail
 # This script updates OpenClaw on Android while maintaining architecture compatibility.
 PROJECT_DIR="$HOME/.openclaw-android"
 TOTAL_STEPS=5
-OA_VERSION="1.0.12"
+OA_VERSION="1.1.0"
 source "$PROJECT_DIR/scripts/lib.sh"
 
 banner "OpenClaw on Android - Updater" "$OA_VERSION"

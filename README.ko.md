@@ -115,10 +115,18 @@ pkg update -y && pkg install -y curl
 Termux에 아래 명령어를 붙여넣으세요.
 
 ```bash
-curl -sL myopenclawhub.com/install | bash && source ~/.bashrc
+curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash && source ~/.bashrc
+```
+
+또는 git으로 직접 클론 (더 빠르고, `git pull` 업데이트 가능):
+
+```bash
+git clone --depth=1 --branch main https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git ~/.openclaw-android && bash ~/.openclaw-android/install.sh && source ~/.bashrc
 ```
 
 명령어 하나로 모든 설치가 자동으로 진행됩니다. 3~10분 정도 소요되며 (네트워크 속도와 기기 성능에 따라 다름), Wi-Fi 환경을 권장합니다.
+
+설치 후 `~/openclaw-android` 심볼릭 링크가 자동으로 생성되어 `~/.openclaw-android`를 가리키므로, 일반 `ls` 명령어로도 설치 디렉토리를 확인할 수 있습니다.
 
 설치가 완료되면 OpenClaw 버전이 출력되고, `oa onboard`로 설정을 시작하라는 안내가 나타납니다.
 

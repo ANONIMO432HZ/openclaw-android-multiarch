@@ -7,17 +7,17 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-
-Because Android deserves a shell.
-
-> **🎯 Purpose of this Fork:**
-> This repository is a specialized fork of the official [AidanPark/openclaw-android](https://github.com/AidanPark/openclaw-android) project. Its sole purpose is to **maintain complete installation and operational compatibility for openclaw-android directly from armv7 (32-bit) and newer devices within Termux (without root)**. 
-> We **DO NOT** provide maintenance for the Android APK, the React UI dashboard (`android/`), or any other features that are not strictly related to keeping the native CLI gateway running optimally on Termux environments.
 [![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://www.android.com/)
 [![Termux](https://img.shields.io/badge/Termux-000000?style=for-the-badge&logo=termux&logoColor=white)](https://termux.dev/)
 [![Bash](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+
+Because Android deserves a shell.
+
+> **🎯 Purpose of this Fork:**
+> This repository is a specialized fork of the official [AidanPark/openclaw-android](https://github.com/AidanPark/openclaw-android) project. Its sole purpose is to **maintain complete installation and operational compatibility for openclaw-android directly from armv7 (32-bit) and newer devices within Termux (without root)**.
+> We **DO NOT** provide maintenance for the Android APK, the React UI dashboard (`android/`), or any other features that are not strictly related to keeping the native CLI gateway running optimally on Termux environments.
 
 ## 📱 Success Stories
 
@@ -91,7 +91,7 @@ Download the APK from the [Releases](https://github.com/AidanPark/openclaw-andro
 
 ## Requirements
 
-* Android 7.0 64 bits or higher (Android 10+ recommended)
+* Android 10+ 64 bits
 * ~1GB free storage
 * Wi-Fi or mobile data connection
 

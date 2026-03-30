@@ -499,7 +499,7 @@ case "${1:-}" in
     logs|--logs|log)          cmd_logs ;;
     ui|--ui|dashboard)        cmd_ui ;;
     ui-config|--ui-config|config-wizard) cmd_ui_config ;;
-    onboard|--onboard)        cmd_onboard ;;
+    onboard|--onboard|obd)        cmd_onboard ;;
     config|--config|cfg)      cmd_config "$@" ;;
     doctor|--doctor|doc)      cmd_doctor ;;
     status|--status|st)       cmd_status ;;

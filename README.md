@@ -132,7 +132,7 @@ Configure Developer Options, Stay Awake, charge limit, and battery optimization.
 Open the Termux app and paste the following command to install curl (needed for the next step).
 
 ```bash
-pkg update -y && pkg install -y curl
+pkg update -y && pkg install -y curl git
 ```
 
 > You may be asked to choose a mirror on first run. Pick any — a geographically closer mirror will be faster.
@@ -143,9 +143,8 @@ pkg update -y && pkg install -y curl
 > From this step on, you can type commands from your computer keyboard instead of the phone screen. See the [Termux SSH Setup Guide](docs/termux-ssh-guide.md) for details.
 
 Paste the following command in Termux.
-
 ```bash
-curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash && source ~/.bashrc
+git clone --depth=1 --branch main https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git ~/.openclaw-android && bash ~/.openclaw-android/install.sh && source ~/.bashrc
 ```
 
 Everything is installed automatically with a single command. This takes 3–10 minutes depending on network speed and device. Wi-Fi is recommended.
@@ -157,7 +156,7 @@ Once complete, the OpenClaw version is displayed along with instructions to run 
 As instructed in the installation output, run:
 
 ```bash
-openclaw onboard
+oa onboard
 ```
 
 Follow the on-screen instructions to complete the initial setup.
@@ -177,7 +176,7 @@ The gateway occupies the terminal while running, so open a new tab for it. Tap t
 In the new tab, run:
 
 ```bash
-openclaw gateway
+oa start
 ```
 
 ### 🔄 Quick Start / Reactivation
@@ -188,13 +187,13 @@ If your device turns off or you restart Termux, you don't need to reinstall anyt
 2. Start the gateway:
 
    ```bash
-   openclaw gateway
+   oa start
    ```
 
-3. (Optional) Open a new tab and start the CLI:
+3. (Optional) Open a new tab and start the CLI logs:
 
    ```bash
-   openclaw
+   oa start:fg
    ```
 
 ---
@@ -371,7 +370,7 @@ Each tool is offered via an individual Y/n prompt. You choose which ones to inst
 
 ```
 openclaw-android/
-├── bootstrap.sh                # curl | bash one-liner installer (downloader)
+├── bootstrap.sh                # git clone --depth=1 installer (or curl | bash downloader)
 ├── install.sh                  # Platform-aware installer (entry point)
 ├── oa.sh                       # Unified CLI (installed as $PREFIX/bin/oa)
 ├── update.sh                   # Thin wrapper (downloads and runs update-core.sh)

@@ -531,7 +531,7 @@ case "${1:-}" in
     fix-env)                          cmd_fix_env ;;
     fix-android|fix)                  cmd_fix_android ;;
     uninstall|--uninstall|uninst)     cmd_uninstall ;;
-    v|version|--version|-v)           echo "oa CLI v$OA_VERSION" ;;
+    v|version|--version|-v)           echo "oa CLI $OA_VERSION" ;;
     help|--help|-h|h|"")              show_help ;;
     *)
         echo -e "${RED}Unknown command: $1${NC}"

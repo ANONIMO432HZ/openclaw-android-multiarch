@@ -176,7 +176,7 @@ The gateway occupies the terminal while running, so open a new tab for it. Tap t
 In the new tab, run:
 
 ```bash
-oa start
+oa start:fg
 ```
 
 ### 🔄 Quick Start / Reactivation

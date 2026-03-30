@@ -19,8 +19,8 @@ pkg update -y
 pkg upgrade -y
 
 # Install core infrastructure packages
-echo "Installing git..."
-pkg install -y git
+echo "Installing git and curl..."
+pkg install -y git curl
 
 echo ""
 echo -e "${GREEN}Infrastructure dependencies installed.${NC}"

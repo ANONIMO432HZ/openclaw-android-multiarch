@@ -16,10 +16,14 @@ echo ""
 echo -e "${BOLD}OpenClaw on Android - Bootstrap${NC}"
 echo ""
 
-# Check for git first
+# Check for git first, install if missing
 if ! command -v git &>/dev/null; then
-    echo -e "${RED}[FAIL]${NC} git not found. Install it with: pkg install git"
-    exit 1
+    if ! command -v pkg &>/dev/null; then
+        echo -e "${RED}[FAIL]${NC} Neither git nor pkg found. Install git with: pkg install git"
+        exit 1
+    fi
+    echo -e "${YELLOW}[INFO]${NC} git not found. Installing git..."
+    pkg update -y && pkg install -y git
 fi
 
 echo "Cloning repository (shallow clone, depth=1)..."

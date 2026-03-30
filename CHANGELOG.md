@@ -11,12 +11,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **New command `oa fix-env`**: Repairs environment variables in `~/.bashrc`. Run this command when you see errors about `OA_GLIBC` or `CONTAINER` not being set.
 - **Fast environment verification**: Added ultra-fast environment check to all CLI commands. The check runs in microseconds when variables are already configured.
 - **Smart error messages**: Verification scripts now suggest running `oa fix-env` instead of attempting auto-repair, giving users more control.
+- **`oa update` with confirmation**: Now asks before updating OpenClaw Core via npm, shows current version, and handles failures with retry options.
+- **Rollback support in update**: If npm update fails, offers to rollback to the previous version automatically.
 
 ### Fixed
 
 - **Environment setup bug**: Fixed `setup-env.sh` to correctly detect both installed and source-based execution paths, resolving the "lib.sh not found" error.
 - **Duplicate .bashrc entries**: Added cleanup logic to remove legacy environment blocks before writing new ones, preventing duplicate/conflicting entries.
 - **armv7l architecture detection**: Corrected logic for native Node.js detection on 32-bit devices.
+- **CLI installation path**: Changed from `$HOME/bin/oa` to `$PREFIX/bin/oa` (matching original installer).
 
 ### Changed
 

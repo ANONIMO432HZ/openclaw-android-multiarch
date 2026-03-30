@@ -31,6 +31,17 @@ if ! command -v banner &>/dev/null; then
     }
 fi
 
+# Fallback ask_yn if lib.sh is not available
+if ! command -v ask_yn &>/dev/null; then
+    ask_yn() {
+        local prompt="$1"
+        local reply
+        read -rp "$prompt [Y/n] " reply < /dev/tty
+        [[ "${reply:-}" =~ ^[Nn]$ ]] && return 1
+        return 0
+    }
+fi
+
 show_help() {
     banner "OpenClaw Android Professional CLI" "$PURPLE"
     echo "Usage: oa [command]"
@@ -95,14 +106,70 @@ cmd_update() {
         echo -e "${GREEN}[OK]${NC} Scripts are up-to-date."
     fi
     
-    # Propagate changes to tools (OpenClaw Core)
+    # ── Update OpenClaw Core (with confirmation) ──
     if command -v openclaw &>/dev/null; then
-        echo "Updating OpenClaw Core via NPM..."
-        npm install -g openclaw@latest
+        echo ""
+        echo -e "${BOLD}OpenClaw Core Update${NC}"
+        
+        # Save current version for potential rollback
+        local PREV_VERSION
+        PREV_VERSION=$(openclaw --version 2>/dev/null | head -1 || echo "unknown")
+        echo "  Current version: $PREV_VERSION"
+        
+        echo ""
+        echo "This will update OpenClaw via npm to the latest version."
+        
+        if ask_yn "Proceed with updating OpenClaw Core?"; then
+            echo "Updating OpenClaw Core via NPM..."
+            
+            # Try npm update with error handling
+            local NPM_OUTPUT
+            local NPM_EXIT=0
+            NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
+            
+            if [ $NPM_EXIT -eq 0 ]; then
+                echo -e "${GREEN}[OK]${NC} OpenClaw Core updated successfully."
+            else
+                echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed."
+                echo "$NPM_OUTPUT" | head -20
+                echo ""
+                echo -e "${YELLOW}Troubleshooting options:${NC}"
+                echo "  1. Retry with npm cache clean"
+                echo "  2. Install specific version"
+                echo "  3. Rollback to previous version"
+                echo ""
+                
+                if ask_yn "Clear npm cache and retry?"; then
+                    echo "Clearing npm cache..."
+                    npm cache clean --force 2>/dev/null || true
+                    NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
+                    
+                    if [ $NPM_EXIT -eq 0 ]; then
+                        echo -e "${GREEN}[OK]${NC} Retry successful."
+                    else
+                        echo -e "${RED}[FAIL]${NC} Retry failed."
+                        echo "$NPM_OUTPUT" | head -10
+                        
+                        # Offer rollback
+                        if [ "$PREV_VERSION" != "unknown" ]; then
+                            echo ""
+                            if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
+                                echo "Rolling back..."
+                                npm install -g "openclaw@$PREV_VERSION" --no-audit --no-fund 2>&1 || true
+                                echo -e "${YELLOW}[INFO]${NC} Rollback attempted. Check with: openclaw --version"
+                            fi
+                        fi
+                    fi
+                fi
+            fi
+        else
+            echo -e "${YELLOW}[SKIP]${NC} OpenClaw Core update skipped."
+        fi
     fi
     
     # ── Critical Reconstruction Step ──
     # Always re-patch after 'npm install -g' as it overwrites our Android fixes
+    echo ""
     echo "Re-applying Android compatibility patches..."
     if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
         bash "$PROJECT_DIR/scripts/patch-android.sh"

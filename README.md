@@ -7,11 +7,8 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://www.android.com/)
-[![Termux](https://img.shields.io/badge/Termux-000000?style=for-the-badge&logo=termux&logoColor=white)](https://termux.dev/)
-[![Bash](https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![Node.js](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Version](https://img.shields.io/badge/version-1.1.2-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.
 
@@ -101,10 +98,9 @@ The installer automatically resolves the differences between Termux and standard
 
 1. **glibc environment** — Installs the glibc dynamic linker (via pacman's glibc-runner) so standard Linux binaries run without modification
 2. **Node.js (glibc)** — Downloads official Node.js linux-arm64 and wraps it with an ld.so loader script (no patchelf, which causes segfault on Android)
-3. **Path conversion** — Automatically converts standard Linux paths (`/tmp`, `/bin/sh`, `/usr/bin/env`) to Termux paths
-4. **Temp folder setup** — Configures an accessible temp folder for Android
-5. **Service manager bypass** — Configures normal operation without systemd
-6. **OpenCode integration** — If selected, installs OpenCode using proot + ld.so concatenation for Bun standalone binaries
+3. **Ultra-Light Mode (ARMv7)** — Intelligent memory management for devices with <2GB RAM, injecting optimized Node garbage collection flags.
+4. **Automated Diagnostics** — Integrated `oa doctor` system to fix common Termux issues (Wake-lock, Swap, environment pollution).
+5. **Pre-Update Safety** — Automatic data backups before any script or core update.
 
 ## Step-by-Step Setup (from a fresh phone)
 
@@ -227,25 +223,26 @@ After installation, the `oa` command is available for managing your installation
 
 | Option | Aliases | Description |
 | :--- | :--- | :--- |
-| `oa update` | `up` | Updates OpenClaw and Android patches |
+| `oa update` | `up` | **Full Update**: Updates OpenClaw + Tools + Patches |
+| `oa self-update` | `upgrade` | **Fast Sync**: Syncs CLI scripts & patches from GitHub |
 | `oa install` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
-| `oa start` | `strt` | Starts the Gateway in the background |
-| `oa start:fg` | `strt:fg` | Starts the Gateway in the foreground (ideal for debugging) |
-| `oa stop` | `stp` | Stops the Gateway and cleans up orphan processes |
-| `oa logs` | `log` | View live logs of the Gateway service |
-| `oa ui` | `dashboard` | Open the OpenClaw Dashboard (Control UI) |
-| `oa ui-config` | `config-wizard` | Interactive Configuration Wizard (credentials, channels, etc.) |
-| `oa onboard` | — | Run the Onboarding Wizard |
-| `oa config` | `cfg` | Non-interactive config helpers (`get`/`set`/`validate`) |
-| `oa doctor` | `doc` | Health checks + quick fixes |
-| `oa status` | `st` | Shows complete installation status and version |
-| `oa fix-env` | — | **Fix environment variables** in `~/.bashrc` (run if you see OA_GLIBC errors) |
-| `oa fix-android` | `fix` | **Essential**: Patches 'not supported on Android' errors |
-| `oa backup` | `bkp` | Create a full backup of OpenClaw data |
-| `oa restore` | `rst` | Restore from a previous backup |
-| `oa uninstall` | `uninst` | Remove OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version information |
-| `oa help` | `-h`, `h` | Show all available options |
+| `oa start` | `strt` | Starts the Gateway in the background (Service mode) |
+| `oa start:fg` | `strt:fg` | Starts the Gateway in the foreground (Debug mode) |
+| `oa stop` | `stp` | Stops all processes and cleans up orphans |
+| `oa logs` | `log` | View real-time logs of the background service |
+| `oa ui` | `dashboard` | Open the OpenClaw Dashboard |
+| `oa ui-config` | `config-wizard` | Interactive Configuration Wizard |
+| `oa onboard` | — | Run the Official Onboarding Wizard |
+| `oa config` | `cfg` | Non-interactive config (`get`/`set`/`validate`) |
+| `oa doctor` | `doc` | **Health Check**: Diagnoses & fixes common system errors |
+| `oa status` | `st` | Shows comprehensive system and service status |
+| `oa fix-env` | — | Recalibrates environment variables in `~/.bashrc` |
+| `oa fix-android` | `fix` | Re-applies essential Android compatibility patches |
+| `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
+| `oa restore` | `rst` | Interactive restoration from previous backups |
+| `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.1.2) |
+| `oa help` | `-h`, `h` | Show availability options |
 
 ## Update
 

@@ -14,7 +14,7 @@ if [ ! -f "$SCRIPT_DIR/scripts/lib.sh" ]; then
 fi
 source "$SCRIPT_DIR/scripts/lib.sh"
 
-banner "OpenClaw on Android - Installer" "$OA_VERSION"
+banner "OpenClaw on Android — Installer" "$GREEN"
 
 step 1 "Environment Check"
 if command -v termux-wake-lock &>/dev/null; then

@@ -10,6 +10,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
+LIME='\033[38;5;154m'   # Neon Lime Green
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -18,9 +19,9 @@ banner() {
     local title="$1"
     local color="${2:-$BOLD}"
     local version="${3:-$OA_VERSION}"
-    echo -e "${color}${BOLD}========================================${NC}"
+    echo -e "${color}${BOLD}==========================================================${NC}"
     echo -e "${color}${BOLD}  ${title} v${version}${NC}"
-    echo -e "${color}${BOLD}========================================${NC}"
+    echo -e "${color}${BOLD}==========================================================${NC}"
 }
 
 show_banner() {

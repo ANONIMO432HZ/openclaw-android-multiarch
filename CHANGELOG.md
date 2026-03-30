@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.2] - 2026-03-30
+
+### Added
+
+- **Unified CLI Refactor (oa)**: Completely centralized the CLI logic into a single robust entry point with legacy command aliasing (`oaupdate`).
+- **Autonomous Diagnostic System (`oa doctor`)**: New health check module that automatically diagnoses and fixes Termux environment issues (Wake-lock, Swap, storage access, environment pollution).
+- **Ultra-Light Mode (ARMv7)**: Intelligent detection for devices with <2GB RAM. Automatically prompts to inject optimized Node.js V8 flags (`--max-old-space-size=256 --gc-interval=100`) for maximum stability.
+- **Pre-Update Safety Backups**: Integrated an automated backup prompt before any core or script update, ensuring a reliable rollback path.
+- **Neon Aesthetic Upgrade**: Standardized UI with a high-visibility "Neon Lime Green" theme and expansive banners.
+- **Self-Update Mechanism**: New `oa self-update` command to sync CLI scripts and patches directly from the repository without a full re-install.
+
+### Changed
+
+- **SSOT Versioning**: Centralized `OA_VERSION` in `lib.sh` as the project's single source of truth.
+- **Enhanced Banner Logic**: Redesigned UI functions to support color themes, auto-versioning, and responsive widths.
+- **Process Management**: Refactored shutdown and service sequences to prioritize `termux-services` and graceful cleanup.
+- **README Overhaul**: Completely updated documentation with v1.1.2 features, architecture diagrams, and a professional CLI reference.
+- **Uninstall Reliability**: Modernized the uninstaller with the new UI library and safer cleanup protocols.
+
+### Fixed
+
+- **Trap Scope Bug**: Resolved an "unbound variable" error in `backup.sh` by switching from `EXIT` to `RETURN` traps.
+- **Banner Versioning**: Fixed the "V" bug where the version string was truncated in help menus.
+- **Environment Pollution**: Improved `.bashrc` cleanup to prevent duplicate variable injection.
+
 ## [1.1.0] - 2026-03-30
 
 ### Added

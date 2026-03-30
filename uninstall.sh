@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_DIR="$HOME/.openclaw-android"
 TOTAL_STEPS=7
-OA_VERSION="1.1.0"
+OA_VERSION="1.1.2"
 
 # Try to load global library, but provide robust fallbacks
 if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
@@ -20,9 +20,12 @@ if ! command -v banner &>/dev/null; then
     BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
 
     banner() {
-        echo -e "${BOLD}========================================${NC}"
-        echo -e "${BOLD}  $1 v${2:-$OA_VERSION}${NC}"
-        echo -e "${BOLD}========================================${NC}"
+        local title="$1"
+        local color="${2:-$BOLD}"
+        local version="${3:-$OA_VERSION}"
+        echo -e "${color}${BOLD}========================================${NC}"
+        echo -e "${color}${BOLD}  ${title} v${version}${NC}"
+        echo -e "${color}${BOLD}========================================${NC}"
     }
 
     ask_yn() {
@@ -53,7 +56,7 @@ if ! command -v detect_platform &>/dev/null; then
     }
 fi
 
-banner "OpenClaw on Android - Uninstaller" "$OA_VERSION"
+banner "OpenClaw on Android — Uninstaller" "$RED"
 
 reply=""
 read -rp "This will remove the installation. Continue? [y/N] " reply < /dev/tty

@@ -17,13 +17,14 @@ YELLOW="${YELLOW:-\033[1;33m}"
 BLUE="${BLUE:-\033[0;34m}"
 PURPLE="${PURPLE:-\033[0;35m}"
 CYAN="${CYAN:-\033[0;36m}"
+LIME="${LIME:-\033[38;5;154m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
 # ── Commands ──
 
 show_help() {
-    banner "OpenClaw Android Professional CLI" "$PURPLE"
+    banner "OpenClaw Android Professional CLI" "$LIME"
     echo "Usage: oa [command]"
     echo ""
     echo "Commands:"

@@ -10,7 +10,7 @@ else
     source "$HOME/.openclaw-android/scripts/lib.sh"
 fi
 
-banner "OpenClaw Termux Edition — DOCTOR" "$OA_VERSION"
+banner "OpenClaw Termux Edition — DOCTOR" "$CYAN"
 echo ""
 
 ERRORS=0

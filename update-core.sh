@@ -11,7 +11,7 @@ if [ ! -f "$PROJECT_DIR/scripts/lib.sh" ]; then
 fi
 source "$PROJECT_DIR/scripts/lib.sh"
 
-banner "OpenClaw on Android - Updater" "$OA_VERSION"
+banner "OpenClaw on Android — Updater" "$PURPLE"
 
 step 1 "Pre-flight Check"
 

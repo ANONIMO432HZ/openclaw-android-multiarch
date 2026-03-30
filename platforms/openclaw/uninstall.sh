@@ -4,12 +4,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../../scripts/lib.sh"
 
-echo "=== Removing OpenClaw Platform ==="
+banner "OpenClaw Platform — Uninstaller" "$RED"
 echo ""
 
+TOTAL_STEPS=6
 step() {
     echo ""
-    echo -e "${BOLD}[$1/7] $2${NC}"
+    echo -e "${BOLD}[$1/$TOTAL_STEPS] $2${NC}"
     echo "----------------------------------------"
 }
 
@@ -72,21 +73,8 @@ else
     echo -e "${YELLOW}[SKIP]${NC} ${PREFIX:-}/tmp/openclaw not found"
 fi
 
-step 6 "OpenClaw data"
-if [ -d "$HOME/.openclaw" ]; then
-    reply=""
-    read -rp "Remove OpenClaw data directory (~/.openclaw)? [y/N] " reply < /dev/tty
-    if [[ "$reply" =~ ^[Yy]$ ]]; then
-        rm -rf "$HOME/.openclaw"
-        echo -e "${GREEN}[OK]${NC}   Removed ~/.openclaw"
-    else
-        echo -e "${YELLOW}[KEEP]${NC} Keeping ~/.openclaw"
-    fi
-else
-    echo -e "${YELLOW}[SKIP]${NC} ~/.openclaw not found"
-fi
 
-step 7 "AI CLI tools"
+step 6 "AI CLI tools"
 AI_TOOLS_FOUND=()
 AI_TOOL_LABELS=()
 

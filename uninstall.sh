@@ -152,7 +152,7 @@ if [ -L "$HOME/openclaw-android" ]; then
 fi
 
 if [ -d "$PROJECT_DIR" ]; then
-    if ask_yn "Remove installation directory (~/.openclaw-android)? Includes Node.js, patches, configs."; then
+    if ask_yn "Remove OpenClaw orchestrator (~/.openclaw-android)? Includes Node.js and patches."; then
         rm -rf "$PROJECT_DIR"
         echo -e "${GREEN}[OK]${NC}   Removed $PROJECT_DIR"
     else
@@ -160,6 +160,19 @@ if [ -d "$PROJECT_DIR" ]; then
     fi
 else
     echo -e "${YELLOW}[SKIP]${NC} $PROJECT_DIR not found"
+fi
+
+# New: Optional Core Data Cleanup
+CORE_DATA="$HOME/.openclaw"
+if [ -d "$CORE_DATA" ]; then
+    echo ""
+    echo -e "${RED}${BOLD}ATTENTION:${NC} Core data folder found at $CORE_DATA"
+    if ask_yn "DO YOU WANT TO DELETE ALL AGENTS, LOGS, AND SETTINGS? (Irreversible)"; then
+        rm -rf "$CORE_DATA"
+        echo -e "${GREEN}[OK]${NC}   Core data wiped."
+    else
+        echo -e "${YELLOW}[KEEP]${NC} Core data preserved at $CORE_DATA"
+    fi
 fi
 
 echo ""

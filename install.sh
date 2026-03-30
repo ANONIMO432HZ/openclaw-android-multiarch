@@ -3,7 +3,6 @@ set -euo pipefail
 
 # This script installs OpenClaw on Termux with platform-aware architecture.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-echo "DEBUG: SCRIPT_DIR is $SCRIPT_DIR"
 
 # Global configuration
 TOTAL_STEPS=8
@@ -148,7 +147,7 @@ echo "To manage services:"
 echo -e "  ${BOLD}oa start${NC}    - Start all services"
 echo -e "  ${BOLD}oa stop${NC}     - Stop all services"
 echo -e "  ${BOLD}oa status${NC}   - View service health"
-echo -e "  ${BOLD}oa dashboard${NC} - Open Control UI"
+echo -e "  ${BOLD}oa ui${NC}       - Open Control UI"
 echo ""
 
 # Verify the installation

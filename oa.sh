@@ -256,7 +256,12 @@ maybe_backup_before_update() {
     if ask_yn "Would you like to create a backup of your data before updating?"; then
         cmd_backup "$PROJECT_DIR/backup"
     else
-   cmd_start_sv() {
+        echo -e "  ${YELLOW}[SKIP]${NC} Skipping preventive backup."
+    fi
+    echo ""
+}
+
+cmd_start_sv() {
     check_and_fix_env
     apply_ultra_light_mode
     
@@ -287,7 +292,7 @@ maybe_backup_before_update() {
         
         # Blocking wait for the service to transition to 'run'
         echo -ne "  Waiting for service"
-        for i in {1..10}; do
+        for i in {1..25}; do
             if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
                 echo -e "\n${GREEN}[OK]${NC} Service is running."
                 return 0

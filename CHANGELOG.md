@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4.4] - 2026-03-31
+
+### Added
+
+- **Smart UI Detection**: Significantly enhanced `oa ui` with automated Local IP detection (LAN/WLAN) and 'termux-open' integration for seamless browser launching and cross-device access.
+
 ## [1.1.4.3] - 2026-03-31
 
 ### Fixed

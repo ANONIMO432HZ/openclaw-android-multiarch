@@ -559,8 +559,47 @@ cmd_ui() {
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
     fi
-    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
-    openclaw dashboard
+    
+    echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
+    
+    # Extract token from config
+    local TOKEN
+    TOKEN=$(openclaw config get gateway.token 2>/dev/null || echo "")
+    
+    # Detect Local IP (Try wlan0 first for LAN)
+    local LOCAL_IP
+    LOCAL_IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || ip -4 addr show eth0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || echo "127.0.0.1")
+    
+    local DASHBOARD_URL="http://127.0.0.1:18789/#token=$TOKEN"
+    local LAN_URL="http://${LOCAL_IP}:18789/#token=$TOKEN"
+
+    banner "OpenClaw Control UI" "$CYAN"
+    echo -e "Dashboard is active. Choose your access method:"
+    echo ""
+    echo -e "${BOLD}1. This Mobile (Termux)${NC}"
+    echo -e "   URL: ${BLUE}${DASHBOARD_URL}${NC}"
+    
+    # Attempt to open browser automatically on Android
+    if [[ "$OSTYPE" == "linux-android"* ]]; then
+        if command -v termux-open &>/dev/null; then
+            echo -e "   ${GREEN}[OK]${NC} Opening default browser..."
+            termux-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
+        elif command -v am &>/dev/null; then
+            echo -e "   ${GREEN}[OK]${NC} Opening via intent..."
+            am start -a android.intent.action.VIEW -d "$DASHBOARD_URL" >/dev/null 2>&1 || true
+        fi
+    fi
+
+    echo ""
+    echo -e "${BOLD}2. Local Network (PC / Tablet / SmartTV)${NC}"
+    echo -e "   URL: ${BLUE}http://${LOCAL_IP}:18789${NC}"
+    echo -e "   Key: ${BLUE}${LAN_URL}${NC}"
+    
+    echo ""
+    echo -e "${BOLD}3. Remote Access (SSH / Proxy)${NC}"
+    echo -e "   Command: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${LOCAL_IP}${NC}"
+    echo ""
+    echo -e "${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
 }
 
 cmd_ui_config() {

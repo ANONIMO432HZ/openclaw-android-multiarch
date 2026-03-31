@@ -6,7 +6,9 @@
 ![Termux](https://img.shields.io/badge/Termux-Required-orange)
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/AidanPark/openclaw-android)
-![GitHub Stars](https://img.shields.io/github/stars/AidanPark/openclaw-android)
+![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.1.3-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 나야, [OpenClaw](https://github.com/openclaw). 근데 이제 Android-Termux 를 곁들인...
 
@@ -93,8 +95,8 @@
 
 > **중요**: Google Play Store의 Termux는 업데이트가 중단되어 정상 동작하지 않습니다. 반드시 F-Droid에서 설치하세요.
 
-1. 폰 브라우저에서 [F-Droid 공식 사이트](https://f-droid.org)에 접속
-2. `Termux` 검색 후 **Download APK**를 눌러 다운로드 및 설치
+1. 폰 브라우저에서 [F-Droid Termux 페이지](https://f-droid.org/packages/com.termux/)에 접속
+2. 페이지 하단의 **Download APK**를 눌러 다운로드 및 설치
    - "출처를 알 수 없는 앱" 설치 허용 팝업이 뜨면 **허용**
 
 ### 3단계: Termux 초기 설정
@@ -112,13 +114,19 @@ pkg update -y && pkg install -y curl
 > **팁: SSH로 편하게 입력하기**
 > 이 단계부터는 폰 화면 대신 컴퓨터 키보드로 명령어를 입력할 수 있습니다. [Termux SSH 접속 가이드](docs/termux-ssh-guide.ko.md)를 참고하세요.
 
-Termux에 아래 명령어를 붙여넣으세요.
+Termux에 아래 명령어를 붙여넣으세요. 두 가지 옵션이 있습니다:
+
+#### 옵션 A: 원스톱 설치 (권장)
+
+이 명령은 기존 폴더를 자동으로 감지하고 부트스트랩 "센서"를 사용하여 청소 및 업데이트를 자동으로 처리합니다.
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh | bash && source ~/.bashrc
+bash <(curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh)
 ```
 
-또는 git으로 직접 클론 (더 빠르고, `git pull` 업데이트 가능):
+#### 옵션 B: 수동 설치 (Git)
+
+전통적인 Git 기반 배포를 선호하는 사용자를 위한 방식입니다.
 
 ```bash
 git clone --depth=1 --branch main https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git ~/.openclaw-android && bash ~/.openclaw-android/install.sh && source ~/.bashrc
@@ -198,7 +206,7 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | `oa restore` | 백업에서 복원 |
 | `oa uninstall` | OpenClaw on Android 제거 |
 | `oa version` | 버전 정보 표시 (`v`, `-v`) |
-| `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) | |
+| `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) |
 
 ## 업데이트
 

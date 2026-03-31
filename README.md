@@ -119,7 +119,7 @@ Configure Developer Options, Stay Awake, charge limit, and battery optimization.
 
 > **Important**: The Play Store version of Termux is discontinued and will not work. You must install from F-Droid.
 
-1. Open your phone's browser and go to [f-droid.org](https://f-droid.org)
+1. Open your phone's browser and go to [f-droid.org](https://f-droid.org/es/packages/com.termux/)
 2. Search for `Termux`, then tap **Download APK** to download and install
    * Allow "Install from unknown sources" when prompted
 

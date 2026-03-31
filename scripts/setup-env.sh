@@ -17,7 +17,8 @@ PLATFORM=$(detect_platform) || true
 
 INFRA_VARS="export TMPDIR=\"\$PREFIX/tmp\"
 export TMP=\"\$TMPDIR\"
-export TEMP=\"\$TMPDIR\""
+export TEMP=\"\$TMPDIR\"
+export SVDIR=\"\$PREFIX/var/service\""
 
 # Detect architecture: use IS_ARMV7L from lib.sh, fallback to uname -m
 ARCH_DETECTED=$(uname -m)

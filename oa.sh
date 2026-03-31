@@ -72,6 +72,9 @@ show_help() {
 
 # ── Helper: Verify and repair environment if needed (fast) ──
 check_and_fix_env() {
+    # Ensure SVDIR is set for termux-services (runit) otherwise commands like sv will fail
+    export SVDIR="${PREFIX}/var/service"
+    
     if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
         return 0
     fi

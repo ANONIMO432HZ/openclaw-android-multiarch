@@ -554,15 +554,13 @@ cmd_uninstall() {
 }
 
 cmd_ui() {
-    # 0. Define local style fallbacks to prevent "unbound variable" errors in strict Termux shells
+    # 0. Local style definitions for strict Termux shells (prevent unbound variables)
     local BOLD="\e[1m"
     local CYAN="\e[36m"
     local BLUE="\e[34m"
-    local GREEN="\e[32m"
     local YELLOW="\e[33m"
+    local GREEN="\e[32m"
     local RED="\e[31m"
-    local DIM="\e[2m"
-    local ITALIC="\e[3m"
     local NC="\e[0m"
 
     check_and_fix_env
@@ -571,14 +569,14 @@ cmd_ui() {
         exit 1
     fi
     
-    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
+    # 1. Native Motor: Reliability First (The Master Wheel)
+    # We execute the official binary. This guarantees the token is displayed
+    # and the default browser is opened correctly by the core application.
+    echo -e "${CYAN}Launching OpenClaw Dashboard (Native Motor)...${NC}"
     echo ""
-    
-    # 1. Native Secure Execution: We trust the official binary to handle token display 
-    # perfectly, avoiding fragile subshell regex parsing and set -e pipeline crashes entirely.
     openclaw dashboard
     
-    # 2. Hardened IP Detection (Direct and non-blocking)
+    # 2. Hardened IP Detection (Direct and non-blocking helpers)
     local IP
     IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -o 'src [0-9.]*' | grep -o '[0-9.]*' | tail -n 1 || \
          timeout 2s hostname -I 2>/dev/null | awk '{print $1}' || \
@@ -587,18 +585,21 @@ cmd_ui() {
     [ -z "$IP" ] || [ "$IP" = "127.0.0.1" ] && IP=$(hostname -I 2>/dev/null | awk '{print $1}')
     [ -z "$IP" ] && IP="127.0.0.1"
     
-    # 3. Extended Network Helpers (Keeping the valuable custom additions)
+    # 3. Premium CLI Extension (The Pulished UI)
     echo ""
     echo -e "${CYAN}==========================================================${NC}"
-    echo -e "  ${BOLD}OpenClaw Extended Connect (v1.1.5.2)${NC}"
+    echo -e "  ${BOLD}OpenClaw Connect UI — v1.1.5.3${NC}"
     echo -e "${CYAN}==========================================================${NC}"
-    echo -e "Use the token provided above to access the dashboard on:"
+    echo -e "Need to access from another device on your network?"
     echo ""
     echo -e "${BOLD}Local Network (PC / Tablet / SmartTV)${NC}"
     echo -e "   URL:   ${BLUE}http://${IP}:18789${NC}"
+    echo -e "   Note: Copy the #token from the native output above."
     echo ""
-    echo -e "${BOLD}Remote Access (SSH / Proxy)${NC}"
+    echo -e "${BOLD}Remote Access (SSH Tunneling)${NC}"
     echo -e "   Command:   ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${IP}${NC}"
+    echo ""
+    echo -e "${GREEN}[OK]${NC} Dashboard session is active. Keep this terminal open."
     echo ""
 }
 

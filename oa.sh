@@ -568,12 +568,7 @@ cmd_ui() {
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
     fi
-    
-    echo -e "${CYAN}Launching OpenClaw Dashboard...${NC}"
-    echo ""
-    
-    # 1. Native Execution (Functional Optimized Baseline)
-    # This is the original stable method. No subshells, no capture, no crashes.
+    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
     openclaw dashboard
     
     # 2. Informative Network Helpers (Non-blocking)

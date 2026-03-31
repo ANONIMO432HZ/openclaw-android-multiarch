@@ -573,29 +573,36 @@ cmd_ui() {
     IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || echo "DEVICE_IP")
 
     echo -e "${CYAN}Launching OpenClaw Core...${NC}"
-    echo "───────────────────────────────────────────────────────────────────────────────────────────────────────────"
+    echo "────────────────────────────────────"
 
     # 2. Execute core, show live logs, and capture output
     local DASH_LOG
     DASH_LOG=$(openclaw dashboard 2>&1 | tee /dev/tty)
 
-    # 3. Dynamic IP Extraction (Sync with core's detection)
-    local CORE_IP
+    # 3. Dynamic Extraction (IP + Token Sync)
+    local CORE_IP TOKEN
+    # Extraemos la IP del usuario@ip (El robo de IP del dash)
     CORE_IP=$(echo "$DASH_LOG" | grep -o '[a-z0-9_]*@[0-9.]*' | cut -d'@' -f2 | head -n 1)
     [[ -n "$CORE_IP" ]] && IP="$CORE_IP"
+    
+    # Extraemos el Token de seguridad dinámico (#token=...)
+    TOKEN=$(echo "$DASH_LOG" | grep -o '#token=[a-z0-9]*' | cut -d'=' -f2 | head -n 1)
 
-    # 4. Professional Minimalist Correction (Safe 60-char width for mobile)
+    # 4. Professional Minimalist UI (Safe 40-char width for mobile)
     echo ""
-    echo -e "${RED}────────────────────────────────────────────────────────────${NC}"
+    echo -e "${RED}──────────────────────────────────────${NC}"
     echo -e " ${YELLOW}⚠️  TERMUX SSH TIP (CORRECTED)${NC}"
     echo -e " ${DIM}The original command above is missing -p 8022. Use this:${NC}"
     echo ""
-    echo -e " ${BOLD}Option 1: Silent Web Tunnel (Recommended)${NC}"
+    echo -e " ${BOLD}Silent Tunnel:${NC}"
     echo -e " ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
     echo ""
-    echo -e " ${BOLD}Option 2: Tunnel + Terminal Shell${NC}"
+    echo -e " ${BOLD}Tunnel + Terminal Shell:${NC}"
     echo -e " ${LIME}${BOLD}ssh -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
-    echo -e "${RED}────────────────────────────────────────────────────────────${NC}\n"
+    echo ""
+    echo -e " ${BOLD}Once active, open this link on your PC:${NC}"
+    echo -e " http://localhost:18789/#token=${TOKEN:-NOT_FOUND}"
+    echo -e "${RED}───────────────────────────────────────${NC}\n"
 }
 
 cmd_ui_config() {

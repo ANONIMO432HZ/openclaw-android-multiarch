@@ -302,7 +302,7 @@ cmd_start_sv() {
         # Blocking wait for the service to transition to 'run'
         echo -ne "  Waiting for service"
         for i in {1..25}; do
-            if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
+            if sv status openclaw-gateway 2>/dev/null | grep -q "^run: openclaw-gateway:"; then
                 echo -e "\n${GREEN}[OK]${NC} Service is running."
                 return 0
             fi
@@ -472,7 +472,7 @@ cmd_status() {
     fi
 
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
-        if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
+        if sv status openclaw-gateway 2>/dev/null | grep -q "^run: openclaw-gateway:"; then
             echo -e "  Manager:  ${GREEN}termux-services${NC}"
             echo -e "  Status:   ${GREEN}Running${NC}"
         else

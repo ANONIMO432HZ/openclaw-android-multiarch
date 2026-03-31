@@ -439,6 +439,15 @@ cmd_stop_sv() {
     fi
 }
 
+# ── Helper: List active OpenClaw processes safely (excluding supervisors) ──
+list_oa_pids() {
+    # We use ps -ef and exclude supervisors like runsv/svlogd to avoid false positives
+    # but we MUST include "openclaw gateway", "node.*openclaw", and most importantly "openclaw-gateway"
+    # only if they are not being called by runsv.
+    ps -ef 2>/dev/null | grep -E "openclaw gateway|node.*openclaw|openclaw-gateway|/bin/openclaw" | \
+        grep -Ev "runsv|svlogd|grep|oa.sh|$0" | awk '{print $2}' || echo ""
+}
+
 cmd_stop() {
     check_and_fix_env
     
@@ -455,17 +464,10 @@ cmd_stop() {
     fi
 
     # Manual process cleanup
-    echo -e "${YELLOW}Cleaning up gateway processes (Manual mode)...${NC}"
+    echo -e "${YELLOW}Cleaning up gateway processes (Manual/Stray mode)...${NC}"
 
-    local ALL_CANDIDATES
-    ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
-
-    local PIDS=""
-    for pid in $ALL_CANDIDATES; do
-        if [ "$pid" != "$$" ]; then
-            PIDS="$PIDS $pid"
-        fi
-    done
+    local PIDS
+    PIDS=$(list_oa_pids)
 
     if [ -n "$PIDS" ]; then
         echo -e "  Stopping processes: $PIDS"
@@ -474,7 +476,7 @@ cmd_stop() {
         # Blocking wait for cleanup
         echo -n "  Waiting for shutdown"
         local stop_count=0
-        while pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; do
+        while [ -n "$(list_oa_pids)" ]; do
             sleep 1
             echo -n "."
             stop_count=$((stop_count + 1))
@@ -486,7 +488,7 @@ cmd_stop() {
         done
         echo -e "\n  ${GREEN}[OK]${NC} Shutdown complete."
     else
-        echo -e "  No active gateway processes found."
+        echo -e "  No stray gateway processes found."
     fi
     echo -e "${GREEN}[OK]${NC} Stopped."
 }
@@ -523,9 +525,30 @@ cmd_status() {
     done
 
     echo ""
+    echo -e "${BOLD}Port / Network Status${NC}"
+    # Check 18789 (Gateway) and 8022 (SSH)
+    if command -v ss &>/dev/null; then
+        if ss -ltn 2>/dev/null | grep -q ":18789\b"; then
+            echo -e "  Gateway (18789): ${GREEN}PORT OPEN${NC}"
+        else
+            echo -e "  Gateway (18789): ${RED}CLOSED${NC}"
+        fi
+    elif command -v netstat &>/dev/null; then
+         if netstat -ltn 2>/dev/null | grep -q ":18789\b"; then
+            echo -e "  Gateway (18789): ${GREEN}PORT OPEN${NC}"
+        else
+            echo -e "  Gateway (18789): ${RED}CLOSED${NC}"
+        fi
+    else
+        echo -e "  Port Check: ${YELLOW}[SKIP]${NC} (ss/netstat not found)"
+    fi
+
+    echo ""
     echo -e "${BOLD}Service Status${NC}"
+    local RUNNING_PIDS
+    RUNNING_PIDS=$(list_oa_pids)
     local RUNNING_VIA_PGREP=false
-    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
+    if [ -n "$RUNNING_PIDS" ]; then
         RUNNING_VIA_PGREP=true
     fi
 
@@ -536,7 +559,7 @@ cmd_status() {
         else
             echo -e "  Manager:  ${YELLOW}termux-services${NC}"
             if [ "$RUNNING_VIA_PGREP" = true ]; then
-                echo -e "  Status:   ${GREEN}Running${NC} (Manual mode)"
+                echo -e "  Status:   ${GREEN}Running${NC} (Manual/Stray processes)"
             else
                 echo -e "  Status:   ${RED}Stopped${NC}"
             fi

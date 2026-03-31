@@ -19,9 +19,9 @@ banner() {
     local title="$1"
     local color="${2:-$BOLD}"
     local version="${3:-$OA_VERSION}"
-    echo -e "${color}${BOLD}==========================================================${NC}"
+    echo -e "${color}${BOLD}=======================================================${NC}"
     echo -e "${color}${BOLD}  ${title} v${version}${NC}"
-    echo -e "${color}${BOLD}==========================================================${NC}"
+    echo -e "${color}${BOLD}=======================================================${NC}"
 }
 
 show_banner() {

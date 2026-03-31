@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4.7] - 2026-03-31
+
+### Fixed
+
+- **UI Network Timeouts**: Added strict time limits (2s) to all network/IP discovery commands in `oa ui` to prevent the CLI from hanging in offline or high-latency environments.
+- **Improved Token Hunt**: Refined extraction logic to be more resilient during multi-path configuration lookups.
+
 ## [1.1.4.6] - 2026-03-31
 
 ### Changed

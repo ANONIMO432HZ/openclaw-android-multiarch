@@ -562,33 +562,32 @@ cmd_ui() {
     
     echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
     
-    # 1. Deep Token Hunt (Native command -> Config JSON -> Lock file)
+    # 1. Deep Token Hunt (With timeout)
     local TOKEN
-    TOKEN=$(openclaw config get gateway.token 2>/dev/null || \
-            openclaw config get gateway.authToken 2>/dev/null || \
+    TOKEN=$(timeout 3s openclaw config get gateway.token 2>/dev/null || \
             grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw/config.json" 2>/dev/null | head -n 1 || \
-            grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw-android/config.json" 2>/dev/null | head -n 1)
+            echo "")
 
-    # 2. Hardened IP Detection (Route -> ifconfig -> ip addr -> hostname)
+    # 2. Hardened IP Detection (With strict 2s timeouts to prevent hanging)
     local IP
-    IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || \
-         ifconfig wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
-         ifconfig eth0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
-         ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
-         hostname -I | awk '{print $1}' || \
+    IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || \
+         timeout 2s ifconfig wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
+         timeout 2s hostname -I 2>/dev/null | awk '{print $1}' || \
          echo "127.0.0.1")
+    
+    [ -z "$IP" ] && IP="127.0.0.1"
     
     local DASHBOARD_URL="http://127.0.0.1:18789/#token=$TOKEN"
     local LAN_URL="http://${IP}:18789/#token=$TOKEN"
 
     # 3. Premium Visual UI
     banner "OpenClaw Control UI" "$CYAN"
-    echo -e "Dashboard is active. Choose your access method:"
+    echo -e "Dashboard access is ready."
     echo ""
     echo -e "${BOLD}1. This Mobile (Termux)${NC}"
     echo -e "   URL: ${BLUE}${DASHBOARD_URL}${NC}"
     
-    # Auto-open logic (Convenience for local Termux users)
+    # Auto-open logic
     if [[ "$OSTYPE" == "linux-android"* ]] && [ -n "$TOKEN" ] && command -v termux-open &>/dev/null; then
         echo -e "   ${GREEN}[OK]${NC} Opening session in browser..."
         termux-open "$DASHBOARD_URL" >/dev/null 2>&1 || true

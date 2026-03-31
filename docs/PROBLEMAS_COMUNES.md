@@ -87,3 +87,27 @@ Ejecuta `oa ui` y usa el comando de túnel sugerido en pantalla:
 ssh -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 [USUARIO]@[IP]
 ```
 Luego entra en tu PC a: `http://localhost:18789/#token=TU_TOKEN`
+
+---
+
+## 6. Errores inusuales de Runit/Termux-Services (`file does not exist`)
+
+**Síntoma:** Al usar `oa start:sv` o `oa stop:sv`, la terminal o tu conexión SSH de Antigravity arroja el error:
+`fail: openclaw-gateway: unable to change to service directory: file does not exist`
+
+**Causa:** El paquete `termux-services` exige que exista la variable de entorno `SVDIR` seteada internamente para localizar `/var/service`. Si corres scripts de forma no interactiva (ej: vía SSH directo) y esta variable no carga, `sv` intentará buscar en la raíz de Android (que no existe) provocando el fallo.
+**Solución Permanente Implementada:** Inyectamos `export SVDIR="$PREFIX/var/service"` globalmente en `~/.bashrc` y de forma forzosa en la validación inicial de cada comando de la CLI de `oa`.
+
+---
+
+## 7. Falsos Positivos: Servicio reportado "En Ejecución" cuando está detenido
+
+**Síntoma:** Al detener el servicio correctamente con `oa stop:sv`, al revisar los procesos mediante `oa status` la herramienta sigue diciendo `Status: Running (Manual mode)` o simplemente `Running`.
+
+**Causa (Bugs superpuestos de Runit):** 
+1. `sv status` imprime el estado normal del servicio *y el de sus logs*. Cuando el servicio cae, el daemon de logs (`svlogd`) sigue activo, devolviendo el string `run: log:`, lo que engañaba a filtros simples (ej. `grep -q "run:"`).
+2. El supervisor estricto de Termux (`runsv`) que mantiene vivo el servicio se llama `runsv openclaw-gateway`. En un escaneo manual de procesos con `pgrep -f "openclaw"`, el propio supervisor era detectado erróneamente como si el servidor Node.js siguiera vivo y originaba un Falso Positivo "Manual".
+
+**Solución Permanente Implementada:** 
+- Aislamos el grep a buscar exactamente la cadena `^run: openclaw-gateway:` ignorando al daemon de logs.
+- Refinamos el patrón `pgrep` omitiendo explícitamente `runsv` para garantizar que la CLI solo alerte si el proceso **Node.js** genuino (y no sus wrappers de sistema) está funcionando.

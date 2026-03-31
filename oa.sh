@@ -359,7 +359,7 @@ cmd_start() {
         fi
     done
     echo ""
-    if pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; then
+    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
         echo -e "${GREEN}[OK]${NC} OpenClaw is listening and ready."
     else
         echo -e "\n${RED}[FAIL]${NC} Log says listening but process check failed."
@@ -400,7 +400,7 @@ cmd_stop() {
     echo -e "${YELLOW}Cleaning up gateway processes...${NC}"
 
     local ALL_CANDIDATES
-    ALL_CANDIDATES=$(pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" || echo "")
+    ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
 
     local PIDS=""
     for pid in $ALL_CANDIDATES; do
@@ -416,7 +416,7 @@ cmd_stop() {
         # Blocking wait for cleanup
         echo -n "  Waiting for shutdown"
         local stop_count=0
-        while pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; do
+        while pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; do
             sleep 1
             echo -n "."
             stop_count=$((stop_count + 1))
@@ -467,7 +467,7 @@ cmd_status() {
     echo ""
     echo -e "${BOLD}Service Status${NC}"
     local RUNNING_VIA_PGREP=false
-    if pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; then
+    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
         RUNNING_VIA_PGREP=true
     fi
 

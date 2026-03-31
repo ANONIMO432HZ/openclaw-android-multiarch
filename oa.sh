@@ -560,21 +560,22 @@ cmd_ui() {
         exit 1
     fi
 
-    # 1. Faster & more robust IP detection for Termux
+    # 1. Robust IP detection (Finding first non-loopback address)
     local IP
-    IP=$(ip addr show wlan0 2>/dev/null | grep -o 'inet [0-9.]*' | grep -o '[0-9.]*' | head -n 1 || \
+    IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || \
          hostname -I 2>/dev/null | awk '{print $1}' || \
-         echo "127.0.0.1")
+         echo "DEVICE_IP")
     
-    # 2. Concise Termux fix for SSH (The core tool misses -p 8022)
+    # 2. Refined Termux Professional Tip (Multi-port + No Command)
     echo -e "${CYAN}${BOLD}OpenClaw Gateway Dashboard${NC}"
     echo -e "────────────────────────────────────────"
-    echo -e "${YELLOW}Termux SSH Tip:${NC} Use ${BOLD}-p 8022${NC} to connect from PC:"
-    echo -e " ${DIM:-}ssh -N -L 18789:127.0.0.1:18789 ${BOLD}-p 8022${NC}${DIM:-} ${USER}@${IP}${NC}"
+    echo -e "${YELLOW}Remote Access Tip (PC/External):${NC}"
+    echo -e " ${DIM:-}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 ${BOLD}-p 8022${NC}${DIM:-} ${USER}@${IP}${NC}"
+    echo -e " ${ITALIC:-} (Use -N for a quiet background data/web tunnel)${NC}"
     echo -e "────────────────────────────────────────"
     echo ""
 
-    # 3. Handover to Core (Which shows Token and URL)
+    # 3. Start the dashboard server
     openclaw dashboard
 }
 

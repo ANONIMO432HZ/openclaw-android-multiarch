@@ -25,7 +25,7 @@ curl -L https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarc
 
 **Causa:** El script usa `set -u` (modo estricto) y algunas variables de entorno (como `USER` o `PREFIX`) no están exportadas en tu terminal actual.
 
-**Solución:** 
+**Solución:**
 1. Asegúrate de tener las variables en tu `.bashrc`: `oa fix-env`.
 2. Si el error persiste, usa la versión más reciente de `oa.sh` que incluye fallbacks automáticos para estas variables.
 
@@ -104,7 +104,7 @@ Luego entra en tu PC a: `http://localhost:18789/#token=TU_TOKEN`
 
 **Síntoma:** Al detener el servicio correctamente con `oa stop:sv`, al revisar los procesos mediante `oa status` la herramienta sigue diciendo `Status: Running (Manual mode)` o simplemente `Running`.
 
-**Causa (Bugs superpuestos de Runit):** 
+**Causa (Bugs superpuestos de Runit):**
 1. `sv status` imprime el estado normal del servicio *y el de sus logs*. Cuando el servicio cae, el daemon de logs (`svlogd`) sigue activo, devolviendo el string `run: log:`, lo que engañaba a filtros simples (ej. `grep -q "run:"`).
 2. El supervisor estricto de Termux (`runsv`) que mantiene vivo el servicio se llama `runsv openclaw-gateway`. En un escaneo manual de procesos con `pgrep -f "openclaw"`, el propio supervisor era detectado erróneamente como si el servidor Node.js siguiera vivo y originaba un Falso Positivo "Manual".
 

@@ -296,24 +296,64 @@ cmd_start_sv() {
         fi
 
         echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
+        # Inject a marker to avoid false positives from old logs
+        mkdir -p "$PROJECT_DIR/logs"
+        echo "--- OA RESTART ---" >> "$PROJECT_DIR/logs/current" 2>/dev/null || true
+
         # Trigger an 'up' command
         sv up openclaw-gateway 2>/dev/null || true
         
-        # Blocking wait for the service to transition to 'run'
-        echo -ne "  Waiting for service"
-        for i in {1..25}; do
+        # 1. Blocking wait for the service supervisor to transition to 'run'
+        echo -ne "  Waiting for service supervisor"
+        local sv_ok=false
+        for i in {1..15}; do
             if sv status openclaw-gateway 2>/dev/null | grep -q "^run: openclaw-gateway:"; then
-                echo -e "\n${GREEN}[OK]${NC} Service is running."
-                return 0
+                sv_ok=true
+                echo -e "\n  ${GREEN}[OK]${NC} Supervisor active."
+                break
             fi
             echo -n "."
             sleep 1
         done
         
-        echo -e "\n${RED}[FAIL]${NC} Service failed to start within timeout."
-        echo "  Try: sv status openclaw-gateway (for details)"
-        echo "  Or: oa start (standard mode)"
-        return 1
+        if [ "$sv_ok" = false ]; then
+            echo -e "\n${RED}[FAIL]${NC} Service supervisor failed to start within timeout."
+            echo "  Try: sv status openclaw-gateway"
+            return 1
+        fi
+
+        # 2. Blocking wait for the Node.js payload to fully boot (can take 30-60s on old phones)
+        echo -ne "  Waiting for gateway to wake up (max 60s)..."
+        local count=0
+        local max_wait=60
+        local log_file="$PROJECT_DIR/logs/current"
+        
+        while true; do
+            # Read only the logs AFTER our restart marker
+            if awk '/--- OA RESTART ---/{flag=1} flag' "$log_file" 2>/dev/null | grep -q "listening on" 2>/dev/null; then
+                echo -e "\n${GREEN}[OK]${NC} OpenClaw Gateway is fully initialized and ready."
+                return 0
+            fi
+
+            sync
+            sleep 1
+            count=$((count + 1))
+            echo -n "."
+
+            # Print a progress hint every 10 seconds to keep the user informed
+            if [ $((count % 10)) -eq 0 ]; then
+                local last_line
+                last_line=$(tail -n 1 "$log_file" 2>/dev/null | cut -c1-50)
+                echo -ne "\n  [LOG] ${last_line}..."
+            fi
+
+            if [ $count -ge $max_wait ]; then
+                echo -e "\n${YELLOW}[WARN]${NC} Timeout de ${max_wait}s excedido."
+                echo -e "       El servicio sigue corriendo en background pero está muy lento."
+                echo -e "       Revisa si arrancó ejecutando: ${BOLD}oa logs:sv${NC}"
+                return 0
+            fi
+        done
     else
         echo -e "${RED}[FAIL]${NC} termux-services not fully initialized. Use 'oa start'."
         return 1

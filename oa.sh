@@ -73,6 +73,14 @@ check_and_fix_env() {
 # ── Command Implementations ──
 
 cmd_update() {
+    # 0. Flag parsing for -y or -n (assume yes/no)
+    for arg in "$@"; do
+        case "$arg" in
+            -y|--yes) export OA_YES="true" ;;
+            -n|--no)  export OA_YES="false" ;;
+        esac
+    done
+
     check_and_fix_env
     maybe_backup_before_update
     banner "OpenClaw — Update Module" "$PURPLE"
@@ -532,7 +540,7 @@ cmd_logs() {
     if [ -f "$LOGFILE" ]; then
          echo -e "${CYAN}${BOLD}Monitoring Logs:${NC} $LOGFILE"
          echo -e "${YELLOW}(Press Ctrl+C to exit)${NC}"
-         echo "────────────────────────────────────────"
+         echo "───────────────────────────────────────────────────────────────────────────────────────────────────"
          tail -f "$LOGFILE"
     else
          echo -e "${RED}[FAIL]${NC} No logs found in any expected location."
@@ -565,7 +573,7 @@ cmd_ui() {
     IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || echo "DEVICE_IP")
 
     echo -e "${CYAN}Launching OpenClaw Core...${NC}"
-    echo "────────────────────────────────────────"
+    echo "───────────────────────────────────────────────────────────────────────────────────────────────────────────"
 
     # 2. Execute core, show live logs, and capture output
     local DASH_LOG
@@ -576,13 +584,17 @@ cmd_ui() {
     CORE_IP=$(echo "$DASH_LOG" | grep -o '[a-z0-9_]*@[0-9.]*' | cut -d'@' -f2 | head -n 1)
     [[ -n "$CORE_IP" ]] && IP="$CORE_IP"
 
-    # 4. Professional Minimalist Correction (Safe on mobile screens)
+    # 4. Professional Minimalist Correction (Safe 60-char width for mobile)
     echo ""
     echo -e "${RED}────────────────────────────────────────────────────────────${NC}"
     echo -e " ${YELLOW}⚠️  TERMUX SSH TIP (CORRECTED)${NC}"
     echo -e " ${DIM}The original command above is missing -p 8022. Use this:${NC}"
     echo ""
+    echo -e " ${BOLD}Option 1: Silent Web Tunnel (Recommended)${NC}"
     echo -e " ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
+    echo ""
+    echo -e " ${BOLD}Option 2: Tunnel + Terminal Shell${NC}"
+    echo -e " ${LIME}${BOLD}ssh -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
     echo -e "${RED}────────────────────────────────────────────────────────────${NC}\n"
 }
 

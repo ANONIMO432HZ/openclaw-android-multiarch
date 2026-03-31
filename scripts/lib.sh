@@ -111,6 +111,15 @@ validate_platform_name() {
 # Termux always has /dev/tty — no fallback for tty-less environments.
 ask_yn() {
     local prompt="$1"
+    
+    # Auto-responses based on global OA_YES (set via -y/-n flags)
+    if [[ "${OA_YES:-}" == "true" ]]; then
+        return 0
+    fi
+    if [[ "${OA_YES:-}" == "false" ]]; then
+        return 1
+    fi
+
     local reply
     read -rp "$prompt [Y/n] " reply < /dev/tty
     [[ "${reply:-}" =~ ^[Nn]$ ]] && return 1

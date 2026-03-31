@@ -554,34 +554,30 @@ cmd_uninstall() {
 }
 
 cmd_ui() {
-    # 0. Local style definitions
-    local BOLD="\e[1m"
-    local CYAN="\e[36m"
-    local BLUE="\e[34m"
-    local YELLOW="\e[33m"
-    local GREEN="\e[32m"
-    local RED="\e[31m"
-    local NC="\e[0m"
-
     check_and_fix_env
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
         exit 1
     fi
-    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
-    openclaw dashboard
-    
-    # 2. Informative Network Helpers (Non-blocking)
+
+    # 1. Detect IP before starting (To show it even if dashboard blocks)
     local IP
     IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -o 'src [0-9.]*' | grep -o '[0-9.]*' | tail -n 1 || \
          timeout 2s hostname -I 2>/dev/null | awk '{print $1}' || \
          echo "127.0.0.1")
     
+    # 2. Informative Network Helpers (Show BEFORE dashboard)
+    banner "OpenClaw Dashboard Access" "$CYAN"
+    echo -e "${BOLD}Local Network / Remote Access:${NC}"
+    echo -e "   URL:     ${BLUE}http://${IP:-127.0.0.1}:18789${NC}"
+    echo -e "   SSH Cmd: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 -p 8022 ${USER}@${IP:-127.0.0.1}${NC}"
     echo ""
-    echo -e "${BOLD}Local Network Access:${NC}"
-    echo -e "   URL:   ${BLUE}http://${IP:-127.0.0.1}:18789${NC}"
-    echo -e "   Command: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${IP:-127.0.0.1}${NC}"
-    echo ""
+    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
+    echo -e "${DIM:-}(Press Ctrl+C to stop)${NC}"
+    echo "────────────────────────────────────────"
+
+    # 3. Start the dashboard
+    openclaw dashboard
 }
 
 cmd_ui_config() {

@@ -291,14 +291,24 @@ cmd_start() {
 
     echo -ne "  Waiting for server..."
     local count=0
+    local max_wait=45
     while ! grep -q "listening on" "$PROJECT_DIR/server.log" 2>/dev/null; do
-        sync # Force flush disk buffers in Termux
+        sync
         sleep 1
-        echo -n "."
         count=$((count + 1))
-        if [ $count -ge 15 ]; then
-            echo -e "\n${RED}[FAIL]${NC} Startup verification timed out."
-            echo -e "       Check 'oa logs' - the server might still be loading."
+        
+        # Show some progress from the log every 5 seconds
+        if [ $((count % 5)) -eq 0 ]; then
+            local LAST_LOG
+            LAST_LOG=$(tail -n 1 "$PROJECT_DIR/server.log" 2>/dev/null | cut -c1-50)
+            echo -ne "\n  [LOG] ${LAST_LOG}..."
+        else
+            echo -n "."
+        fi
+
+        if [ $count -ge $max_wait ]; then
+            echo -e "\n${RED}[FAIL]${NC} Startup verification timed out after ${max_wait}s."
+            echo -e "       The process might still be starting. Check 'oa logs'."
             return 1
         fi
     done
@@ -354,15 +364,23 @@ cmd_stop() {
     done
 
     if [ -n "$PIDS" ]; then
-        echo -e "  Sending SIGTERM to PIDs: $PIDS"
+        echo -e "  Stopping processes: $PIDS"
         kill $PIDS 2>/dev/null || true
-        sleep 3 # Increased wait for slow Android systems
-        # Final cleanup for stubborn processes
-        if pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; then
-            echo -e "  Attempting SIGKILL on stubborn processes..."
-            kill -9 $PIDS 2>/dev/null || true
+        
+        # Blocking wait for cleanup
+        echo -n "  Waiting for shutdown"
+        local stop_count=0
+        while pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; do
             sleep 1
-        fi
+            echo -n "."
+            stop_count=$((stop_count + 1))
+            if [ $stop_count -ge 8 ]; then
+                echo -e "\n  Stubborn processes detected. Sending SIGKILL..."
+                kill -9 $PIDS 2>/dev/null || true
+                break
+            fi
+        done
+        echo -e "\n  ${GREEN}[OK]${NC} Shutdown complete."
     else
         echo -e "  No active gateway processes found."
     fi

@@ -425,12 +425,41 @@ cmd_start_fg() {
     exec openclaw gateway
 }
 
+cleanup_stray_processes() {
+    local PIDS
+    PIDS=$(list_oa_pids)
+
+    if [ -n "$PIDS" ]; then
+        echo -e "${YELLOW}Cleaning up stray gateway processes (Manual/Zombies)...${NC}"
+        echo -e "  Stopping processes: $PIDS"
+        kill $PIDS 2>/dev/null || true
+        
+        # Blocking wait for cleanup
+        echo -n "  Waiting for total shutdown"
+        local stop_count=0
+        while [ -n "$(list_oa_pids)" ]; do
+            sleep 1
+            echo -n "."
+            stop_count=$((stop_count + 1))
+            if [ $stop_count -ge 8 ]; then
+                echo -e "\n  Stubborn processes detected. Sending SIGKILL..."
+                kill -9 $PIDS 2>/dev/null || true
+                break
+            fi
+        done
+        echo -e "\n  ${GREEN}[OK]${NC} Cleanup complete."
+        return 0
+    fi
+    return 0
+}
+
 cmd_stop_sv() {
     check_and_fix_env
     
     # Ensure service exists before trying to stop it
     if [ ! -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${YELLOW}[INFO]${NC} No service found to stop."
+        cleanup_stray_processes
         return 0
     fi
 
@@ -447,53 +476,26 @@ cmd_stop_sv() {
         done
         echo -e "  ${GREEN}[OK]${NC} Service stopped."
     fi
-}
 
-# ── Helper: List active OpenClaw processes safely (excluding supervisors) ──
-list_oa_pids() {
-    # We use ps -ef and exclude supervisors like runsv/svlogd to avoid false positives
-    # but we MUST include "openclaw gateway", "node.*openclaw", and most importantly "openclaw-gateway"
-    # only if they are not being called by runsv.
-    ps -ef 2>/dev/null | grep -E "openclaw gateway|node.*openclaw|openclaw-gateway|/bin/openclaw" | \
-        grep -Ev "runsv|svlogd|grep|oa.sh|$0" | awk '{print $2}' || echo ""
+    # ALWAYS check for strays even when service mode was requested
+    cleanup_stray_processes
 }
 
 cmd_stop() {
     check_and_fix_env
     
-    # 1. Stop service if active (Managed mode)
+    # 1. Stop service if managed (Managed mode)
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         if sv status openclaw-gateway 2>/dev/null | grep -q "^run: openclaw-gateway:"; then
             echo -e "${YELLOW}[INFO]${NC} Gateway is managed by termux-services."
             cmd_stop_sv
-            # Don't return! Fall through to clean up potential stray manual processes.
+            # Don't return, stop_sv already calls cleanup_stray_processes, but we follow through.
+            return 0
         fi
     fi
 
     # 2. Cleanup ANY stray/manual processes (Zombie prevention)
-    local PIDS
-    PIDS=$(list_oa_pids)
-
-    if [ -n "$PIDS" ]; then
-        echo -e "${YELLOW}Cleaning up stray gateway processes...${NC}"
-        echo -e "  Stopping processes: $PIDS"
-        kill $PIDS 2>/dev/null || true
-        
-        # Blocking wait for cleanup
-        echo -n "  Waiting for shutdown"
-        local stop_count=0
-        while [ -n "$(list_oa_pids)" ]; do
-            sleep 1
-            echo -n "."
-            stop_count=$((stop_count + 1))
-            if [ $stop_count -ge 8 ]; then
-                echo -e "\n  Stubborn processes detected. Sending SIGKILL..."
-                kill -9 $PIDS 2>/dev/null || true
-                break
-            fi
-        done
-        echo -e "\n  ${GREEN}[OK]${NC} Cleanup complete."
-    fi
+    cleanup_stray_processes
     echo -e "${GREEN}[OK]${NC} Stopped."
 }
 

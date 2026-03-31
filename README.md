@@ -138,7 +138,17 @@ pkg update -y && pkg install -y curl git
 > **Tip: Use SSH for easier typing**
 > From this step on, you can type commands from your computer keyboard instead of the phone screen. See the [Termux SSH Setup Guide](docs/termux-ssh-guide.md) for details.
 
-Paste the following command in Termux.
+Paste the following command in Termux. You have two options:
+
+#### Choice A: One-step Installation (Recommended)
+This command handles pre-existing folders and updates automagically using our bootstrap "sensor".
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multiarch/main/bootstrap.sh)
+```
+
+#### Choice B: Manual Installation (Git)
+For those who prefer a traditional Git-based deployment.
 
 ```bash
 git clone --depth=1 --branch main https://github.com/ANONIMO432HZ/openclaw-android-multiarch.git ~/.openclaw-android && bash ~/.openclaw-android/install.sh && source ~/.bashrc

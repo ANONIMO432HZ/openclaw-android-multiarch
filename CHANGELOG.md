@@ -5,9 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.4.4] - 2026-03-31
+## [1.1.4.5] - 2026-03-31
 
-### Added
+### Fixed
+
+- **Multi-Method Token Extraction**: Hardened `oa ui` to extract tokens from multiple config keys and fallback to direct JSON parsing if the CLI fails.
+- **Route-Based IP detection**: Switched to `ip route` for local IP detection, making it interface-agnostic (works on wlan0, eth0, or VPNs).
+- **ANSI Style Fixes**: Defined missing `ITALIC` and `DIM` variables in `lib.sh` to prevent shell errors.
+
+## [1.1.4.4] - 2026-03-31
 
 - **Smart UI Detection**: Significantly enhanced `oa ui` with automated Local IP detection (LAN/WLAN) and 'termux-open' integration for seamless browser launching and cross-device access.
 

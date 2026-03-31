@@ -562,19 +562,21 @@ cmd_ui() {
     
     echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
     
-    # Extract token from config
+    # Extract token with multiple methods (native, then direct JSON access)
     local TOKEN
-    TOKEN=$(openclaw config get gateway.token 2>/dev/null || echo "")
+    TOKEN=$(openclaw config get gateway.token 2>/dev/null || openclaw config get gateway.authToken 2>/dev/null || grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw/config.json" 2>/dev/null | head -n 1 || echo "")
     
-    # Detect Local IP (Try wlan0 first for LAN)
+    # Detect Local IP (Try route lookup first, it's the most reliable)
     local LOCAL_IP
-    LOCAL_IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || ip -4 addr show eth0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || echo "127.0.0.1")
+    LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || echo "127.0.0.1")
     
     local DASHBOARD_URL="http://127.0.0.1:18789/#token=$TOKEN"
     local LAN_URL="http://${LOCAL_IP}:18789/#token=$TOKEN"
 
-    banner "OpenClaw Control UI" "$CYAN"
-    echo -e "Dashboard is active. Choose your access method:"
+    echo -e "=========================================================="
+    echo -e "  ${CYAN}OpenClaw Control UI v${OA_VERSION}${NC}"
+    echo -e "=========================================================="
+    echo -e "Dashboard access methods:"
     echo ""
     echo -e "${BOLD}1. This Mobile (Termux)${NC}"
     echo -e "   URL: ${BLUE}${DASHBOARD_URL}${NC}"

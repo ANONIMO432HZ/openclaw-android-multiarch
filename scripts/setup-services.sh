@@ -13,6 +13,12 @@ LOG_DIR="$SERVICE_DIR/log"
 echo "OpenClaw on Android — Service Registration"
 echo "────────────────────────────────────────"
 
+# Ensure dependencies are installed
+if ! command -v sv &>/dev/null; then
+    echo "  [0/2] Installing termux-services package..."
+    pkg update -y && pkg install -y termux-services || true
+fi
+
 # Ensure the service directory exists
 mkdir -p "$LOG_DIR"
 

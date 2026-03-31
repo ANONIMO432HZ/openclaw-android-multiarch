@@ -10,7 +10,7 @@ if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
 fi
 
 # Fallback values if lib.sh is NOT found
-OA_VERSION="${OA_VERSION:-1.1.2}"
+OA_VERSION="${OA_VERSION:-1.1.3}"
 RED="${RED:-\033[0;31m}"
 GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"
@@ -170,12 +170,11 @@ cmd_update() {
     fi
 
     # ── Step 3: Re-apply Android patches ──
-    echo ""
-    echo "Re-applying Android compatibility patches..."
+    echo -e "${CYAN}Re-applying Android compatibility patches...${NC}"
     if [ -f "$PROJECT_DIR/scripts/patch-android.sh" ]; then
-        bash "$PROJECT_DIR/scripts/patch-android.sh"
+        bash "$PROJECT_DIR/scripts/patch-android.sh" || true
     elif [ -f "$PROJECT_DIR/scripts/patch-core.sh" ]; then
-        bash "$PROJECT_DIR/scripts/patch-core.sh"
+        bash "$PROJECT_DIR/scripts/patch-core.sh" || true
     fi
 
     # ── Step 4: Auto-reload environment safely ──
@@ -251,6 +250,13 @@ maybe_backup_before_update() {
 cmd_start_sv() {
     check_and_fix_env
     apply_ultra_light_mode
+    
+    # Ensure service is registered before starting
+    if [ ! -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        echo -e "${YELLOW}[INFO]${NC} Service registration missing. Setting up now..."
+        bash "$PROJECT_DIR/scripts/setup-services.sh" || true
+    fi
+
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
         sv up openclaw-gateway 2>/dev/null || true
@@ -263,7 +269,7 @@ cmd_start_sv() {
             return 1
         fi
     else
-        echo -e "${RED}[FAIL]${NC} termux-services not configured. Run 'oa install' or used 'oa start'."
+        echo -e "${RED}[FAIL]${NC} termux-services not found even after attempt. Use 'oa start'."
         return 1
     fi
 }
@@ -300,6 +306,13 @@ cmd_start_fg() {
 
 cmd_stop_sv() {
     check_and_fix_env
+    
+    # Ensure service exists before trying to stop it
+    if [ ! -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        echo -e "${YELLOW}[INFO]${NC} No service found to stop."
+        return 0
+    fi
+
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${YELLOW}Stopping OpenClaw gateway service...${NC}"
         sv down openclaw-gateway >/dev/null 2>&1 || true

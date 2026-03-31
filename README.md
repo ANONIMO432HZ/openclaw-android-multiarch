@@ -1,5 +1,7 @@
 # OpenClaw on Android
 
+[English](README.md) | [Español](README.es.md) | [한국어](README.ko.md)
+
 <img src="docs/images/openclaw_android.jpg" alt="OpenClaw on Android">
 
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-brightgreen)
@@ -141,6 +143,7 @@ pkg update -y && pkg install -y curl git
 Paste the following command in Termux. You have two options:
 
 #### Choice A: One-step Installation (Recommended)
+
 This command handles pre-existing folders and updates automagically using our bootstrap "sensor".
 
 ```bash
@@ -148,6 +151,7 @@ bash <(curl -sL https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-
 ```
 
 #### Choice B: Manual Installation (Git)
+
 For those who prefer a traditional Git-based deployment.
 
 ```bash
@@ -236,10 +240,12 @@ After installation, the `oa` command is available for managing your installation
 | `oa update` | `up` | **Full Update**: Updates OpenClaw + Tools + Patches |
 | `oa self-update` | `upgrade` | **Fast Sync**: Syncs CLI scripts & patches from GitHub |
 | `oa install` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
-| `oa start` | `strt` | Starts the Gateway in the background (Service mode) |
-| `oa start:fg` | `strt:fg` | Starts the Gateway in the foreground (Debug mode) |
-| `oa stop` | `stp` | Stops all processes and cleans up orphans |
-| `oa logs` | `log` | View real-time logs of the background service |
+| `oa start` | — | Starts the Gateway in background (Manual - nohup) |
+| `oa start:sv` | `strt` | Starts the Gateway via termux-services |
+| `oa start:fg` | `strt:fg` | Starts the Gateway in foreground (Debug mode) |
+| `oa stop` | `stp` | Stops BOTH service and background processes |
+| `oa stop:sv` | — | Stops ONLY the Termux service |
+| `oa logs` | `log` | View real-time background and service logs |
 | `oa ui` | `dashboard` | Open the OpenClaw Dashboard |
 | `oa ui-config` | `config-wizard` | Interactive Configuration Wizard |
 | `oa onboard` | — | Run the Official Onboarding Wizard |
@@ -251,7 +257,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version info (Current: 1.1.2) |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.1.3) |
 | `oa help` | `-h`, `h` | Show availability options |
 
 ## Update

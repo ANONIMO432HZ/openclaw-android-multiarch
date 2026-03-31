@@ -1,5 +1,7 @@
 # OpenClaw on Android
 
+[English](README.md) | [Español](README.es.md) | [한국어](README.ko.md)
+
 <img src="docs/images/openclaw_android.jpg" alt="OpenClaw on Android">
 
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-brightgreen)
@@ -15,7 +17,9 @@
 > **🎯 이 포크(Fork)의 목적:**
 > 이 저장소는 공식 [AidanPark/openclaw-android](https://github.com/AidanPark/openclaw-android) 프로젝트의 특수 포크입니다. 이 저장소의 유일한 목적은 **루팅 권한 없이 Termux 내에서 armv7 (32비트) 및 최신 기기로부터 openclaw-android의 설치 및 작동 호환성을 유지하는 것**입니다.
 > 네이티브 CLI 게이트웨이를 Termux 환경에서 안정적으로 실행하는 것과 엄밀하게 관련되지 않은 Android APK, React UI 대시보드(`android/`) 또는 기타 기능에 대해서는 **유지보수를 제공하지 않습니다**.
+
 ## 리눅스 설치 없이
+
 
 일반적으로 Android에서 OpenClaw를 실행하려면 proot-distro로 Linux를 설치해야 하고, 700MB~1GB의 저장공간이 필요합니다. OpenClaw on Android는 glibc 동적 링커(ld.so)만 설치하여, 전체 Linux 배포판 없이 OpenClaw를 실행할 수 있게 합니다.
 
@@ -58,8 +62,6 @@
 | 설치 시간 | 20-30분 | 3-10분 |
 | 성능 | 느림 (proot 레이어) | 네이티브 속도 |
 | 설정 과정 | 디스트로 설치, Linux 설정, Node.js 설치, 경로 수정... | 명령어 하나 실행 |
-
-
 
 ## 요구사항
 
@@ -190,22 +192,24 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | :--- | :--- |
 | `oa update` | OpenClaw 및 Android 패치 업데이트 |
 | `oa install` | 선택적 도구 설치 (tmux, code-server, AI CLI 등) |
-| `oa start` | 게이트웨이를 백그라운드에서 실행 |
+| `oa start` | 게이트웨이를 백그라운드에서 실행 (Manual - nohup) |
+| `oa start:sv` | 게이트웨이를 서비스로 실행 (termux-services) |
 | `oa start:fg` | 게이트웨이를 포그라운드에서 실행 (디버깅용) |
-| `oa stop` | 게이트웨이 중지 및 고아 프로세스 정리 |
+| `oa stop` | 모든 프로세스 중지 (서비스 + 백그라운드) |
+| `oa stop:sv` | 서비스만 중지 |
 | `oa logs` | 게이트웨이 서비스 로그 실시간 확인 |
 | `oa ui` | OpenClaw 대시보드 열기 (컨트롤 UI) |
 | `oa ui-config` | 설정 마법사 (크레덴셜, 채널 등) |
 | `oa onboard` | 온보딩 마법사 실행 |
 | `oa config` | 비대화형 설정 유틸리티 (`get`/`set`/`validate`) |
 | `oa doctor` | 헬스 체크 + 빠른 수정 |
-| `oa status` | 설치 상태 및 버전 정보 표시 |
+| `oa status` | 설치 상태 및 상세 프로세스 진단 정보 표시 |
 | `oa fix-env` | **환경 변수 복구** - `OA_GLIBC` 오류가 발생하면 실행 |
 | `oa fix-android` | **필수**: 'not supported on Android' 오류 패치 |
 | `oa backup` | OpenClaw 데이터 전체 백업 생성 |
 | `oa restore` | 백업에서 복원 |
 | `oa uninstall` | OpenClaw on Android 제거 |
-| `oa version` | 버전 정보 표시 (`v`, `-v`) |
+| `oa version` | 버전 정보 표시 (`v1.1.3`) |
 | `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) |
 
 ## 업데이트

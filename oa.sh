@@ -289,6 +289,13 @@ cmd_start_sv() {
         fi
     fi
 
+cmd_start_sv() {
+    check_and_fix_env
+    apply_ultra_light_mode
+
+    # Universal cleanup before service start
+    cmd_stop >/dev/null 2>&1 || true
+
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         # Ensure service is enabled (linked to /var/service) to avoid 'file does not exist' errors
         if command -v sv-enable &>/dev/null; then
@@ -399,10 +406,13 @@ cmd_start() {
         fi
     done
     echo ""
-    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
+    local RUNNING_PIDS
+    RUNNING_PIDS=$(list_oa_pids)
+    if [ -n "$RUNNING_PIDS" ]; then
         echo -e "${GREEN}[OK]${NC} OpenClaw is listening and ready."
+        return 0
     else
-        echo -e "\n${RED}[FAIL]${NC} Log says listening but process check failed."
+        echo -e "\n${RED}[FAIL]${NC} Log says listening but process check failed (no PIDs found)."
         return 1
     fi
 }
@@ -451,25 +461,21 @@ list_oa_pids() {
 cmd_stop() {
     check_and_fix_env
     
-    # ── Intelligent SV Detection ──
-    # If termux-services is installed and the gateway is managed by it,
-    # gracefully inform the user and delegate exclusively to stop_sv.
+    # 1. Stop service if active (Managed mode)
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         if sv status openclaw-gateway 2>/dev/null | grep -q "^run: openclaw-gateway:"; then
             echo -e "${YELLOW}[INFO]${NC} Gateway is managed by termux-services."
-            echo -e "       Forwarding command to ${CYAN}oa stop:sv${NC}..."
             cmd_stop_sv
-            return $?
+            # Don't return! Fall through to clean up potential stray manual processes.
         fi
     fi
 
-    # Manual process cleanup
-    echo -e "${YELLOW}Cleaning up gateway processes (Manual/Stray mode)...${NC}"
-
+    # 2. Cleanup ANY stray/manual processes (Zombie prevention)
     local PIDS
     PIDS=$(list_oa_pids)
 
     if [ -n "$PIDS" ]; then
+        echo -e "${YELLOW}Cleaning up stray gateway processes...${NC}"
         echo -e "  Stopping processes: $PIDS"
         kill $PIDS 2>/dev/null || true
         
@@ -486,9 +492,7 @@ cmd_stop() {
                 break
             fi
         done
-        echo -e "\n  ${GREEN}[OK]${NC} Shutdown complete."
-    else
-        echo -e "  No stray gateway processes found."
+        echo -e "\n  ${GREEN}[OK]${NC} Cleanup complete."
     fi
     echo -e "${GREEN}[OK]${NC} Stopped."
 }

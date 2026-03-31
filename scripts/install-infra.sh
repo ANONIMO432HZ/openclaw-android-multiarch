@@ -18,9 +18,9 @@ echo "  (This may take a minute depending on mirror speed)"
 pkg update -y
 pkg upgrade -y
 
-# Install core infrastructure packages
-echo "Installing git and curl..."
-pkg install -y git curl
+# Install core infrastructure packages (including termux-services for runit and procps for robust ps -ef)
+echo "Installing git, curl, termux-services and procps..."
+pkg install -y git curl termux-services procps
 
 echo ""
 echo -e "${GREEN}Infrastructure dependencies installed.${NC}"

@@ -35,7 +35,7 @@ REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multi
 
 BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
 BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
-export OA_VERSION="1.1.4" # Upstream Sync Edition (AidanPark v0.4.0)
+export OA_VERSION="1.1.4.2" # Upstream Sync Edition (AidanPark v0.4.0)
 
 # ── Platform detection ──
 # 1. Explicit marker file (new install and after first update)

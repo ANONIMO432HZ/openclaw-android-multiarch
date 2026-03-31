@@ -303,7 +303,12 @@ cmd_start() {
         fi
     done
     echo ""
-    echo -e "${GREEN}[OK]${NC} OpenClaw is now listening and ready."
+    if pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; then
+        echo -e "${GREEN}[OK]${NC} OpenClaw is listening and ready."
+    else
+        echo -e "\n${RED}[FAIL]${NC} Log says listening but process check failed."
+        return 1
+    fi
 }
 
 cmd_start_fg() {
@@ -339,7 +344,7 @@ cmd_stop() {
     echo -e "${YELLOW}Cleaning up gateway processes...${NC}"
 
     local ALL_CANDIDATES
-    ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
+    ALL_CANDIDATES=$(pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" || echo "")
 
     local PIDS=""
     for pid in $ALL_CANDIDATES; do
@@ -351,9 +356,13 @@ cmd_stop() {
     if [ -n "$PIDS" ]; then
         echo -e "  Sending SIGTERM to PIDs: $PIDS"
         kill $PIDS 2>/dev/null || true
-        sleep 2
+        sleep 3 # Increased wait for slow Android systems
         # Final cleanup for stubborn processes
-        kill -9 $PIDS 2>/dev/null || true
+        if pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; then
+            echo -e "  Attempting SIGKILL on stubborn processes..."
+            kill -9 $PIDS 2>/dev/null || true
+            sleep 1
+        fi
     else
         echo -e "  No active gateway processes found."
     fi
@@ -394,7 +403,7 @@ cmd_status() {
     echo ""
     echo -e "${BOLD}Service Status${NC}"
     local RUNNING_VIA_PGREP=false
-    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
+    if pgrep -f "openclaw-gateway|openclaw gateway|node.*openclaw" >/dev/null; then
         RUNNING_VIA_PGREP=true
     fi
 

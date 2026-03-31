@@ -125,8 +125,9 @@ cmd_update() {
                 chmod +x "$PROJECT_DIR/oa.sh"
             fi
             local NEW_VERSION
-            NEW_VERSION=$(grep OA_VERSION "$PROJECT_DIR/scripts/lib.sh" 2>/dev/null | cut -d'"' -f2 || echo "Updated")
-            echo -e "${GREEN}[OK]${NC} Scripts updated to v$NEW_VERSION."
+            # Precise grep for the exported version line to avoid picking up function arguments
+            NEW_VERSION=$(grep "^export OA_VERSION=" "$PROJECT_DIR/scripts/lib.sh" 2>/dev/null | cut -d'"' -f2 || echo "Updated")
+            echo -e "${GREEN}[OK]${NC} Scripts updated to v$NEW_VERSION"
         else
             echo -e "${RED}[FAIL]${NC} Pull failed. Try: git reset --hard origin/main"
             git stash pop >/dev/null 2>&1 || true
@@ -286,6 +287,11 @@ cmd_start_sv() {
     fi
 
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        # Ensure service is enabled (linked to /var/service) to avoid 'file does not exist' errors
+        if command -v sv-enable &>/dev/null; then
+            sv-enable openclaw-gateway >/dev/null 2>&1 || true
+        fi
+
         echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
         # Trigger an 'up' command
         sv up openclaw-gateway 2>/dev/null || true

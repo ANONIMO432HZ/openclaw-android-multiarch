@@ -32,9 +32,11 @@ show_help() {
     echo "  self-update  Update ONLY the CLI scripts and patches (fast)"
     echo "  install      Install optional components (code-server, tmux, etc.)"
     echo ""
-    echo "  start        Start OpenClaw Gateway (Background)"
-    echo "  start:fg     Start OpenClaw gateway (Foreground debug)"
-    echo "  stop         Stop background processes"
+    echo "  start        Start OpenClaw Gateway (Background - nohup)"
+    echo "  start:sv     Start OpenClaw gateway (Service - termux-services)"
+    echo "  start:fg     Start OpenClaw gateway (Foreground - debug)"
+    echo "  stop         Stop BOTH background and services"
+    echo "  stop:sv      Stop ONLY the service"
     echo "  logs         View real-time background logs"
     echo ""
     echo "  ui           Open the OpenClaw Dashboard (Control UI)"
@@ -246,36 +248,45 @@ maybe_backup_before_update() {
     echo ""
 }
 
+cmd_start_sv() {
+    check_and_fix_env
+    apply_ultra_light_mode
+    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
+        sv up openclaw-gateway 2>/dev/null || true
+        sleep 2
+        if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
+            echo -e "${GREEN}[OK]${NC} Service is running."
+            return 0
+        else
+            echo -e "${RED}[FAIL]${NC} Service failed to start. Try 'oa start' instead."
+            return 1
+        fi
+    else
+        echo -e "${RED}[FAIL]${NC} termux-services not configured. Run 'oa install' or used 'oa start'."
+        return 1
+    fi
+}
+
 cmd_start() {
     check_and_fix_env
     apply_ultra_light_mode
-    
-    # ── Priority 1: termux-services (sv) ──
-    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
-        echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
-        sv up openclaw-gateway
-        sleep 2
-        if sv status openclaw-gateway | grep -q "run:"; then
-            echo -e "${GREEN}[OK]${NC} Service is running."
-            return 0
-        fi
-    fi
-
-    # ── Priority 2: Manual background execution ──
     echo -e "${CYAN}Starting OpenClaw gateway in background (nohup)...${NC}"
+    # Stop anything running first to prevent port conflict
     cmd_stop >/dev/null 2>&1 || true
 
     mkdir -p "$PROJECT_DIR/logs"
+    # Ensure Android 7+ compatibility with clear paths
     nohup openclaw gateway > "$PROJECT_DIR/server.log" 2>&1 &
 
-    echo -e "  Waiting for server to initialize..."
-    sleep 4
+    echo -ne "  Waiting for server..."
+    for i in {1..5}; do echo -ne "."; sleep 1; done; echo ""
 
     if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
-        echo -e "${GREEN}[OK]${NC} OpenClaw is running in the background."
-        echo -e "     Logs: ${BOLD}oa logs${NC}"
+        echo -e "${GREEN}[OK]${NC} OpenClaw is running in background."
     else
-        echo -e "${RED}[FAIL]${NC} Failed to start. Check server.log"
+        echo -e "${RED}[FAIL]${NC} Startup failed. Check 'oa logs'."
+        return 1
     fi
 }
 
@@ -283,20 +294,26 @@ cmd_start_fg() {
     check_and_fix_env
     apply_ultra_light_mode
     echo -e "${YELLOW}Starting OpenClaw gateway in foreground...${NC}"
-    openclaw gateway
+    # Use 'exec' to replace the shell process for maximum stability on Android 7+
+    exec openclaw gateway
+}
+
+cmd_stop_sv() {
+    check_and_fix_env
+    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        echo -e "${YELLOW}Stopping OpenClaw gateway service...${NC}"
+        sv down openclaw-gateway >/dev/null 2>&1 || true
+    fi
 }
 
 cmd_stop() {
     check_and_fix_env
     
-    # ── Priority 1: termux-services (sv) ──
-    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
-        echo -e "${YELLOW}Stopping OpenClaw gateway via termux-services...${NC}"
-        sv down openclaw-gateway || true
-    fi
-
-    # ── Priority 2: Manual process killing ──
-    echo -e "${YELLOW}Cleaning up any orphaned gateway processes...${NC}"
+    # Stop service if active
+    cmd_stop_sv
+    
+    # Manual process cleanup
+    echo -e "${YELLOW}Cleaning up gateway processes...${NC}"
 
     local ALL_CANDIDATES
     ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")
@@ -353,10 +370,30 @@ cmd_status() {
 
     echo ""
     echo -e "${BOLD}Service Status${NC}"
+    local RUNNING_VIA_PGREP=false
     if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
-        echo -e "  Status: ${GREEN}Running${NC}"
+        RUNNING_VIA_PGREP=true
+    fi
+
+    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
+            echo -e "  Manager:  ${GREEN}termux-services${NC}"
+            echo -e "  Status:   ${GREEN}Running${NC}"
+        else
+            echo -e "  Manager:  ${YELLOW}termux-services${NC}"
+            if [ "$RUNNING_VIA_PGREP" = true ]; then
+                echo -e "  Status:   ${GREEN}Running${NC} (Manual mode)"
+            else
+                echo -e "  Status:   ${RED}Stopped${NC}"
+            fi
+        fi
     else
-        echo -e "  Status: ${RED}Stopped${NC}"
+        echo -e "  Manager:  ${CYAN}Manual / Background${NC}"
+        if [ "$RUNNING_VIA_PGREP" = true ]; then
+            echo -e "  Status:   ${GREEN}Running${NC}"
+        else
+            echo -e "  Status:   ${RED}Stopped${NC}"
+        fi
     fi
     echo ""
 }
@@ -423,8 +460,10 @@ cmd_logs() {
     check_and_fix_env
     local LOGFILE=""
 
-    # Check termux-services log first if available
-    if [ -d "$HOME/.termux/services/openclaw-gateway/log" ]; then
+    # Check the new professional svlogd location first
+    if [ -f "$PROJECT_DIR/logs/current" ]; then
+        LOGFILE="$PROJECT_DIR/logs/current"
+    elif [ -d "$HOME/.termux/services/openclaw-gateway/log" ]; then
         LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
     fi
 
@@ -516,9 +555,11 @@ case "${1:-}" in
     update|--update|-update|up|upgrade) cmd_update "$@" ;;
     self-update|selfupdate)           cmd_self_update ;;
     install|--install|inst)           cmd_install "$@" ;;
-    start|--start|strt)               cmd_start ;;
-    start:fg|--start:fg|strt:fg)      cmd_start_fg ;;
-    stop|--stop|stp)                  cmd_stop ;;
+    start|--start)                cmd_start ;;
+    start:sv|--start:sv)          cmd_start_sv ;;
+    start:fg|--start:fg)          cmd_start_fg ;;
+    stop|--stop)                  cmd_stop ;;
+    stop:sv|--stop:sv)            cmd_stop_sv ;;
     logs|--logs|log)                  cmd_logs ;;
     ui|--ui|dashboard)                cmd_ui ;;
     ui-config|--ui-config|config-wizard) cmd_ui_config ;;

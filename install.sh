@@ -129,6 +129,7 @@ if [ "$INSTALL_CODEX_CLI" = true ]; then npm install -g @openai/codex-cli --no-a
 step 8 "System Configuration & Services"
 bash "$SCRIPT_DIR/scripts/setup-cli.sh"
 bash "$SCRIPT_DIR/scripts/setup-env.sh"
+bash "$SCRIPT_DIR/scripts/setup-services.sh" || echo -e "${YELLOW}[WARN]${NC} Service registration failed, but installation will continue."
 
 # Reload environment so verify script sees correct values
 source "$HOME/.bashrc" 2>/dev/null || true

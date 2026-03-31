@@ -562,46 +562,49 @@ cmd_ui() {
     
     echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
     
-    # Extract token with multiple methods (native, then direct JSON access)
+    # 1. Deep Token Hunt (Native command -> Config JSON -> Lock file)
     local TOKEN
-    TOKEN=$(openclaw config get gateway.token 2>/dev/null || openclaw config get gateway.authToken 2>/dev/null || grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw/config.json" 2>/dev/null | head -n 1 || echo "")
-    
-    # Detect Local IP (Try route lookup first, it's the most reliable)
-    local LOCAL_IP
-    LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || echo "127.0.0.1")
+    TOKEN=$(openclaw config get gateway.token 2>/dev/null || \
+            openclaw config get gateway.authToken 2>/dev/null || \
+            grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw/config.json" 2>/dev/null | head -n 1 || \
+            grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw-android/config.json" 2>/dev/null | head -n 1)
+
+    # 2. Hardened IP Detection (Route -> ifconfig -> ip addr -> hostname)
+    local IP
+    IP=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || \
+         ifconfig wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
+         ifconfig eth0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
+         ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
+         hostname -I | awk '{print $1}' || \
+         echo "127.0.0.1")
     
     local DASHBOARD_URL="http://127.0.0.1:18789/#token=$TOKEN"
-    local LAN_URL="http://${LOCAL_IP}:18789/#token=$TOKEN"
+    local LAN_URL="http://${IP}:18789/#token=$TOKEN"
 
-    echo -e "=========================================================="
-    echo -e "  ${CYAN}OpenClaw Control UI v${OA_VERSION}${NC}"
-    echo -e "=========================================================="
-    echo -e "Dashboard access methods:"
+    # 3. Premium Visual UI
+    banner "OpenClaw Control UI" "$CYAN"
+    echo -e "Dashboard is active. Choose your access method:"
     echo ""
     echo -e "${BOLD}1. This Mobile (Termux)${NC}"
     echo -e "   URL: ${BLUE}${DASHBOARD_URL}${NC}"
     
-    # Attempt to open browser automatically on Android
-    if [[ "$OSTYPE" == "linux-android"* ]]; then
-        if command -v termux-open &>/dev/null; then
-            echo -e "   ${GREEN}[OK]${NC} Opening default browser..."
-            termux-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
-        elif command -v am &>/dev/null; then
-            echo -e "   ${GREEN}[OK]${NC} Opening via intent..."
-            am start -a android.intent.action.VIEW -d "$DASHBOARD_URL" >/dev/null 2>&1 || true
-        fi
+    # Auto-open logic (Convenience for local Termux users)
+    if [[ "$OSTYPE" == "linux-android"* ]] && [ -n "$TOKEN" ] && command -v termux-open &>/dev/null; then
+        echo -e "   ${GREEN}[OK]${NC} Opening session in browser..."
+        termux-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
     fi
 
     echo ""
     echo -e "${BOLD}2. Local Network (PC / Tablet / SmartTV)${NC}"
-    echo -e "   URL: ${BLUE}http://${LOCAL_IP}:18789${NC}"
+    echo -e "   URL: ${BLUE}http://${IP}:18789${NC}"
     echo -e "   Key: ${BLUE}${LAN_URL}${NC}"
     
     echo ""
     echo -e "${BOLD}3. Remote Access (SSH / Proxy)${NC}"
-    echo -e "   Command: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${LOCAL_IP}${NC}"
+    echo -e "   Command: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${IP}${NC}"
     echo ""
-    echo -e "${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
+    echo -e "${DIM}${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
+    echo ""
 }
 
 cmd_ui_config() {

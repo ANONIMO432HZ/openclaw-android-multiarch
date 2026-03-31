@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-LIME='\033[38;5;154m'   # Neon Lime Green
+LIME='\033[38;5;154m'
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -35,7 +35,7 @@ REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multi
 
 BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
 BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
-export OA_VERSION="1.1.5.2" # Professional Dash + Flags Edition (AidanPark v0.4.0)
+export OA_VERSION="1.2.0.0" # Termux Runit Service Resilience Edition
 export ITALIC="\e[3m"
 export DIM="\e[2m"
 

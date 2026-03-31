@@ -426,18 +426,36 @@ cmd_stop_sv() {
 
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${YELLOW}Stopping OpenClaw gateway service...${NC}"
-        sv down openclaw-gateway >/dev/null 2>&1 || true
+        sv force-stop openclaw-gateway >/dev/null 2>&1 || true
+        
+        # Give runsv a moment to clear the PID
+        for i in {1..5}; do
+            if ! sv status openclaw-gateway 2>/dev/null | grep -q "run: openclaw-gateway:"; then
+                break
+            fi
+            sleep 1
+        done
+        echo -e "  ${GREEN}[OK]${NC} Service stopped."
     fi
 }
 
 cmd_stop() {
     check_and_fix_env
     
-    # Stop service if active
-    cmd_stop_sv
-    
+    # ── Intelligent SV Detection ──
+    # If termux-services is installed and the gateway is managed by it,
+    # gracefully inform the user and delegate exclusively to stop_sv.
+    if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
+        if sv status openclaw-gateway 2>/dev/null | grep -q "^run: openclaw-gateway:"; then
+            echo -e "${YELLOW}[INFO]${NC} Gateway is managed by termux-services."
+            echo -e "       Forwarding command to ${CYAN}oa stop:sv${NC}..."
+            cmd_stop_sv
+            return $?
+        fi
+    fi
+
     # Manual process cleanup
-    echo -e "${YELLOW}Cleaning up gateway processes...${NC}"
+    echo -e "${YELLOW}Cleaning up gateway processes (Manual mode)...${NC}"
 
     local ALL_CANDIDATES
     ALL_CANDIDATES=$(pgrep -f "openclaw gateway|node.*openclaw" || echo "")

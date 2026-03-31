@@ -61,17 +61,16 @@ ssh -i C:\Users\TU_USUARIO\.ssh\id_antigravity -p 8022 -o StrictHostKeyChecking=
 
 ## 4. El servicio `start:sv` no arranca (`[FAIL]`)
 
-**Síntoma:** Ejecutas `oa srt:sv` y recibes un error de timeout.
+**Síntoma:** Tras ejecutar `oa srt:sv` la consola se queda esperando mucho tiempo o lanza un error de timeout.
 
-**Causa:** El supervisor `runit` puede tardar unos segundos en inicializar el proceso. En dispositivos lentos, puede exceder el tiempo de espera.
+**Causa:** El supervisor (`runit`) inicializa casi instantáneamente, pero en dispositivos móviles antiguos (armv7), el proceso interno de Node.js necesita entre 30 a 60 segundos completos para procesar y cargar la base de datos de OpenClaw en RAM antes de que el puerto esté disponible.
 
-**Solución:**
-- Hemos aumentado el tiempo de espera a **25 segundos** en la versión actual.
-- Verifica el log del servicio manualmente para ver el error real:
+**Solución Permanente Integrada:**
+- El sistema de la CLI ha sido reprogramado con un **"Wait-Loop Dual"**. Primero verifica que el supervisor de sistema esté online (15 max), y luego lee directamente el buffer de logs (`svlogd`) dinámicamente durante un máximo de **60 segundos** usando `awk` para buscar la confirmación de `"listening on"`.
+- Durante y si se agota el tiempo (60s), se imprime información del progreso para mitigar la confusión. Si se sobrepasa, el servicio podría seguir vivito y coleando, solo asegúrate verificando tú mismo los logs:
   ```bash
-  cat ~/.openclaw-android/logs/current
+  oa logs:sv
   ```
-- O intenta el arranque manual en segundo plano: `oa start`.
 
 ---
 
@@ -111,3 +110,17 @@ Luego entra en tu PC a: `http://localhost:18789/#token=TU_TOKEN`
 **Solución Permanente Implementada:** 
 - Aislamos el grep a buscar exactamente la cadena `^run: openclaw-gateway:` ignorando al daemon de logs.
 - Refinamos el patrón `pgrep` omitiendo explícitamente `runsv` para garantizar que la CLI solo alerte si el proceso **Node.js** genuino (y no sus wrappers de sistema) está funcionando.
+
+---
+
+## 8. El Gateway sigue respondiendo tras ejecutar `oa stop` (Zombies)
+
+**Síntoma:** Envías el comando para detener el servicio, la terminal dice `Stopped`, pero si recargas el dashboard o entras a la URL, el servidor **sigue respondiendo**.
+
+**Causa:**
+1. **Sockets persistentes:** Node.js a veces mantiene sockets HTTP abiertos ('Keep-Alive') que impiden que el proceso muera solo con un `SIGTERM` suave.
+2. **Confusión de comandos:** Ejecutar `oa stop` (que tradicionalmente mataba procesos `nohup`) no detenía el supervisor de `termux-services`. Como el supervisor veía que mataste el proceso, ¡lo volvía a encender en menos de 1 segundo!
+
+**Solución Permanente Integrada:**
+- **Delegación Inteligente:** `oa stop` ahora detecta si hay un servicio activo y redirige la orden automáticamente a `oa stop:sv`.
+- **Fuerza Bruta Garantizada:** Cambiamos el comando interno a `sv force-stop`. Esto envía un `SIGTERM`, espera unos segundos, y si el socket de Node.js sigue vivo, le envía un `SIGKILL` fulminante para limpiar la memoria RAM y liberar el puerto.

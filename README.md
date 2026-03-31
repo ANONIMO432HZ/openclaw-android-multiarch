@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.1.5.2-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.2.0.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.
@@ -209,6 +209,25 @@ If your device turns off or you restart Termux, you don't need to reinstall anyt
    oa start:fg
    ```
 
+### 🚀 Service Management (Termux-Services)
+
+For production-like stability, we recommend using the `termux-services` (runit) integration. This ensures the gateway restarts automatically if it crashes and manages logs efficiently.
+
+1. **Start Service**:
+   ```bash
+   oa start:sv
+   ```
+   * **Intelligent Wait**: Includes a dual-loop wait system (max 60s) that monitors the real-time logs (`svlogd`) to confirm when the Node.js process is fully "listening", providing live feedback on slow devices.
+
+2. **Stop Service**:
+   ```bash
+   oa stop:sv
+   ```
+   * **Force Stop**: Uses `force-stop` to ensure active HTTP sockets are closed and stubborn processes are terminated after a 7s timeout.
+
+3. **Intelligent Stop**:
+   Running the generic `oa stop` will automatically detect if a service is active and delegate the command to the service manager, ensuring a clean shutdown without leaving orphan processes.
+
 ---
 
 <img src="docs/images/termux_tab_1.png" width="300" alt="oa start running">
@@ -243,8 +262,8 @@ After installation, the `oa` command is available for managing your installation
 | `oa start` | — | Starts the Gateway in background (Manual - nohup) |
 | `oa start:sv` | `strt` | Starts the Gateway via termux-services |
 | `oa start:fg` | `strt:fg` | Starts the Gateway in foreground (Debug mode) |
-| `oa stop` | `stp` | Stops BOTH service and background processes |
-| `oa stop:sv` | — | Stops ONLY the Termux service |
+| `oa stop` | `stp` | **Intelligent Stop**: Detects and stops BOTH service and background processes |
+| `oa stop:sv` | — | Stops ONLY the Termux service (Force-stop mode) |
 | `oa logs` | `log` | View real-time background and service logs |
 | `oa ui` | `dashboard` | Open the OpenClaw Dashboard |
 | `oa ui-config` | `config-wizard` | Interactive Configuration Wizard |
@@ -257,7 +276,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version info (Current: 1.1.5.2) |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.2.0.0) |
 | `oa help` | `-h`, `h` | Show availability options |
 
 ## Update

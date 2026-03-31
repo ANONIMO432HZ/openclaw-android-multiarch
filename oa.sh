@@ -501,9 +501,9 @@ cmd_fix_env() {
         source "$HOME/.bashrc"
         echo ""
         echo -e "${GREEN}[OK]${NC} Environment variables fixed."
-        echo "  OA_GLIBC=$OA_GLIBC"
-        echo "  CONTAINER=$CONTAINER"
-        echo "  TMPDIR=$TMPDIR"
+        echo "  OA_GLIBC=${OA_GLIBC:-NOT_SET}"
+        echo "  CONTAINER=${CONTAINER:-NOT_SET}"
+        echo "  TMPDIR=${TMPDIR:-NOT_SET}"
     else
         echo -e "${RED}[FAIL]${NC} setup-env.sh not found."
         exit 1
@@ -574,6 +574,9 @@ cmd_ui() {
         exit 1
     fi
 
+    # 0. User fallback (Handle unbound variable in strict mode)
+    local CURRENT_USER="${USER:-$(whoami 2>/dev/null || echo "termux")}"
+
     # 1. IP Fallback detection
     local IP
     IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || echo "DEVICE_IP")
@@ -583,16 +586,16 @@ cmd_ui() {
 
     # 2. Execute core, show live logs, and capture output
     local DASH_LOG
-    DASH_LOG=$(openclaw dashboard 2>&1 | tee /dev/tty)
+    DASH_LOG=$(openclaw dashboard 2>&1 | tee /dev/tty || true)
 
     # 3. Dynamic Extraction (IP + Token Sync)
     local CORE_IP TOKEN
     # Extraemos la IP del usuario@ip (El robo de IP del dash)
-    CORE_IP=$(echo "$DASH_LOG" | grep -o '[a-z0-9_]*@[0-9.]*' | cut -d'@' -f2 | head -n 1)
+    CORE_IP=$(echo "$DASH_LOG" | grep -o '[a-z0-9_]*@[0-9.]*' | cut -d'@' -f2 | head -n 1 || echo "")
     [[ -n "$CORE_IP" ]] && IP="$CORE_IP"
     
     # Extraemos el Token de seguridad dinámico (#token=...)
-    TOKEN=$(echo "$DASH_LOG" | grep -o '#token=[a-z0-9]*' | cut -d'=' -f2 | head -n 1)
+    TOKEN=$(echo "$DASH_LOG" | grep -o '#token=[a-z0-9]*' | cut -d'=' -f2 | head -n 1 || echo "")
 
     # 4. Professional Minimalist UI (Mobile-Safe 40 width)
     echo ""
@@ -601,10 +604,10 @@ cmd_ui() {
     echo -e " ${DIM}The original command is incomplete. Use this:${NC}"
     echo ""
     echo -e " ${BOLD}Silent Tunnel:${NC}"
-    echo -e " ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
+    echo -e " ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${CURRENT_USER}@${IP}${NC}"
     echo ""
     echo -e " ${BOLD}Tunnel + Shell:${NC}"
-    echo -e " ${LIME}${BOLD}ssh -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
+    echo -e " ${LIME}${BOLD}ssh -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${CURRENT_USER}@${IP}${NC}"
     echo ""
     echo -e " ${BOLD}PC Browser Link:${NC}"
     echo -e " http://localhost:18789/#token=${TOKEN:-NOT_FOUND}"

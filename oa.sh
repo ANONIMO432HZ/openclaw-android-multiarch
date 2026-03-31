@@ -273,7 +273,6 @@ cmd_start_sv() {
     if [ ! -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${YELLOW}[INFO]${NC} Service registration missing. Setting up now..."
         
-        # Try finding the script in professional location first, then repo relative
         local SETUP_SCRIPT=""
         if [ -f "$PROJECT_DIR/scripts/setup-services.sh" ]; then
             SETUP_SCRIPT="$PROJECT_DIR/scripts/setup-services.sh"
@@ -288,10 +287,6 @@ cmd_start_sv() {
             return 1
         fi
     fi
-
-cmd_start_sv() {
-    check_and_fix_env
-    apply_ultra_light_mode
 
     # Universal cleanup before service start
     cmd_stop >/dev/null 2>&1 || true

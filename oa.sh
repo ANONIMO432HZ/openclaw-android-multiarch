@@ -21,6 +21,20 @@ LIME="${LIME:-\033[38;5;154m}"
 BOLD="${BOLD:-\033[1m}"
 NC="${NC:-\033[0m}"
 
+# ── Global Flag Parsing ──
+export OA_YES=""
+# Temporarily collect arguments to parse flags first
+TEMP_ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        -y|--yes) export OA_YES="true" ;;
+        -n|--no)  export OA_YES="false" ;;
+        *) TEMP_ARGS+=("$arg") ;;
+    esac
+done
+# Reconstruct arguments without the flags to avoid breaking subcommands
+set -- "${TEMP_ARGS[@]}"
+
 # ── Commands ──
 
 show_help() {
@@ -73,14 +87,6 @@ check_and_fix_env() {
 # ── Command Implementations ──
 
 cmd_update() {
-    # 0. Flag parsing for -y or -n (assume yes/no)
-    for arg in "$@"; do
-        case "$arg" in
-            -y|--yes) export OA_YES="true" ;;
-            -n|--no)  export OA_YES="false" ;;
-        esac
-    done
-
     check_and_fix_env
     maybe_backup_before_update
     banner "OpenClaw — Update Module" "$PURPLE"

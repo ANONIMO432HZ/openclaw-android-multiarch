@@ -58,9 +58,7 @@ fi
 
 banner "OpenClaw on Android — Uninstaller" "$RED"
 
-reply=""
-read -rp "This will remove the installation. Continue? [y/N] " reply < /dev/tty
-if [[ ! "$reply" =~ ^[Yy]$ ]]; then
+if ! ask_yn "This will remove the installation ($PROJECT_DIR). Continue?"; then
     echo "Aborted."
     exit 0
 fi

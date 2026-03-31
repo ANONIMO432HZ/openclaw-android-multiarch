@@ -11,7 +11,6 @@
  * What's still needed (kernel/Android-level restrictions, not libc):
  * - os.cpus() fallback: SELinux blocks /proc/stat on Android 8+
  * - os.networkInterfaces() safety: EACCES on some Android configurations
- * - Bonjour auto-disable on loopback-only hosts: some Android/Termux setups only expose `lo`
  * - /bin/sh path shim: Android 7-8 lacks /bin/sh (Android 9+ has it)
  *
  * Loaded via node wrapper script: node --require <path>/glibc-compat.js
@@ -45,6 +44,26 @@ try {
 } catch {}
 
 
+// ─── LD_PRELOAD restore for child processes ─────────────────
+// The node wrapper unsets LD_PRELOAD to prevent bionic libtermux-exec.so
+// from loading into the glibc node.real process. However, bionic child
+// processes (/bin/sh, etc.) need libtermux-exec for path translation
+// (e.g., /usr/bin/env → $PREFIX/bin/env in shebang resolution).
+// Restore LD_PRELOAD after node.real has loaded — this only affects
+// child processes, not the already-running node.real.
+
+if (process.env._OA_ORIG_LD_PRELOAD) {
+  // New wrapper (v1.0.12+): saved original LD_PRELOAD before unsetting
+  process.env.LD_PRELOAD = process.env._OA_ORIG_LD_PRELOAD;
+  delete process.env._OA_ORIG_LD_PRELOAD;
+} else if (!process.env.LD_PRELOAD) {
+  // Old wrapper (pre-v1.0.12): unset LD_PRELOAD without saving — detect directly
+  const _termuxExec = (process.env.PREFIX || '/data/data/com.termux/files/usr')
+    + '/lib/libtermux-exec-ld-preload.so';
+  try { if (fs.existsSync(_termuxExec)) process.env.LD_PRELOAD = _termuxExec; } catch {}
+}
+
+
 // ─── os.cpus() fallback ─────────────────────────────────────
 // Android 8+ (API 26+) blocks /proc/stat via SELinux + hidepid=2.
 // libuv reads /proc/stat for CPU info → returns empty array.
@@ -64,55 +83,27 @@ os.cpus = function cpus() {
 // ─── os.networkInterfaces() safety ──────────────────────────
 // Some Android configurations throw EACCES when reading network
 // interface information. Wrap with try-catch to prevent crashes.
-//
-// Additionally, some Android/Termux setups only expose the loopback
-// interface (`lo`) to Node.js. In that situation, OpenClaw's Bonjour
-// advertiser can't provide real LAN discovery and may log noisy
-// goodbye timeouts on shutdown. Auto-disable Bonjour when only
-// loopback interfaces are visible.
 
 const _originalNetworkInterfaces = os.networkInterfaces;
 
-function createLoopbackInterfaces() {
-  return {
-    lo: [
-      {
-        address: '127.0.0.1',
-        netmask: '255.0.0.0',
-        family: 'IPv4',
-        mac: '00:00:00:00:00:00',
-        internal: true,
-        cidr: '127.0.0.1/8',
-      },
-    ],
-  };
-}
-
-function hasNonLoopbackInterface(interfaces) {
-  try {
-    return Object.values(interfaces).some(entries =>
-      Array.isArray(entries) && entries.some(entry => entry && entry.internal === false)
-    );
-  } catch {
-    return false;
-  }
-}
-
-function maybeDisableBonjour(interfaces) {
-  if (process.env.OPENCLAW_DISABLE_BONJOUR) return;
-  if (hasNonLoopbackInterface(interfaces)) return;
-  process.env.OPENCLAW_DISABLE_BONJOUR = '1';
-}
-
 os.networkInterfaces = function networkInterfaces() {
-  let interfaces;
   try {
-    interfaces = _originalNetworkInterfaces.call(os);
+    return _originalNetworkInterfaces.call(os);
   } catch {
-    interfaces = createLoopbackInterfaces();
+    // Return minimal loopback interface
+    return {
+      lo: [
+        {
+          address: '127.0.0.1',
+          netmask: '255.0.0.0',
+          family: 'IPv4',
+          mac: '00:00:00:00:00:00',
+          internal: true,
+          cidr: '127.0.0.1/8',
+        },
+      ],
+    };
   }
-  maybeDisableBonjour(interfaces);
-  return interfaces;
 };
 
 // ─── /bin/sh path shim (Android 7-8 only) ───────────────────

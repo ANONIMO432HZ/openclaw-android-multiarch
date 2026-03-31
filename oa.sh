@@ -562,19 +562,22 @@ cmd_ui() {
     
     echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
     
-    # 1. Deep Token Hunt (With timeout)
+    # 1. Deep Token Hunt (Multi-path configuration lookup)
     local TOKEN
     TOKEN=$(timeout 3s openclaw config get gateway.token 2>/dev/null || \
             grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw/config.json" 2>/dev/null | head -n 1 || \
+            grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw-android/config.json" 2>/dev/null | head -n 1 || \
+            grep -oP '(?<="token":\s?")[^"]+' "$PROJECT_DIR/config.json" 2>/dev/null | head -n 1 || \
             echo "")
 
-    # 2. Hardened IP Detection (With strict 2s timeouts to prevent hanging)
+    # 2. Hardened IP Detection (Route -> ifconfig -> ip addr -> hostname)
     local IP
     IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || \
          timeout 2s ifconfig wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
          timeout 2s hostname -I 2>/dev/null | awk '{print $1}' || \
          echo "127.0.0.1")
     
+    [ -z "$IP" ] || [ "$IP" = "127.0.0.1" ] && IP=$(hostname -I 2>/dev/null | awk '{print $1}')
     [ -z "$IP" ] && IP="127.0.0.1"
     
     local DASHBOARD_URL="http://127.0.0.1:18789/#token=$TOKEN"

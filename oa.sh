@@ -554,7 +554,7 @@ cmd_uninstall() {
 }
 
 cmd_ui() {
-    # 0. Define local style fallbacks to prevent "unbound variable" errors
+    # 0. Define local style fallbacks to prevent "unbound variable" errors in strict Termux shells
     local BOLD="\e[1m"
     local CYAN="\e[36m"
     local BLUE="\e[34m"
@@ -571,27 +571,13 @@ cmd_ui() {
         exit 1
     fi
     
-    echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
+    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
+    echo ""
     
-    # 1. Hijack Token from the official binary output
-    local TOKEN=""
-    local RAW_OUTPUT=""
+    # 1. Native Secure Execution: We trust the official binary to handle token display 
+    # perfectly, avoiding fragile subshell regex parsing and set -e pipeline crashes entirely.
+    openclaw dashboard
     
-    # Run binary and capture output (capturing both stdout and stderr (2>&1) in case Node CLIs use stderr for UI text)
-    RAW_OUTPUT=$(openclaw dashboard 2>&1 || true)
-    
-    # Strip ANSI color codes from the output to prevent regex breakage
-    local CLEAN_OUTPUT=""
-    CLEAN_OUTPUT=$(echo "$RAW_OUTPUT" | sed 's/\x1B\[[0-9;]*[mK]//g' 2>/dev/null || echo "$RAW_OUTPUT")
-    
-    # Extract the token safely (appending || true prevents set -e script crash if grep fails)
-    local RAW_MATCH=""
-    RAW_MATCH=$(echo "$CLEAN_OUTPUT" | grep -o 'token=[^[:space:]"]*' | head -n 1 || true)
-    
-    if [ -n "$RAW_MATCH" ]; then
-        TOKEN="${RAW_MATCH#*token=}"
-    fi
-
     # 2. Hardened IP Detection (Direct and non-blocking)
     local IP
     IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -o 'src [0-9.]*' | grep -o '[0-9.]*' | tail -n 1 || \
@@ -601,49 +587,18 @@ cmd_ui() {
     [ -z "$IP" ] || [ "$IP" = "127.0.0.1" ] && IP=$(hostname -I 2>/dev/null | awk '{print $1}')
     [ -z "$IP" ] && IP="127.0.0.1"
     
-    local DASHBOARD_URL="http://127.0.0.1:18789/#token=$TOKEN"
-    local LAN_URL="http://${IP}:18789/#token=$TOKEN"
-
-    # 3. Premium Visual UI
-    banner "OpenClaw Control UI" "$CYAN"
-    echo -e "Dashboard access is ready."
+    # 3. Extended Network Helpers (Keeping the valuable custom additions)
     echo ""
-    echo -e "${BOLD}1. This Mobile / Host Machine${NC}"
-    echo -e "   URL: ${BLUE}${DASHBOARD_URL}${NC}"
-    
-    # 4. Standard and Compatible Cross-Browser Auto-Open
-    echo -ne "   ${GREEN}[OK]${NC} Opening session in browser... "
-    if [[ "$OSTYPE" == "linux-android"* ]] && command -v termux-open &>/dev/null; then
-        echo "(Termux)"
-        termux-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
-    elif command -v xdg-open &>/dev/null; then
-        echo "(Linux / GNU)"
-        xdg-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
-    elif command -v open &>/dev/null; then
-        echo "(macOS)"
-        open "$DASHBOARD_URL" >/dev/null 2>&1 || true
-    elif command -v start &>/dev/null; then
-        echo "(Windows)"
-        start "" "$DASHBOARD_URL" >/dev/null 2>&1 || true
-    else
-        echo -e "\n   ${YELLOW}[!]${NC} No automatic browser command found. Please open manually."
-    fi
-
+    echo -e "${CYAN}==========================================================${NC}"
+    echo -e "  ${BOLD}OpenClaw Extended Connect (v1.1.5.2)${NC}"
+    echo -e "${CYAN}==========================================================${NC}"
+    echo -e "Use the token provided above to access the dashboard on:"
     echo ""
-    echo -e "${BOLD}2. Local Network (PC / Tablet / SmartTV)${NC}"
-    echo -e "   URL: ${BLUE}http://${IP}:18789${NC}"
-    echo -e "   Key: ${BLUE}${LAN_URL}${NC}"
-    
+    echo -e "${BOLD}Local Network (PC / Tablet / SmartTV)${NC}"
+    echo -e "   URL:   ${BLUE}http://${IP}:18789${NC}"
     echo ""
-    echo -e "${BOLD}3. Remote Access (SSH / Proxy)${NC}"
-    echo -e "   Command: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${IP}${NC}"
-    echo ""
-    
-    if [ -z "$TOKEN" ]; then
-        echo -e "${RED}[WARNING]${NC} Token extraction failed. Please check 'openclaw dashboard' manually."
-    else
-        echo -e "${DIM}${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
-    fi
+    echo -e "${BOLD}Remote Access (SSH / Proxy)${NC}"
+    echo -e "   Command:   ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${IP}${NC}"
     echo ""
 }
 

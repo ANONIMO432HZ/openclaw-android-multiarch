@@ -575,17 +575,18 @@ cmd_ui() {
     
     # 1. Hijack Token from the official binary output
     local TOKEN=""
-    local RAW_OUTPUT
-    # Run binary and capture output
-    RAW_OUTPUT=$(openclaw dashboard 2>/dev/null || true)
+    local RAW_OUTPUT=""
+    
+    # Run binary and capture output (capturing both stdout and stderr (2>&1) in case Node CLIs use stderr for UI text)
+    RAW_OUTPUT=$(openclaw dashboard 2>&1 || true)
     
     # Strip ANSI color codes from the output to prevent regex breakage
-    local CLEAN_OUTPUT
+    local CLEAN_OUTPUT=""
     CLEAN_OUTPUT=$(echo "$RAW_OUTPUT" | sed 's/\x1B\[[0-9;]*[mK]//g' 2>/dev/null || echo "$RAW_OUTPUT")
     
-    # Extract the token (match 'token=c5xx...' up to next whitespace)
-    local RAW_MATCH
-    RAW_MATCH=$(echo "$CLEAN_OUTPUT" | grep -o 'token=[^[:space:]]*' | head -n 1)
+    # Extract the token safely (appending || true prevents set -e script crash if grep fails)
+    local RAW_MATCH=""
+    RAW_MATCH=$(echo "$CLEAN_OUTPUT" | grep -o 'token=[^[:space:]"]*' | head -n 1 || true)
     
     if [ -n "$RAW_MATCH" ]; then
         TOKEN="${RAW_MATCH#*token=}"
@@ -639,7 +640,7 @@ cmd_ui() {
     echo ""
     
     if [ -z "$TOKEN" ]; then
-        echo -e "${RED}[WARNING]${NC} Raw Token could not be extracted. Use 'openclaw dashboard' manually to inspect it."
+        echo -e "${RED}[WARNING]${NC} Token extraction failed. Please check 'openclaw dashboard' manually."
     else
         echo -e "${DIM}${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
     fi

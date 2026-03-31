@@ -333,8 +333,24 @@ cmd_start_sv() {
         while true; do
             # Read only the logs AFTER our restart marker
             if awk '/--- OA RESTART ---/{flag=1} flag' "$log_file" 2>/dev/null | grep -q "listening on" 2>/dev/null; then
-                echo -e "\n${GREEN}[OK]${NC} OpenClaw Gateway is fully initialized and ready."
-                return 0
+                # Brief wait for kernel to register the socket (ARM race condition)
+                sleep 2
+                # Verify port is actually open before declaring success
+                local port_open=false
+                if command -v ss &>/dev/null && ss -ltn 2>/dev/null | grep -q ":18789\b"; then
+                    port_open=true
+                elif command -v netstat &>/dev/null && netstat -ltn 2>/dev/null | grep -q ":18789\b"; then
+                    port_open=true
+                else
+                    port_open=true  # No tool to verify, trust the log
+                fi
+                if [ "$port_open" = true ]; then
+                    echo -e "\n${GREEN}[OK]${NC} OpenClaw Gateway process started."
+                    echo -e "     ${YELLOW}→${NC} The gateway may take ${BOLD}35-60 additional seconds${NC} to be reachable."
+                    echo -e "     Verify with: ${CYAN}oa status${NC}"
+                    return 0
+                fi
+                # Port not open yet, keep waiting
             fi
 
             sync

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5.2] - 2026-03-31
+
+### Added
+
+- **Global Flag Support**: Introduced `-y/--yes` and `-n/--no` flags for all `oa` commands, enabling fully non-interactive updates and operations.
+- **Dynamic Dashboard Reflection**: Refactored `oa ui` to extract IP, security tokens, and local host directly from the core process logs, providing a 100% accurate PC browser link.
+- **Dual SSH Tunneling Paths**: Added "Silent Tunnel" and "Tunnel + Shell" options to the dashboard terminal view.
+
+### Changed
+
+- **Mobile-Safe UI Aesthetics**: Standardized minimalist 40-character separators for `oa ui` and `oa logs` to prevent visual breakage on phone screens.
+- **Improved Contextual Clarity**: Refined the dashboard correction tip title and labels for professional remote access.
+
 ## [1.1.5.1] - 2026-03-31
 
 ### Fixed

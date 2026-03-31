@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.1.4-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.1.5.2-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.
@@ -257,7 +257,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version info (Current: 1.1.4) |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.1.5.2) |
 | `oa help` | `-h`, `h` | Show availability options |
 
 ## Update

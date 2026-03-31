@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.3] - 2026-03-31
+
+### Added
+
+- **Upstream Sync v0.4.0**: Fully synchronized with the core engine updates from the official AidanPark/openclaw-android repository while maintaining Termux-hardened logic.
+- **Hybrid DNS Resolver Patch**: Integrated a sophisticated DNS-Stub fallback in `glibc-compat.js` (from upstream v0.4.0) to improve connectivity to AI providers on unstable mobile networks.
+- **Loopback Interface Emulation**: Enhanced `os.networkInterfaces()` stub to provide a minimal loopback interface, preventing Node.js crashes in restricted Android kernels.
+- **Official Upstream Policy**: Added `UPSTREAM_POLICY.md` to document the professional maintenance workflow for keeping the fork clean from APK-related bloat.
+
+### Changed
+
+- **Unified Uninstaller**: Redirected the fallback `oa uninstall` command to the more robust and detailed standalone `uninstall.sh` script.
+- **Core Data Cleanup**: Added a proactive prompt during uninstallation to optionally wipe the `~/.openclaw` core data directory (agents, logs, settings).
+- **Banner Logic**: Standardized banners across all scripts (including platform-specific ones) with the new UI signature and `LIME` color theme.
+
+### Fixed
+
+- **Backup Trap Error**: Resolved the `tmpdir: unbound variable` error in `backup.sh` by hardening the cleanup trap to expand paths at definition time.
+- **Process Management**: Improved `oa stop` to handle missing service directories gracefully, preventing "unable to change directory" failures in Termux.
+- **Versioning Redundancy**: Removed redundant "v" prefixes in CLI version command outputs for consistent formatting.
+
 ## [1.1.2] - 2026-03-30
 
 ### Added

@@ -256,34 +256,52 @@ maybe_backup_before_update() {
     if ask_yn "Would you like to create a backup of your data before updating?"; then
         cmd_backup "$PROJECT_DIR/backup"
     else
-        echo -e "  ${YELLOW}[SKIP]${NC} Skipping preventive backup."
-    fi
-    echo ""
-}
-
-cmd_start_sv() {
+   cmd_start_sv() {
     check_and_fix_env
     apply_ultra_light_mode
     
     # Ensure service is registered before starting
     if [ ! -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${YELLOW}[INFO]${NC} Service registration missing. Setting up now..."
-        bash "$PROJECT_DIR/scripts/setup-services.sh" || true
+        
+        # Try finding the script in professional location first, then repo relative
+        local SETUP_SCRIPT=""
+        if [ -f "$PROJECT_DIR/scripts/setup-services.sh" ]; then
+            SETUP_SCRIPT="$PROJECT_DIR/scripts/setup-services.sh"
+        elif [ -f "$SCRIPT_DIR/scripts/setup-services.sh" ]; then
+            SETUP_SCRIPT="$SCRIPT_DIR/scripts/setup-services.sh"
+        fi
+
+        if [ -n "$SETUP_SCRIPT" ]; then
+            bash "$SETUP_SCRIPT" || { echo -e "${RED}[FAIL]${NC} Error running setup-services.sh"; return 1; }
+        else
+            echo -e "${RED}[FAIL]${NC} setup-services.sh not found."
+            return 1
+        fi
     fi
 
     if command -v sv &>/dev/null && [ -d "$HOME/.termux/services/openclaw-gateway" ]; then
         echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
+        # Trigger an 'up' command
         sv up openclaw-gateway 2>/dev/null || true
-        sleep 2
-        if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
-            echo -e "${GREEN}[OK]${NC} Service is running."
-            return 0
-        else
-            echo -e "${RED}[FAIL]${NC} Service failed to start. Try 'oa start' instead."
-            return 1
-        fi
+        
+        # Blocking wait for the service to transition to 'run'
+        echo -ne "  Waiting for service"
+        for i in {1..10}; do
+            if sv status openclaw-gateway 2>/dev/null | grep -q "run:"; then
+                echo -e "\n${GREEN}[OK]${NC} Service is running."
+                return 0
+            fi
+            echo -n "."
+            sleep 1
+        done
+        
+        echo -e "\n${RED}[FAIL]${NC} Service failed to start within timeout."
+        echo "  Try: sv status openclaw-gateway (for details)"
+        echo "  Or: oa start (standard mode)"
+        return 1
     else
-        echo -e "${RED}[FAIL]${NC} termux-services not found even after attempt. Use 'oa start'."
+        echo -e "${RED}[FAIL]${NC} termux-services not fully initialized. Use 'oa start'."
         return 1
     fi
 }
@@ -667,18 +685,18 @@ case "${1:-}" in
     update|--update|-update|up|upgrade) cmd_update "$@" ;;
     self-update|selfupdate)           cmd_self_update ;;
     install|--install|inst)           cmd_install "$@" ;;
-    start|--start)                cmd_start ;;
-    start:sv|--start:sv)          cmd_start_sv ;;
-    start:fg|--start:fg)          cmd_start_fg ;;
-    stop|--stop)                  cmd_stop ;;
-    stop:sv|--stop:sv)            cmd_stop_sv ;;
-    logs|--logs|log)                  cmd_logs ;;
+    start|--start|srt|up)             cmd_start ;;
+    start:sv|--start:sv|srt:sv|srv:up) cmd_start_sv ;;
+    start:fg|--start:fg|fg)           cmd_start_fg ;;
+    stop|--stop|stp|down)             cmd_stop ;;
+    stop:sv|--stop:sv|stp:sv|srv:down) cmd_stop_sv ;;
+    logs|--logs|log|lg)               cmd_logs ;;
     ui|--ui|dashboard)                cmd_ui ;;
     ui-config|--ui-config|config-wizard) cmd_ui_config ;;
     onboard|--onboard|obd)            cmd_onboard ;;
     config|--config|cfg)              cmd_config "$@" ;;
     doctor|--doctor|doc)              cmd_doctor ;;
-    status|--status|st)               cmd_status ;;
+    status|--status|st|stat)          cmd_status ;;
     backup|--backup|bkp)              cmd_backup "$2" ;;
     restore|--restore|rst)            cmd_restore "$2" ;;
     fix-env)                          cmd_fix_env ;;

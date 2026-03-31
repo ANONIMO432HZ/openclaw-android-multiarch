@@ -420,7 +420,16 @@ cmd_start_fg() {
     exec openclaw gateway
 }
 
+# ── Helper: List active OpenClaw PIDs safely (excludes supervisors runsv/svlogd) ──
+list_oa_pids() {
+    ps -ef 2>/dev/null \
+        | grep -E "openclaw gateway|node.*openclaw|openclaw-gateway|/bin/openclaw" \
+        | grep -Ev "runsv|svlogd|grep|oa\.sh|$0" \
+        | awk '{print $2}' || echo ""
+}
+
 cleanup_stray_processes() {
+
     local PIDS
     PIDS=$(list_oa_pids)
 

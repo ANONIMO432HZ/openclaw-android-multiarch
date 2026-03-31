@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4.1] - 2026-03-31
+
+### Fixed
+
+- **Resilient Startup Detection**: Restored log-based readiness verification in `oa start` to prevent false positive failures on slow storage.
+- **Deep Diagnostics Fallback**: Added native OpenClaw temporary log paths to `oa logs` for harder troubleshooting.
+- **Visual Bug Hotfix**: Corrected a version interpolation error in the update success message.
+
 ## [1.1.4] - 2026-03-31
 
 ### Added

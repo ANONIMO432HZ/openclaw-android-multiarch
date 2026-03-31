@@ -282,18 +282,28 @@ cmd_start() {
     cmd_stop >/dev/null 2>&1 || true
 
     mkdir -p "$PROJECT_DIR/logs"
+    # Clear log before starting to avoid false positives from previous runs
+    > "$PROJECT_DIR/server.log"
+    
     # Ensure Android 7+ compatibility with clear paths
     nohup openclaw gateway > "$PROJECT_DIR/server.log" 2>&1 &
+    echo $! > "$PROJECT_DIR/oa.pid"
 
     echo -ne "  Waiting for server..."
-    for i in {1..5}; do echo -ne "."; sleep 1; done; echo ""
-
-    if pgrep -f "openclaw gateway|node.*openclaw" >/dev/null; then
-        echo -e "${GREEN}[OK]${NC} OpenClaw is running in background."
-    else
-        echo -e "${RED}[FAIL]${NC} Startup failed. Check 'oa logs'."
-        return 1
-    fi
+    local count=0
+    while ! grep -q "listening on" "$PROJECT_DIR/server.log" 2>/dev/null; do
+        sync # Force flush disk buffers in Termux
+        sleep 1
+        echo -n "."
+        count=$((count + 1))
+        if [ $count -ge 15 ]; then
+            echo -e "\n${RED}[FAIL]${NC} Startup verification timed out."
+            echo -e "       Check 'oa logs' - the server might still be loading."
+            return 1
+        fi
+    done
+    echo ""
+    echo -e "${GREEN}[OK]${NC} OpenClaw is now listening and ready."
 }
 
 cmd_start_fg() {
@@ -480,6 +490,11 @@ cmd_logs() {
         LOGFILE="$HOME/.openclaw-android/logs/current"
     elif [ -d "$HOME/.termux/services/openclaw-gateway/log" ]; then
         LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
+    # Internal OpenClaw system log directory (deep diagnostic)
+    elif [ -d "$PREFIX/tmp/openclaw" ]; then
+        LOGFILE=$(ls -t "$PREFIX/tmp/openclaw"/*.log 2>/dev/null | head -n 1)
+    elif [ -d "/data/data/com.termux/files/usr/tmp/openclaw" ]; then
+        LOGFILE=$(ls -t "/data/data/com.termux/files/usr/tmp/openclaw"/*.log 2>/dev/null | head -n 1)
     fi
 
     # Fallback to nohup manual log

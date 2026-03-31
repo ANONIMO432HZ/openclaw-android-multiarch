@@ -1,6 +1,6 @@
 # OpenClaw en Android
 
-[English](README.md) | [Español](README.es.md) | [한국어](README.ko.md)
+[English](README.md) | [Español](README.es.md) | [한국어](README.ko.md) | [**Changelog**](CHANGELOG.md)
 
 <img src="docs/images/openclaw_android.jpg" alt="OpenClaw en Android">
 
@@ -8,7 +8,7 @@
 ![Termux](https://img.shields.io/badge/Termux-Requerido-orange)
 ![Sin proot](https://img.shields.io/badge/proot--distro-No%20Requerido-blue)
 ![Licencia MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
-![Versión](https://img.shields.io/badge/version-1.1.3-blue.svg?style=for-the-badge)
+![Versión](https://img.shields.io/badge/version-1.1.4-blue.svg?style=for-the-badge)
 
 Porque Android merece una terminal de verdad.
 
@@ -136,7 +136,7 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 | `oa backup` | `bkp` | Crea un respaldo completo de los datos (`.tar.gz`) |
 | `oa restore` | `rst` | Restauración interactiva de respaldos anteriores |
 | `oa uninstall` | `uninst` | Elimina completamente OpenClaw de Android |
-| `oa version` | `v` | Muestra la versión (Actual: 1.1.3) |
+| `oa version` | `v` | Muestra la versión (Actual: 1.1.4) |
 
 ## Actualización
 

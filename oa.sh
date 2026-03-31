@@ -10,7 +10,7 @@ if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
 fi
 
 # Fallback values if lib.sh is NOT found
-OA_VERSION="${OA_VERSION:-1.1.3}"
+OA_VERSION="${OA_VERSION:-1.1.4}"
 RED="${RED:-\033[0;31m}"
 GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"
@@ -473,23 +473,29 @@ cmd_logs() {
     check_and_fix_env
     local LOGFILE=""
 
-    # Check the new professional svlogd location first
+    # Check the professional svlogd location (configured in setup-services.sh)
     if [ -f "$PROJECT_DIR/logs/current" ]; then
         LOGFILE="$PROJECT_DIR/logs/current"
+    elif [ -f "$HOME/.openclaw-android/logs/current" ]; then
+        LOGFILE="$HOME/.openclaw-android/logs/current"
     elif [ -d "$HOME/.termux/services/openclaw-gateway/log" ]; then
         LOGFILE="$HOME/.termux/services/openclaw-gateway/log/current"
     fi
 
-    # Fallback to nohup log if service log is missing or empty
+    # Fallback to nohup manual log
     if [ -z "$LOGFILE" ] || [ ! -s "$LOGFILE" ]; then
         LOGFILE="$PROJECT_DIR/server.log"
     fi
 
     if [ -f "$LOGFILE" ]; then
-         echo -e "${CYAN}Following logs from: $LOGFILE${NC}"
+         echo -e "${CYAN}${BOLD}Monitoring Logs:${NC} $LOGFILE"
+         echo -e "${YELLOW}(Press Ctrl+C to exit)${NC}"
+         echo "────────────────────────────────────────"
          tail -f "$LOGFILE"
     else
-         echo -e "${RED}[FAIL]${NC} No logs found."
+         echo -e "${RED}[FAIL]${NC} No logs found in any expected location."
+         echo -e "  Manual:  $PROJECT_DIR/server.log"
+         echo -e "  Service: $PROJECT_DIR/logs/current"
          exit 1
     fi
 }

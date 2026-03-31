@@ -1,17 +1,16 @@
 # OpenClaw on Android
 
-[English](README.md) | [Español](README.es.md) | [한국어](README.ko.md)
+[English](README.md) | [Español](README.es.md) | [한국어](README.ko.md) | [**Changelog**](CHANGELOG.md)
 
 <img src="docs/images/openclaw_android.jpg" alt="OpenClaw on Android">
 
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-brightgreen)
 ![Termux](https://img.shields.io/badge/Termux-Required-orange)
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
-![License MIT](https://img.shields.io/github/license/AidanPark/openclaw-android)
+![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.1.3-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.1.4-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
-
 나야, [OpenClaw](https://github.com/openclaw). 근데 이제 Android-Termux 를 곁들인...
 
 > **🎯 이 포크(Fork)의 목적:**
@@ -19,7 +18,6 @@
 > 네이티브 CLI 게이트웨이를 Termux 환경에서 안정적으로 실행하는 것과 엄밀하게 관련되지 않은 Android APK, React UI 대시보드(`android/`) 또는 기타 기능에 대해서는 **유지보수를 제공하지 않습니다**.
 
 ## 리눅스 설치 없이
-
 
 일반적으로 Android에서 OpenClaw를 실행하려면 proot-distro로 Linux를 설치해야 하고, 700MB~1GB의 저장공간이 필요합니다. OpenClaw on Android는 glibc 동적 링커(ld.so)만 설치하여, 전체 Linux 배포판 없이 OpenClaw를 실행할 수 있게 합니다.
 
@@ -209,7 +207,7 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | `oa backup` | OpenClaw 데이터 전체 백업 생성 |
 | `oa restore` | 백업에서 복원 |
 | `oa uninstall` | OpenClaw on Android 제거 |
-| `oa version` | 버전 정보 표시 (`v1.1.3`) |
+| `oa version` | 버전 정보 표시 (`v1.1.4`) |
 | `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) |
 
 ## 업데이트

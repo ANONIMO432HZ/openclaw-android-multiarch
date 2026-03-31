@@ -540,7 +540,7 @@ cmd_logs() {
     if [ -f "$LOGFILE" ]; then
          echo -e "${CYAN}${BOLD}Monitoring Logs:${NC} $LOGFILE"
          echo -e "${YELLOW}(Press Ctrl+C to exit)${NC}"
-         echo "───────────────────────────────────────────────────────────────────────────────────────────────────"
+         echo "─────────────────────────────────────"
          tail -f "$LOGFILE"
     else
          echo -e "${RED}[FAIL]${NC} No logs found in any expected location."
@@ -588,21 +588,21 @@ cmd_ui() {
     # Extraemos el Token de seguridad dinámico (#token=...)
     TOKEN=$(echo "$DASH_LOG" | grep -o '#token=[a-z0-9]*' | cut -d'=' -f2 | head -n 1)
 
-    # 4. Professional Minimalist UI (Safe 40-char width for mobile)
+    # 4. Professional Minimalist UI (Mobile-Safe 40 width)
     echo ""
-    echo -e "${RED}──────────────────────────────────────${NC}"
-    echo -e " ${YELLOW}⚠️  TERMUX SSH TIP (CORRECTED)${NC}"
-    echo -e " ${DIM}The original command above is missing -p 8022. Use this:${NC}"
+    echo -e "${RED}────────────────────────────────────────${NC}"
+    echo -e " ${YELLOW}⚠️  TERMUX SSH TIP (GUI & LAN ACCESS)${NC}"
+    echo -e " ${DIM}The original command is incomplete. Use this:${NC}"
     echo ""
     echo -e " ${BOLD}Silent Tunnel:${NC}"
     echo -e " ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
     echo ""
-    echo -e " ${BOLD}Tunnel + Terminal Shell:${NC}"
+    echo -e " ${BOLD}Tunnel + Shell:${NC}"
     echo -e " ${LIME}${BOLD}ssh -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
     echo ""
-    echo -e " ${BOLD}Once active, open this link on your PC:${NC}"
+    echo -e " ${BOLD}PC Browser Link:${NC}"
     echo -e " http://localhost:18789/#token=${TOKEN:-NOT_FOUND}"
-    echo -e "${RED}───────────────────────────────────────${NC}\n"
+    echo -e "${RED}────────────────────────────────────────${NC}\n"
 }
 
 cmd_ui_config() {

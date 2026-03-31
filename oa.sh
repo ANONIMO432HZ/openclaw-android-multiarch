@@ -554,6 +554,17 @@ cmd_uninstall() {
 }
 
 cmd_ui() {
+    # 0. Define local style fallbacks to prevent "unbound variable" errors
+    local BOLD="\e[1m"
+    local CYAN="\e[36m"
+    local BLUE="\e[34m"
+    local GREEN="\e[32m"
+    local YELLOW="\e[33m"
+    local RED="\e[31m"
+    local DIM="\e[2m"
+    local ITALIC="\e[3m"
+    local NC="\e[0m"
+
     check_and_fix_env
     if ! command -v openclaw &>/dev/null; then
         echo -e "${RED}[FAIL]${NC} openclaw not found. Run the installer first."
@@ -562,18 +573,27 @@ cmd_ui() {
     
     echo -e "${CYAN}Detecting OpenClaw Dashboard configuration...${NC}"
     
-    # 1. Deep Token Hunt (Multi-path configuration lookup)
-    local TOKEN
-    TOKEN=$(timeout 3s openclaw config get gateway.token 2>/dev/null || \
-            grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw/config.json" 2>/dev/null | head -n 1 || \
-            grep -oP '(?<="token":\s?")[^"]+' "$HOME/.openclaw-android/config.json" 2>/dev/null | head -n 1 || \
-            grep -oP '(?<="token":\s?")[^"]+' "$PROJECT_DIR/config.json" 2>/dev/null | head -n 1 || \
-            echo "")
+    # 1. Hijack Token from the official binary output
+    local TOKEN=""
+    local RAW_OUTPUT
+    # Run binary and capture output
+    RAW_OUTPUT=$(openclaw dashboard 2>/dev/null || true)
+    
+    # Strip ANSI color codes from the output to prevent regex breakage
+    local CLEAN_OUTPUT
+    CLEAN_OUTPUT=$(echo "$RAW_OUTPUT" | sed 's/\x1B\[[0-9;]*[mK]//g' 2>/dev/null || echo "$RAW_OUTPUT")
+    
+    # Extract the token (match 'token=c5xx...' up to next whitespace)
+    local RAW_MATCH
+    RAW_MATCH=$(echo "$CLEAN_OUTPUT" | grep -o 'token=[^[:space:]]*' | head -n 1)
+    
+    if [ -n "$RAW_MATCH" ]; then
+        TOKEN="${RAW_MATCH#*token=}"
+    fi
 
-    # 2. Hardened IP Detection (Route -> ifconfig -> ip addr -> hostname)
+    # 2. Hardened IP Detection (Direct and non-blocking)
     local IP
-    IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || \
-         timeout 2s ifconfig wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || \
+    IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -o 'src [0-9.]*' | grep -o '[0-9.]*' | tail -n 1 || \
          timeout 2s hostname -I 2>/dev/null | awk '{print $1}' || \
          echo "127.0.0.1")
     
@@ -587,13 +607,25 @@ cmd_ui() {
     banner "OpenClaw Control UI" "$CYAN"
     echo -e "Dashboard access is ready."
     echo ""
-    echo -e "${BOLD}1. This Mobile (Termux)${NC}"
+    echo -e "${BOLD}1. This Mobile / Host Machine${NC}"
     echo -e "   URL: ${BLUE}${DASHBOARD_URL}${NC}"
     
-    # Auto-open logic
-    if [[ "$OSTYPE" == "linux-android"* ]] && [ -n "$TOKEN" ] && command -v termux-open &>/dev/null; then
-        echo -e "   ${GREEN}[OK]${NC} Opening session in browser..."
+    # 4. Standard and Compatible Cross-Browser Auto-Open
+    echo -ne "   ${GREEN}[OK]${NC} Opening session in browser... "
+    if [[ "$OSTYPE" == "linux-android"* ]] && command -v termux-open &>/dev/null; then
+        echo "(Termux)"
         termux-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
+    elif command -v xdg-open &>/dev/null; then
+        echo "(Linux / GNU)"
+        xdg-open "$DASHBOARD_URL" >/dev/null 2>&1 || true
+    elif command -v open &>/dev/null; then
+        echo "(macOS)"
+        open "$DASHBOARD_URL" >/dev/null 2>&1 || true
+    elif command -v start &>/dev/null; then
+        echo "(Windows)"
+        start "" "$DASHBOARD_URL" >/dev/null 2>&1 || true
+    else
+        echo -e "\n   ${YELLOW}[!]${NC} No automatic browser command found. Please open manually."
     fi
 
     echo ""
@@ -605,7 +637,12 @@ cmd_ui() {
     echo -e "${BOLD}3. Remote Access (SSH / Proxy)${NC}"
     echo -e "   Command: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 ${USER}@${IP}${NC}"
     echo ""
-    echo -e "${DIM}${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
+    
+    if [ -z "$TOKEN" ]; then
+        echo -e "${RED}[WARNING]${NC} Raw Token could not be extracted. Use 'openclaw dashboard' manually to inspect it."
+    else
+        echo -e "${DIM}${ITALIC}The token ensures that only you can access the dashboard session.${NC}"
+    fi
     echo ""
 }
 

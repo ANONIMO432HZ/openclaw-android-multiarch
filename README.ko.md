@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.1.5.2-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.2.0.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 나야, [OpenClaw](https://github.com/openclaw). 근데 이제 Android-Termux 를 곁들인...
 
@@ -182,6 +182,25 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 - SSH 터널 명령어와 대시보드 URL을 자동 생성
 - **데이터는 로컬에만 저장** — 연결 정보(IP, 토큰, 포트)는 브라우저의 localStorage에만 저장되며 어떤 서버로도 전송되지 않습니다.
 
+## 멀티 세션 관리 (서비스)
+
+운영 환경 수준의 안정성을 위해 `termux-services` (runit) 통합 사용을 권장합니다. 이를 통해 게이트웨이가 예기치 않게 종료되어도 자동으로 재시작되며, 로그를 효율적으로 관리할 수 있습니다.
+
+1. **서비스 시작**:
+    ```bash
+    oa start:sv
+    ```
+    - **지능형 대기**: Node.js가 완전히 "리스닝" 상태가 될 때까지 실시간 로그를 모니터링하는 이중 루프 대기 시스템(최대 90초)이 포함되어 있습니다.
+    - **포트 검증**: 이제 성공을 선언하기 전에 TCP 소켓이 실제로 바인딩되었는지 확인하여, 느린 ARMv7 커널에서의 타이밍 문제를 해결합니다.
+
+2. **서비스 중지**:
+    ```bash
+    oa stop
+    ```
+    - **대칭적 정리**: `oa stop`은 서비스 모드일 경우 서비스를 중지하고, 동시에 남아있는 좀비 프로세스나 수동 실행 프로세스까지 완벽하게 정리합니다.
+
+---
+
 ## CLI 명령어
 
 설치 후 `oa` 명령어로 설치를 관리할 수 있습니다:
@@ -191,23 +210,23 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | `oa update` | OpenClaw 및 Android 패치 업데이트 |
 | `oa install` | 선택적 도구 설치 (tmux, code-server, AI CLI 등) |
 | `oa start` | 게이트웨이를 백그라운드에서 실행 (Manual - nohup) |
-| `oa start:sv` | 게이트웨이를 서비스로 실행 (termux-services) |
+| `oa start:sv` | 게이트웨이를 서비스로 실행 (termux-services, max 90s) |
 | `oa start:fg` | 게이트웨이를 포그라운드에서 실행 (디버깅용) |
-| `oa stop` | 모든 프로세스 중지 (서비스 + 백그라운드) |
-| `oa stop:sv` | 서비스만 중지 |
+| `oa stop` | **대칭 중지**: 모든 프로세스 중지 및 "좀비" 전면 정리 |
+| `oa stop:sv` | 서비스만 중지 (Force-stop 모드) |
 | `oa logs` | 게이트웨이 서비스 로그 실시간 확인 |
 | `oa ui` | OpenClaw 대시보드 열기 (컨트롤 UI) |
 | `oa ui-config` | 설정 마법사 (크레덴셜, 채널 등) |
 | `oa onboard` | 온보딩 마법사 실행 |
 | `oa config` | 비대화형 설정 유틸리티 (`get`/`set`/`validate`) |
 | `oa doctor` | 헬스 체크 + 빠른 수정 |
-| `oa status` | 설치 상태 및 상세 프로세스 진단 정보 표시 |
+| `oa status` | **스마트 상태**: 시스템 상태 및 포트/네트워크 진단 정보 표시 |
 | `oa fix-env` | **환경 변수 복구** - `OA_GLIBC` 오류가 발생하면 실행 |
 | `oa fix-android` | **필수**: 'not supported on Android' 오류 패치 |
 | `oa backup` | OpenClaw 데이터 전체 백업 생성 |
 | `oa restore` | 백업에서 복원 |
 | `oa uninstall` | OpenClaw on Android 제거 |
-| `oa version` | 버전 정보 표시 (`v1.1.5.2`) |
+| `oa version` | 버전 정보 표시 (`v1.2.0.0`) |
 | `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) |
 
 ## 업데이트

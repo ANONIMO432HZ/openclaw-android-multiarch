@@ -8,7 +8,7 @@
 ![Termux](https://img.shields.io/badge/Termux-Requerido-orange)
 ![Sin proot](https://img.shields.io/badge/proot--distro-No%20Requerido-blue)
 ![Licencia MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
-![Versión](https://img.shields.io/badge/version-1.1.5.2-blue.svg?style=for-the-badge)
+![Versión](https://img.shields.io/badge/version-1.2.0.0-blue.svg?style=for-the-badge)
 
 Porque Android merece una terminal de verdad.
 
@@ -113,6 +113,25 @@ oa logs
 
 > **Consejo**: Si prefieres verlo directamente en pantalla para depuración, usa `oa start:fg`. Para detenerlo todo, usa `oa stop`.
 
+## Gestión de Multi-Sesión (Servicio)
+
+Para una estabilidad de nivel de producción, recomendamos usar la integración con `termux-services` (runit). Esto asegura que el gateway se reinicie automáticamente si falla y gestiona los logs de manera eficiente.
+
+1. **Iniciar Servicio**:
+    ```bash
+    oa start:sv
+    ```
+    * **Espera Inteligente**: Incluye un sistema de espera de doble bucle (máx 90s) que monitorea los logs en tiempo real para confirmar cuando Node.js está "escuchando" completamente.
+    * **Verificación de Puerto**: Ahora verifica que el socket TCP esté realmente vinculado antes de declarar éxito, eliminando condiciones de carrera en kernels ARMv7 lentos.
+
+2. **Detener Servicio**:
+    ```bash
+    oa stop
+    ```
+    * **Parada Simétrica**: `oa stop` detectará si el servicio está activo, lo detendrá y luego procederá a limpiar cualquier proceso "zombie" o manual restante, garantizando un estado 100% limpio.
+
+---
+
 ## Referencia de Comandos CLI (`oa`)
 
 Después de la instalación, el comando `oa` estará disponible para gestionar tu sistema:
@@ -123,20 +142,18 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 | `oa self-update` | `upgrade` | **Sincronización Rápida**: Solo scripts CLI y parches |
 | `oa install` | `inst` | Instala herramientas opcionales (tmux, code-server, etc.) |
 | `oa start` | — | Inicia el Gateway en segundo plano (Manual - nohup) |
-| `oa start:sv` | `strt` | Inicia el Gateway vía **termux-services** |
-| `oa start:fg` | `strt:fg` | Inicia el Gateway en primer plano (Modo Debug) |
-| `oa stop` | `stp` | Detiene AMBOS (servicio y procesos manuales) |
-| `oa stop:sv` | — | Detiene SOLO el servicio de Termux |
+| `oa start:sv` | `strt` | Inicia el Gateway vía **termux-services** (Espera Inteligente 90s) |
+| `oa stop` | `stp` | **Parada Simétrica**: Detiene servicio y limpia procesos "Zombie" |
 | `oa logs` | `log` | Ver logs en tiempo real del fondo/servicio |
 | `oa ui` | `dashboard` | Abre el Panel de Control de OpenClaw |
 | `oa ui-config` | `config-wizard` | Asistente de Configuración interactivo |
 | `oa onboard` | — | Ejecuta el Asistente de Bienvenida oficial |
 | `oa doctor` | `doc` | **Chequeo de Salud**: Diagnostica y repara errores comunes |
-| `oa status` | `st` | Muestra el estado detallado del sistema y procesos |
+| `oa status` | `st` | **Estado Inteligente**: Diagnóstico de sistema y puertos |
 | `oa backup` | `bkp` | Crea un respaldo completo de los datos (`.tar.gz`) |
 | `oa restore` | `rst` | Restauración interactiva de respaldos anteriores |
 | `oa uninstall` | `uninst` | Elimina completamente OpenClaw de Android |
-| `oa version` | `v` | Muestra la versión (Actual: 1.1.5.2) |
+| `oa version` | `v` | Muestra la versión (Actual: 1.2.0.0) |
 
 ## Actualización
 

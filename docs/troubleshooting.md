@@ -21,31 +21,21 @@ A previous gateway process was terminated abnormally, leaving behind a lock file
 
 ### Solution
 
-**Step 1: Find and kill remaining processes**
+**Solution (Recommended)**
+
+The most reliable way to clear a stuck state is to use the built-in **Resilient Stop** command:
 
 ```bash
-ps aux | grep -E "node|openclaw" | grep -v grep
+oa stop
 ```
 
-If processes are listed, note the PID and kill them:
+This command now automatically detects if a gateway (manual or service) is running, kills lingering PIDs, and cleans up any old lock files. After running it, wait a few seconds and restart:
 
 ```bash
-kill -9 <PID>
+oa start:sv
 ```
 
-**Step 2: Remove lock files**
-
-```bash
-rm -rf $PREFIX/tmp/openclaw-*
-```
-
-**Step 3: Restart the gateway**
-
-```bash
-oa start
-```
-
-### If it still doesn't work
+> **Note**: For `oa start:sv`, the tool now waits up to **90 seconds** for the core to initialize and confirms the port 18789 is actually open before finishing. If it timeouts, check the logs with `oa logs:sv`.
 
 If the above steps don't help, fully close and reopen the Termux app, then run `oa start`. Rebooting the phone will reliably clear all state.
 
@@ -62,10 +52,10 @@ The gateway process has stopped or the SSH session was disconnected.
 
 ### Solution
 
-Check the SSH session where the gateway was running. If the session was disconnected, reconnect via SSH and start the gateway:
+Check the SSH session where the gateway was running. If the session was disconnected, reconnect via SSH and start the gateway. We recommend the service mode for stability:
 
 ```bash
-oa start
+oa start:sv
 ```
 
 If you get a "gateway already running" error, see the [Gateway won't start](#gateway-wont-start-gateway-already-running-or-port-is-already-in-use) section above.

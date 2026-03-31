@@ -214,10 +214,11 @@ If your device turns off or you restart Termux, you don't need to reinstall anyt
 For production-like stability, we recommend using the `termux-services` (runit) integration. This ensures the gateway restarts automatically if it crashes and manages logs efficiently.
 
 1. **Start Service**:
-   ```bash
-   oa start:sv
-   ```
-   * **Intelligent Wait**: Includes a dual-loop wait system (max 60s) that monitors the real-time logs (`svlogd`) to confirm when the Node.js process is fully "listening", providing live feedback on slow devices.
+    ```bash
+    oa start:sv
+    ```
+    * **Intelligent Wait**: Includes a dual-loop wait system (max 90s) that monitors real-time logs to confirm when Node.js is fully "listening".
+    * **Port Verification**: Now verifies the TCP socket is actually bound before declaring success, eliminating race conditions on slow ARMv7 kernels.
 
 2. **Stop Service**:
    ```bash
@@ -225,8 +226,11 @@ For production-like stability, we recommend using the `termux-services` (runit) 
    ```
    * **Force Stop**: Uses `force-stop` to ensure active HTTP sockets are closed and stubborn processes are terminated after a 7s timeout.
 
-3. **Intelligent Stop**:
-   Running the generic `oa stop` will automatically detect if a service is active and delegate the command to the service manager, ensuring a clean shutdown without leaving orphan processes.
+3. **Unified Symmetrical Stop**:
+    Running `oa stop` (or `oa stop:sv`) now triggers a centralized cleanup helper that:
+    1. Stops the managed service (if active).
+    2. Proactively searches for and terminates any lingering "Zombie" or manual gateway processes.
+    3. Blocks execution until a 100% clean state is confirmed, preventing port 18789 conflicts.
 
 ---
 
@@ -270,7 +274,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa onboard` | — | Run the Official Onboarding Wizard |
 | `oa config` | `cfg` | Non-interactive config (`get`/`set`/`validate`) |
 | `oa doctor` | `doc` | **Health Check**: Diagnoses & fixes common system errors |
-| `oa status` | `st` | Shows comprehensive system and service status |
+| `oa status` | `st` | **Smart Status**: Shows system health + Port/Network verification |
 | `oa fix-env` | — | Recalibrates environment variables in `~/.bashrc` |
 | `oa fix-android` | `fix` | Re-applies essential Android compatibility patches |
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |

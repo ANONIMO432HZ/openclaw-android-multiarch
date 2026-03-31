@@ -63,11 +63,11 @@ ssh -i C:\Users\TU_USUARIO\.ssh\id_antigravity -p 8022 -o StrictHostKeyChecking=
 
 **Síntoma:** Tras ejecutar `oa srt:sv` la consola se queda esperando mucho tiempo o lanza un error de timeout.
 
-**Causa:** El supervisor (`runit`) inicializa casi instantáneamente, pero en dispositivos móviles antiguos (armv7), el proceso interno de Node.js necesita entre 30 a 60 segundos completos para procesar y cargar la base de datos de OpenClaw en RAM antes de que el puerto esté disponible.
+**Causa:** El supervisor (`runit`) inicializa casi instantáneamente, pero en dispositivos móviles antiguos (armv7), el proceso interno de Node.js necesita entre 30 a 90 segundos completos para procesar y cargar la base de datos de OpenClaw en RAM antes de que el puerto esté disponible.
 
 **Solución Permanente Integrada:**
-- El sistema de la CLI ha sido reprogramado con un **"Wait-Loop Dual"**. Primero verifica que el supervisor de sistema esté online (15 max), y luego lee directamente el buffer de logs (`svlogd`) dinámicamente durante un máximo de **60 segundos** usando `awk` para buscar la confirmación de `"listening on"`.
-- Durante y si se agota el tiempo (60s), se imprime información del progreso para mitigar la confusión. Si se sobrepasa, el servicio podría seguir vivito y coleando, solo asegúrate verificando tú mismo los logs:
+- El sistema de la CLI ha sido reprogramado con un **"Wait-Loop Dual"**. Ahora verifica dinámicamente durante un máximo de **90 segundos** usando `awk` y pruebas de puerto (`ss`/`netstat`) para confirmar que el gateway está "escuchando" completamente.
+- Durante este tiempo, se imprime información del progreso para mitigar la confusión. Si se sobrepasa, el servicio podría seguir inicializándose; verifica los logs:
   ```bash
   oa logs:sv
   ```
@@ -96,6 +96,21 @@ Luego entra en tu PC a: `http://localhost:18789/#token=TU_TOKEN`
 
 **Causa:** El paquete `termux-services` exige que exista la variable de entorno `SVDIR` seteada internamente para localizar `/var/service`. Si corres scripts de forma no interactiva (ej: vía SSH directo) y esta variable no carga, `sv` intentará buscar en la raíz de Android (que no existe) provocando el fallo.
 **Solución Permanente Implementada:** Inyectamos `export SVDIR="$PREFIX/var/service"` globalmente en `~/.bashrc` y de forma forzosa en la validación inicial de cada comando de la CLI de `oa`.
+
+---
+
+## 7. Puerto 18789 en uso o Gateway ya ejecutándose
+
+**Síntoma:** Error `Port 18789 is already in use` o `Gateway already running`.
+
+**Solución (Parada Simétrica):**
+La CLI de OpenClaw ahora usa un sistema de limpieza profunda y unificada. Simplemente ejecuta:
+
+```bash
+oa stop
+```
+
+Este comando detendrá el servicio gestionado (`termux-services`) y matará automáticamente cualquier proceso "zombie" o manual que esté bloqueando el puerto, limpiando también los archivos de bloqueo (`lock files`) de forma preventiva.
 
 ---
 

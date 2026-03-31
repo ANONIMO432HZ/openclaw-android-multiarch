@@ -560,23 +560,21 @@ cmd_ui() {
         exit 1
     fi
 
-    # 1. Detect IP before starting (To show it even if dashboard blocks)
+    # 1. Faster & more robust IP detection for Termux
     local IP
-    IP=$(timeout 2s ip route get 1.1.1.1 2>/dev/null | grep -o 'src [0-9.]*' | grep -o '[0-9.]*' | tail -n 1 || \
-         timeout 2s hostname -I 2>/dev/null | awk '{print $1}' || \
+    IP=$(ip addr show wlan0 2>/dev/null | grep -o 'inet [0-9.]*' | grep -o '[0-9.]*' | head -n 1 || \
+         hostname -I 2>/dev/null | awk '{print $1}' || \
          echo "127.0.0.1")
     
-    # 2. Informative Network Helpers (Show BEFORE dashboard)
-    banner "OpenClaw Dashboard Access" "$CYAN"
-    echo -e "${BOLD}Local Network / Remote Access:${NC}"
-    echo -e "   URL:     ${BLUE}http://${IP:-127.0.0.1}:18789${NC}"
-    echo -e "   SSH Cmd: ${YELLOW}ssh -N -L 18789:127.0.0.1:18789 -p 8022 ${USER}@${IP:-127.0.0.1}${NC}"
+    # 2. Concise Termux fix for SSH (The core tool misses -p 8022)
+    echo -e "${CYAN}${BOLD}OpenClaw Gateway Dashboard${NC}"
+    echo -e "────────────────────────────────────────"
+    echo -e "${YELLOW}Termux SSH Tip:${NC} Use ${BOLD}-p 8022${NC} to connect from PC:"
+    echo -e " ${DIM:-}ssh -N -L 18789:127.0.0.1:18789 ${BOLD}-p 8022${NC}${DIM:-} ${USER}@${IP}${NC}"
+    echo -e "────────────────────────────────────────"
     echo ""
-    echo -e "${CYAN}Opening OpenClaw Dashboard...${NC}"
-    echo -e "${DIM:-}(Press Ctrl+C to stop)${NC}"
-    echo "────────────────────────────────────────"
 
-    # 3. Start the dashboard
+    # 3. Handover to Core (Which shows Token and URL)
     openclaw dashboard
 }
 

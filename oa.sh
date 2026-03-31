@@ -325,9 +325,9 @@ cmd_start_sv() {
         fi
 
         # 2. Blocking wait for the Node.js payload to fully boot (can take 30-60s on old phones)
-        echo -ne "  Waiting for gateway to wake up (max 60s)..."
+        echo -ne "  Waiting for gateway to wake up (max 90s)..."
         local count=0
-        local max_wait=60
+        local max_wait=90
         local log_file="$PROJECT_DIR/logs/current"
         
         while true; do

@@ -560,30 +560,30 @@ cmd_ui() {
         exit 1
     fi
 
-    # 1. Robust IP detection (Finding first non-loopback address)
+    # 1. IP Fallback detection
     local IP
-    IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || \
-         hostname -I 2>/dev/null | awk '{print $1}' || \
-         echo "TERMUX_DEVICE_IP")
-    
-    # 2. Termux "Debunker" Assistant (Background wait)
-    (
-        sleep 4
-        echo -e "\n${RED}${BOLD}┌─────────────────────────────────────────────────────────────┐"
-        echo -e "│  ${YELLOW}⚠️  TERMUX SSH COMPATIBILITY WARNING                      ${RED}│"
-        echo -e "├─────────────────────────────────────────────────────────────┤"
-        echo -e "│ ${NC}The SSH command above is ${RED}INCOMPLETE${NC} for Termux.           │"
-        echo -e "│ ${NC}It's missing the port ${LIME}${BOLD}8022${NC}. Please use this version:    │"
-        echo -e "│                                                             │"
-        echo -e "│ ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC} │"
-        echo -e "${RED}└─────────────────────────────────────────────────────────────┘${NC}\n"
-    ) &
+    IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || echo "DEVICE_IP")
 
-    # 3. Start the dashboard server
     echo -e "${CYAN}Launching OpenClaw Core...${NC}"
-    echo -e "${DIM:-}(Wait for terminal logs to appear below)${NC}"
     echo "────────────────────────────────────────"
-    openclaw dashboard
+
+    # 2. Execute core, show live logs, and capture output
+    local DASH_LOG
+    DASH_LOG=$(openclaw dashboard 2>&1 | tee /dev/tty)
+
+    # 3. Dynamic IP Extraction (Sync with core's detection)
+    local CORE_IP
+    CORE_IP=$(echo "$DASH_LOG" | grep -o '[a-z0-9_]*@[0-9.]*' | cut -d'@' -f2 | head -n 1)
+    [[ -n "$CORE_IP" ]] && IP="$CORE_IP"
+
+    # 4. Professional Minimalist Correction (Safe on mobile screens)
+    echo ""
+    echo -e "${RED}────────────────────────────────────────────────────────────${NC}"
+    echo -e " ${YELLOW}⚠️  TERMUX SSH TIP (CORRECTED)${NC}"
+    echo -e " ${DIM}The original command above is missing -p 8022. Use this:${NC}"
+    echo ""
+    echo -e " ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC}"
+    echo -e "${RED}────────────────────────────────────────────────────────────${NC}\n"
 }
 
 cmd_ui_config() {

@@ -564,18 +564,25 @@ cmd_ui() {
     local IP
     IP=$(ip -o -4 addr list 2>/dev/null | grep -v '127.0.0.1' | awk '{print $4}' | cut -d/ -f1 | head -n 1 || \
          hostname -I 2>/dev/null | awk '{print $1}' || \
-         echo "DEVICE_IP")
+         echo "TERMUX_DEVICE_IP")
     
-    # 2. Refined Termux Professional Tip (Multi-port + No Command)
-    echo -e "${CYAN}${BOLD}OpenClaw Gateway Dashboard${NC}"
-    echo -e "────────────────────────────────────────"
-    echo -e "${YELLOW}Remote Access Tip (PC/External):${NC}"
-    echo -e " ${DIM:-}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 ${BOLD}-p 8022${NC}${DIM:-} ${USER}@${IP}${NC}"
-    echo -e " ${ITALIC:-} (Use -N for a quiet background data/web tunnel)${NC}"
-    echo -e "────────────────────────────────────────"
-    echo ""
+    # 2. Termux "Debunker" Assistant (Background wait)
+    (
+        sleep 4
+        echo -e "\n${RED}${BOLD}┌─────────────────────────────────────────────────────────────┐"
+        echo -e "│  ${YELLOW}⚠️  TERMUX SSH COMPATIBILITY WARNING                      ${RED}│"
+        echo -e "├─────────────────────────────────────────────────────────────┤"
+        echo -e "│ ${NC}The SSH command above is ${RED}INCOMPLETE${NC} for Termux.           │"
+        echo -e "│ ${NC}It's missing the port ${LIME}${BOLD}8022${NC}. Please use this version:    │"
+        echo -e "│                                                             │"
+        echo -e "│ ${LIME}${BOLD}ssh -N -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 -p 8022 ${USER}@${IP}${NC} │"
+        echo -e "${RED}└─────────────────────────────────────────────────────────────┘${NC}\n"
+    ) &
 
     # 3. Start the dashboard server
+    echo -e "${CYAN}Launching OpenClaw Core...${NC}"
+    echo -e "${DIM:-}(Wait for terminal logs to appear below)${NC}"
+    echo "────────────────────────────────────────"
     openclaw dashboard
 }
 

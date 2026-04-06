@@ -16,15 +16,17 @@ echo ""
 echo -e "${BOLD}OpenClaw on Android - Bootstrap${NC}"
 echo ""
 
-# Check for git first, install if missing
-if ! command -v git &>/dev/null; then
-    if ! command -v pkg &>/dev/null; then
-        echo -e "${RED}[FAIL]${NC} Neither git nor pkg found. Install git with: pkg install git"
-        exit 1
+# Check for essential tools first, install if missing
+for tool in git curl npm; do
+    if ! command -v "$tool" &>/dev/null; then
+        if ! command -v pkg &>/dev/null; then
+            echo -e "${RED}[FAIL]${NC} pkg not found. Cannot install $tool. Please install it manually."
+            exit 1
+        fi
+        echo -e "${YELLOW}[INFO]${NC} $tool not found. Installing $tool..."
+        pkg update -y && pkg install -y "$tool"
     fi
-    echo -e "${YELLOW}[INFO]${NC} git not found. Installing git..."
-    pkg update -y && pkg install -y git
-fi
+done
 
 echo "Cloning repository (shallow clone, depth=1)..."
 if [ -d "$INSTALL_DIR/.git" ]; then

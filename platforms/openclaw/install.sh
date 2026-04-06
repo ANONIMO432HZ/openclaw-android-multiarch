@@ -88,18 +88,10 @@ fi
 
 mkdir -p "$HOME/.openclaw"
 
-# Optimization: Skip 'openclaw update' on ARMv7 if we just installed @latest
-# These devices often OOM during the redundant update check.
-if [ "$IS_ARMV7L" = true ]; then
-    echo -e "${YELLOW}[SKIP]${NC} Skipping 'openclaw update' on ARMv7 to prevent OOM."
-    echo "       The latest version was already installed via npm."
-else
-    echo ""
-    echo "Running: openclaw update"
-    echo "  (This includes building native modules and may take 5-10 minutes)"
-    echo ""
-    openclaw update || true
-fi
+# Optimization: Skip 'openclaw update' during fresh install
+# The package was just installed via npm, so an update check is redundant and
+# risks OOM on devices.
+echo -e "${YELLOW}[SKIP]${NC} Skipping 'openclaw update' (redundant on fresh install)."
 
 # Force Sharp WASM build for ARMv7 (Legacy compatibility)
 if [ "$IS_ARMV7L" = true ]; then

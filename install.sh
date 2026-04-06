@@ -29,6 +29,12 @@ echo -e "${GREEN}[OK]${NC}   Platform: OpenClaw"
 load_platform_config "$SELECTED_PLATFORM" "$SCRIPT_DIR"
 
 step 3 "Optional Tools Selection (L3)"
+
+# Ensure Node.js glibc bin directory is in PATH for aarch64 tool detection
+if [ -d "$HOME/.openclaw-android/node/bin" ]; then
+    export PATH="$HOME/.openclaw-android/node/bin:$PATH"
+fi
+
 INSTALL_TMUX=false
 INSTALL_TTYD=false
 INSTALL_DUFS=false
@@ -103,7 +109,7 @@ bash "$SCRIPT_DIR/scripts/install-nodejs.sh"
 bash "$SCRIPT_DIR/scripts/install-build-tools.sh"
 
 # Memory optimization for installation phase
-if is_low_ram && [ "$IS_ARMV7L" = true ]; then
+if is_low_ram; then
     echo -e "${YELLOW}[LOW RAM MODE]${NC} Limiting Node.js memory for installation stability."
     export NODE_OPTIONS="--max-old-space-size=512"
 fi

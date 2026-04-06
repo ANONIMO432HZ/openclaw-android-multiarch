@@ -67,6 +67,5 @@ ln -sf "$INSTALL_DIR" "$HOME/openclaw-android"
 echo -e "${GREEN}[OK]${NC} Visible symlink created: ~/openclaw-android -> ~/.openclaw-android"
 
 # Run the installer
+chmod +x "$INSTALL_DIR/oa.sh" "$INSTALL_DIR/install.sh" "$INSTALL_DIR/uninstall.sh"
 bash "$INSTALL_DIR/install.sh"
-
-chmod +x "$INSTALL_DIR/uninstall.sh"

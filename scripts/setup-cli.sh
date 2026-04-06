@@ -12,8 +12,9 @@ echo "────────────────────────�
 OA_CLI_PATH="$PREFIX/bin/oa"
 echo "  Targeting: $OA_CLI_PATH"
 
-# Copy oa.sh directly to PREFIX/bin (no wrapper needed, like original)
-cp "$SCRIPT_DIR/oa.sh" "$OA_CLI_PATH"
+# Link oa.sh to PREFIX/bin (ensures updates to $PROJECT_DIR/oa.sh are reflected)
+chmod +x "$SCRIPT_DIR/oa.sh"
+ln -sf "$SCRIPT_DIR/oa.sh" "$OA_CLI_PATH"
 chmod +x "$OA_CLI_PATH"
 
 # Also create oaupdate for convenience

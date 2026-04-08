@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.2.0.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.2.1.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.
@@ -260,9 +260,10 @@ After installation, the `oa` command is available for managing your installation
 
 | Option | Aliases | Description |
 | :--- | :--- | :--- |
-| `oa update` | `up` | **Full Update**: Updates OpenClaw + Tools + Patches |
-| `oa self-update` | `upgrade` | **Fast Sync**: Syncs CLI scripts & patches from GitHub |
-| `oa install` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
+| `oa update` | `up` | **Full Update**: Updates OpenClaw + Tools + Resilience Patches |
+| `oa self-update` | `upgrade` | **Robust Sync**: Syncs CLI scripts & patches (with auto-stash) |
+| `oa install-tools` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
+| `oa uninstall-tools` | — | Selectively remove optional tools or components |
 | `oa start` | — | Starts the Gateway in background (Manual - nohup) |
 | `oa start:sv` | `strt` | Starts the Gateway via termux-services |
 | `oa start:fg` | `strt:fg` | Starts the Gateway in foreground (Debug mode) |
@@ -280,7 +281,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version info (Current: 1.2.0.0) |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.2.1.0) |
 | `oa help` | `-h`, `h` | Show availability options |
 
 ## Update

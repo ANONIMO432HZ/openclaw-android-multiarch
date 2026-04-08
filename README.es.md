@@ -8,7 +8,7 @@
 ![Termux](https://img.shields.io/badge/Termux-Requerido-orange)
 ![Sin proot](https://img.shields.io/badge/proot--distro-No%20Requerido-blue)
 ![Licencia MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
-![Versión](https://img.shields.io/badge/version-1.2.0.0-blue.svg?style=for-the-badge)
+![Versión](https://img.shields.io/badge/version-1.2.1.0-blue.svg?style=for-the-badge)
 
 Porque Android merece una terminal de verdad.
 
@@ -138,9 +138,10 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 
 | Opción | Alias | Descripción |
 | :--- | :--- | :--- |
-| `oa update` | `up` | **Actualización Total**: OpenClaw + Herramientas + Parches |
-| `oa self-update` | `upgrade` | **Sincronización Rápida**: Solo scripts CLI y parches |
-| `oa install` | `inst` | Instala herramientas opcionales (tmux, code-server, etc.) |
+| `oa update` | `up` | **Actualización Total**: OpenClaw + Herramientas + Resiliencia |
+| `oa self-update` | `upgrade` | **Sincronización Robusta**: Scripts CLI y parches (con auto-stash) |
+| `oa install-tools` | `inst` | Instala herramientas opcionales (tmux, code-server, etc.) |
+| `oa uninstall-tools` | — | Desinstala herramientas opcionales de forma selectiva |
 | `oa start` | — | Inicia el Gateway en segundo plano (Manual - nohup) |
 | `oa start:sv` | `strt` | Inicia el Gateway vía **termux-services** (Espera Inteligente 90s) |
 | `oa stop` | `stp` | **Parada Simétrica**: Detiene servicio y limpia procesos "Zombie" |
@@ -153,7 +154,7 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 | `oa backup` | `bkp` | Crea un respaldo completo de los datos (`.tar.gz`) |
 | `oa restore` | `rst` | Restauración interactiva de respaldos anteriores |
 | `oa uninstall` | `uninst` | Elimina completamente OpenClaw de Android |
-| `oa version` | `v` | Muestra la versión (Actual: 1.2.0.0) |
+| `oa version` | `v` | Muestra la versión (Actual: 1.2.1.0) |
 
 ## Actualización
 

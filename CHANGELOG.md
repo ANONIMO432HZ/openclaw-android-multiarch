@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1.0] - 2026-04-08
+
+### Added
+
+- **Tool Management Commands**: Introduced `oa install-tools` (clearer naming) and `oa uninstall-tools` for granular control over optional components.
+- **Uninstall Script**: Created `uninstall-tools.sh` to selectively remove terminal tools, IDEs, and AI CLIs.
+- **Plugin Resilience Patch**: Implemented automatic detection and repair for missing `@buape/carbon` and bundled plugin dependencies, fixing "Cannot find module" errors during onboarding.
+
+### Changed
+
+- **Enforced Script Permissions**: Added recursive `chmod +x` and `sed` (CRLF cleanup) to the update cycle to prevent permission/formatting errors in Termux.
+- **Robust Self-Update**: Integrated `git stash` into `oa self-update` to handle local changes gracefully during repository sync.
+- **Unified Versioning**: Synchronized version numbers (v1.2.1.0) across all orchestration and setup scripts.
+
+### Fixed
+
+- **Install Path Correction**: Fixed `oa install` pointing to a non-existent `scripts/` directory for tool installation.
+- **Syntax Error**: Resolved a redundant `fi` token in `install-tools.sh` that broke the installation flow.
+
 ## [1.1.5.2] - 2026-03-31
 
 ### Added

@@ -10,7 +10,7 @@ if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
 fi
 
 # Fallback values if lib.sh is NOT found
-OA_VERSION="${OA_VERSION:-1.2.0.0}"
+OA_VERSION="${OA_VERSION:-1.2.1.0}"
 RED="${RED:-\033[0;31m}"
 GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"
@@ -42,9 +42,10 @@ show_help() {
     echo "Usage: oa [command]"
     echo ""
     echo "Commands:"
-    echo "  update       Update everything (OpenClaw + tools + scripts)"
-    echo "  self-update  Update ONLY the CLI scripts and patches (fast)"
-    echo "  install      Install optional components (code-server, tmux, etc.)"
+    echo "  update           Update everything (OpenClaw + tools + scripts)"
+    echo "  self-update      Update ONLY the CLI scripts and patches (fast)"
+    echo "  install-tools    Install optional components (code-server, tmux, etc.)"
+    echo "  uninstall-tools  Remove optional components individually"
     echo ""
     echo "  start        Start OpenClaw Gateway (Background - nohup)"
     echo "  start:sv     Start OpenClaw gateway (Service - termux-services)"
@@ -236,7 +237,7 @@ cmd_self_update() {
     fi
 }
 
-cmd_install() {
+cmd_install_tools() {
     check_and_fix_env
     if [ -f "$PROJECT_DIR/install-tools.sh" ]; then
         chmod +x "$PROJECT_DIR/install-tools.sh"
@@ -246,6 +247,20 @@ cmd_install() {
         bash "$PROJECT_DIR/scripts/install-tools.sh"
     else
         echo -e "${RED}[FAIL]${NC} install-tools.sh not found."
+        exit 1
+    fi
+}
+
+cmd_uninstall_tools() {
+    check_and_fix_env
+    if [ -f "$PROJECT_DIR/uninstall-tools.sh" ]; then
+        chmod +x "$PROJECT_DIR/uninstall-tools.sh"
+        bash "$PROJECT_DIR/uninstall-tools.sh"
+    elif [ -f "$PROJECT_DIR/scripts/uninstall-tools.sh" ]; then
+        chmod +x "$PROJECT_DIR/scripts/uninstall-tools.sh"
+        bash "$PROJECT_DIR/scripts/uninstall-tools.sh"
+    else
+        echo -e "${RED}[FAIL]${NC} uninstall-tools.sh not found."
         exit 1
     fi
 }
@@ -817,7 +832,8 @@ cmd_doctor() {
 case "${1:-}" in
     update|--update|-update|up|upgrade) cmd_update "$@" ;;
     self-update|selfupdate)           cmd_self_update ;;
-    install|--install|inst)           cmd_install "$@" ;;
+    install-tools|install|--install|inst) cmd_install_tools "$@" ;;
+    uninstall-tools|--uninstall-tools) cmd_uninstall_tools ;;
     start|--start|srt|up)             cmd_start ;;
     start:sv|--start:sv|srt:sv|srv:up) cmd_start_sv ;;
     start:fg|--start:fg|fg)           cmd_start_fg ;;

@@ -215,8 +215,12 @@ cmd_self_update() {
     
     cd "$PROJECT_DIR" || { echo -e "${RED}[FAIL]${NC} Folder missing."; exit 1; }
     
+    # Prepare for safe sync (handle local changes)
+    git stash push -m "oa-self-auto-stash" >/dev/null 2>&1 || true
+    
     # Simple git pull for fast script sync
     if git pull origin main; then
+        git stash pop >/dev/null 2>&1 || true
         echo -e "${GREEN}[OK]${NC} Repository synced."
         ln -sf "$PROJECT_DIR/oa.sh" "$PREFIX/bin/oa"
         # Ensure scripts are executable and have correct line endings
@@ -227,6 +231,7 @@ cmd_self_update() {
         echo -e "${GREEN}[SUCCESS]${NC} Scripts updated to latest version."
         echo "Run: source ~/.bashrc"
     else
+        git stash pop >/dev/null 2>&1 || true
         echo -e "${RED}[FAIL]${NC} Git sync failed. Check connection."
     fi
 }

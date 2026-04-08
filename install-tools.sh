@@ -170,7 +170,6 @@ if [ "$NEEDS_TARBALL" = true ]; then
         exit 1
     fi
 fi
-fi
 
 # --- Install selected tools ---
 echo ""

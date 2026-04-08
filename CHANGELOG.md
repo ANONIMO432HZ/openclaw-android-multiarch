@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2.0] - 2026-04-08
+
+### Added
+
+- **Multi-Architecture Support**: Full dynamic detection and support for `aarch64`, `x86_64` (emulators), and `armv7l` (legacy) across all installation and setup scripts.
+- **Enhanced Glibc Resilience**:
+  - **Reinstallation Logic**: Fixed a critical bug where `pacman` would skip `glibc` if files were manually deleted. Now explicitly manages both `glibc` and `glibc-runner` packages.
+  - **Keyring Workaround**: Implemented non-interactive `SigLevel = Never` patching in the uninstaller to bypass GPG signature errors on broken Termux environments.
+- **Automated Platform Detection Fallback**: Improved the uninstaller to detect `openclaw` artifacts even if the environment marker is missing, ensuring a 100% clean state.
+- **Improved Non-Interactive Mode**: Unified `-y`/`-n` support across all internal uninstaller prompts.
+
 ## [1.2.1.0] - 2026-04-08
 
 ### Added

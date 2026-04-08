@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.2.1.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.2.2.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.
@@ -33,7 +33,7 @@ Because Android deserves a shell.
 
 The standard approach to running OpenClaw on Android requires installing proot-distro with Linux, adding 700MB-1GB of overhead. OpenClaw on Android eliminates this by:
 
-1. **glibc mode (aarch64)**: Installing just the glibc dynamic linker (ld.so), letting you run OpenClaw without a full Linux distribution.
+1. **glibc mode**: Installing just the glibc dynamic linker (ld.so) for your specific architecture (`aarch64`, `x86_64`), letting you run OpenClaw without a full Linux distribution.
 2. **Native mode (armv7l)**: Using Termux native packages for 32-bit legacy devices (Android 7+), maximizing compatibility and performance.
 
 > 🚀 **Looking for a detailed walkthrough?** Check out our **[Full Termux Setup Guide](docs/setup-termux.md)** for step-by-step instructions and legacy hardware tips.
@@ -99,7 +99,7 @@ Download the APK from the [Releases](https://github.com/AidanPark/openclaw-andro
 The installer automatically resolves the differences between Termux and standard Linux. There's nothing you need to do manually — the single install command handles all of these:
 
 1. **glibc environment** — Installs the glibc dynamic linker (via pacman's glibc-runner) so standard Linux binaries run without modification
-2. **Node.js (glibc)** — Downloads official Node.js linux-arm64 and wraps it with an ld.so loader script (no patchelf, which causes segfault on Android)
+2. **Node.js (glibc)** — Downloads official Node.js binaries for your architecture and wraps it with an ld.so loader script (no patchelf needed)
 3. **Ultra-Light Mode (ARMv7)** — Intelligent memory management for devices with <2GB RAM, injecting optimized Node garbage collection flags.
 4. **Automated Diagnostics** — Integrated `oa doctor` system to fix common Termux issues (Wake-lock, Swap, environment pollution).
 5. **Pre-Update Safety** — Automatic data backups before any script or core update.
@@ -281,7 +281,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version info (Current: 1.2.1.0) |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.2.2.0) |
 | `oa help` | `-h`, `h` | Show availability options |
 
 ## Update

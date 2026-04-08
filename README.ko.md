@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.2.1.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.2.2.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 나야, [OpenClaw](https://github.com/openclaw). 근데 이제 Android-Termux 를 곁들인...
 
@@ -228,7 +228,7 @@ SSH 접속 및 대시보드 터널 설정은 [Termux SSH 접속 가이드](docs/
 | `oa backup` | OpenClaw 데이터 전체 백업 생성 |
 | `oa restore` | 백업에서 복원 |
 | `oa uninstall` | OpenClaw on Android 제거 |
-| `oa version` | 버전 정보 표시 (`v1.2.1.0`) |
+| `oa version` | 버전 정보 표시 (`v1.2.2.0`) |
 | `oa help` | 사용 가능한 모든 옵션 표시 (`-h`, `help`) |
 
 ## 업데이트

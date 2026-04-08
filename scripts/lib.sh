@@ -39,7 +39,7 @@ REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multi
 
 BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
 BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
-export OA_VERSION="1.2.1.0" # Termux Runit Service Resilience + Tool Management Edition
+export OA_VERSION="1.2.2.0" # Multi-arch + Glibc Resilience Edition
 export ITALIC="\e[3m"
 export DIM="\e[2m"
 

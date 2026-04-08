@@ -138,7 +138,7 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 
 | Opción | Alias | Descripción |
 | :--- | :--- | :--- |
-| `oa update` | `up` | **Actualización Total**: OpenClaw + Herramientas + Resiliencia |
+| `oa update` | `up` | **Actualización Profesional**: OpenClaw-Core (Latest o Stable) + Herramientas + Parches |
 | `oa self-update` | `upgrade` | **Sincronización Robusta**: Scripts CLI y parches (con auto-stash) |
 | `oa install-tools` | `inst` | Instala herramientas opcionales (tmux, code-server, etc.) |
 | `oa uninstall-tools` | — | Desinstala herramientas opcionales de forma selectiva |

@@ -8,21 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.1.0] - 2026-04-08
 
 ### Added
-
-- **Tool Management Commands**: Introduced `oa install-tools` (clearer naming) and `oa uninstall-tools` for granular control over optional components.
-- **Uninstall Script**: Created `uninstall-tools.sh` to selectively remove terminal tools, IDEs, and AI CLIs.
-- **Plugin Resilience Patch**: Implemented automatic detection and repair for missing `@buape/carbon` and bundled plugin dependencies, fixing "Cannot find module" errors during onboarding.
-
-### Changed
-
-- **Enforced Script Permissions**: Added recursive `chmod +x` and `sed` (CRLF cleanup) to the update cycle to prevent permission/formatting errors in Termux.
-- **Robust Self-Update**: Integrated `git stash` into `oa self-update` to handle local changes gracefully during repository sync.
-- **Unified Versioning**: Synchronized version numbers (v1.2.1.0) across all orchestration and setup scripts.
+- **Channel System**: User-selectable release tracks (**Latest** vs **Stable**) during installation to prevent regressions.
+- **Plugin Pre-flight Repair**: Silent auto-healing for `@buape/carbon` and bundled plugins in `onboard` and `ui-config`.
+- **Professional Tool Management**:
+  - `oa install-tools`: New modular command for optional helpers.
+  - `oa uninstall-tools`: Selective removal of components (pkg, npm, binaries).
+- **Auto-Repair Runtime**: Recursive `chmod +x` and CRLF cleanup during all update/install cycles.
+- **Robust Git Sync**: `oa self-update` now protects local work with `git stash` during repository synchronization.
 
 ### Fixed
+- **Onboarding Broken**: Fixed the critical "Cannot find module '@buape/carbon'" error.
+- **Syntax Error**: Removed redundant `fi` in `install-tools.sh`.
+- **Install Path Logic**: Fixed incorrect directory pointers for tool installation.
+- **Bun Performance**: Enhanced fallback logic for OpenCode installation in Termux.
 
-- **Install Path Correction**: Fixed `oa install` pointing to a non-existent `scripts/` directory for tool installation.
-- **Syntax Error**: Resolved a redundant `fi` token in `install-tools.sh` that broke the installation flow.
 
 ## [1.1.5.2] - 2026-03-31
 

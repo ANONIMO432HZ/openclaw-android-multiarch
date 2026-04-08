@@ -260,7 +260,7 @@ After installation, the `oa` command is available for managing your installation
 
 | Option | Aliases | Description |
 | :--- | :--- | :--- |
-| `oa update` | `up` | **Full Update**: Updates OpenClaw + Tools + Resilience Patches |
+| `oa update` | `up` | **Professional Update**: Updates OpenClaw-Core (Latest or Stable), Tools, and Resilience Patches |
 | `oa self-update` | `upgrade` | **Robust Sync**: Syncs CLI scripts & patches (with auto-stash) |
 | `oa install-tools` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
 | `oa uninstall-tools` | — | Selectively remove optional tools or components |

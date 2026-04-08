@@ -30,15 +30,31 @@ fi
 
 # OpenClaw update requires standard performance
 
-# Try latest first, fallback to stable version if it fails
-echo "Attempting to install OpenClaw Core (latest)..."
+# ───── Version Selection ─────
+echo -e "${CYAN}${BOLD}OpenClaw Version Channel Selection${NC}"
+echo "Choose your release track:"
+echo -e "  1) ${CYAN}Latest${NC} (v2026.4.5+) — Newest features, may need repairs"
+echo -e "  2) ${YELLOW}Stable${NC} (v2026.3.28)  — Tested, more reliable for Termux"
+echo ""
+
+CHANNEL_VERSION="latest"
+if ask_yn "Install STABLE version instead of LATEST?"; then
+    CHANNEL_VERSION="${OPENCLAW_STABLE_VERSION:-2026.3.28}"
+    echo -e "${YELLOW}[CHANNEL]${NC} Pinned to Stable ($CHANNEL_VERSION)"
+else
+    echo -e "${CYAN}[CHANNEL]${NC} Tracking Latest"
+fi
+
+# Save channel preference for future updates
+echo "$CHANNEL_VERSION" > "$PROJECT_DIR/.openclaw_version_channel"
+
+echo ""
+echo "Attempting to install OpenClaw Core ($CHANNEL_VERSION)..."
 echo "This may take several minutes..."
 echo ""
 
-STABLE_VER="${OPENCLAW_STABLE_VERSION:-}"
-
-if npm install -g openclaw@latest --ignore-scripts 2>&1; then
-    echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed (latest)"
+if npm install -g "openclaw@$CHANNEL_VERSION" --ignore-scripts 2>&1; then
+    echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed ($CHANNEL_VERSION)"
 elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ]; then
     echo -e "${YELLOW}[WARN]${NC} latest version failed — trying stable version $STABLE_VER"
     if npm install -g "openclaw@${STABLE_VER}" --ignore-scripts 2>&1; then

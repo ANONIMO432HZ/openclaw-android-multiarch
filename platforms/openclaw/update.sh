@@ -14,18 +14,23 @@ if [ ! -e "$PREFIX/bin/ar" ] && [ -x "$PREFIX/bin/llvm-ar" ]; then
     ln -s "$PREFIX/bin/llvm-ar" "$PREFIX/bin/ar"
 fi
 
-CURRENT_VER=$(npm list -g openclaw 2>/dev/null | grep 'openclaw@' | sed 's/.*openclaw@//' | tr -d '[:space:]')
-LATEST_VER=$(npm view openclaw version 2>/dev/null || echo "")
-STABLE_VER="${OPENCLAW_STABLE_VERSION:-}"
-OPENCLAW_UPDATED=false
+# Read channel preference
+CH_PREF="latest"
+if [ -f "$PROJECT_DIR/.openclaw_version_channel" ]; then
+    CH_PREF=$(cat "$PROJECT_DIR/.openclaw_version_channel" | tr -d '[:space:]')
+fi
 
-echo "Current: $CURRENT_VER | Latest: $LATEST_VER | Stable pin: ${STABLE_VER:-none}"
+# Determine target version
+TARGET_VER="$LATEST_VER"
+if [ "$CH_PREF" != "latest" ]; then
+    TARGET_VER="$CH_PREF"
+fi
 
-if [ -n "$LATEST_VER" ] && [ "$CURRENT_VER" != "$LATEST_VER" ]; then
-    echo "Updating openclaw npm package... ($CURRENT_VER → $LATEST_VER)"
+if [ -n "$TARGET_VER" ] && [ "$CURRENT_VER" != "$TARGET_VER" ]; then
+    echo "Updating openclaw npm package... ($CURRENT_VER → $TARGET_VER) [Channel: $CH_PREF]"
     echo "  (This may take several minutes depending on network speed)"
-    if npm install -g "openclaw@$LATEST_VER" --no-fund --no-audit --ignore-scripts; then
-        echo -e "${GREEN}[OK]${NC}   openclaw $LATEST_VER installed"
+    if npm install -g "openclaw@$TARGET_VER" --no-fund --no-audit --ignore-scripts; then
+        echo -e "${GREEN}[OK]${NC}   openclaw $TARGET_VER installed"
         OPENCLAW_UPDATED=true
     elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ] && [ "$CURRENT_VER" != "$STABLE_VER" ]; then
         echo -e "${YELLOW}[WARN]${NC} latest version failed — trying stable version $STABLE_VER"

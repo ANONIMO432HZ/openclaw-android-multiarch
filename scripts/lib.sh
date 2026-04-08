@@ -3,6 +3,9 @@
 # Usage: source "$SCRIPT_DIR/scripts/lib.sh"  (from repo)
 #        source "$PROJECT_DIR/scripts/lib.sh"  (from installed copy)
 
+# Standard Project Path
+export PROJECT_DIR="${PROJECT_DIR:-$HOME/.openclaw-android}"
+
 # ── Color constants ──
 RED='\033[0;31m'
 GREEN='\033[0;32m'

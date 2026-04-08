@@ -22,7 +22,7 @@ if npm list -g openclaw &>/dev/null 2>&1 || [ -d "$PREFIX/lib/node_modules/openc
     echo "Existing installation detected \u2014 cleaning up for reinstall..."
     npm uninstall -g openclaw 2>/dev/null || true
     rm -rf "$PREFIX/lib/node_modules/openclaw" 2>/dev/null || true
-    rm -f "$(npm root -g)/openclaw/.plugins_repaired" 2>/dev/null || true
+    rm -f "$PROJECT_DIR"/.plugins_repaired_* 2>/dev/null || true
     npm uninstall -g clawdhub 2>/dev/null || true
     rm -rf "$PREFIX/lib/node_modules/clawdhub" 2>/dev/null || true
     rm -rf "$HOME/.npm/_cacache" 2>/dev/null || true
@@ -85,7 +85,10 @@ fi
 
 # Fix missing bundled plugin dependencies (e.g. @buape/carbon)
 if [ -d "$OPENCLAW_DIR" ]; then
-    MARKER="$OPENCLAW_DIR/.plugins_repaired"
+    local CLAW_VER
+    CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
+    MARKER="$PROJECT_DIR/.plugins_repaired_$CLAW_VER"
+    
     if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
         echo "Ensuring bundled plugin dependencies are available..."
         echo "Installing missing @buape/carbon dependency..."

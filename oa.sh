@@ -76,8 +76,10 @@ check_and_fix_plugins() {
     OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
     [ -d "$OPENCLAW_DIR" ] || return 0
     
-    # Use a persistent marker to avoid repair loops
-    local MARKER="$OPENCLAW_DIR/.plugins_repaired"
+    # Use a persistent marker in USER SPACE to avoid permission issues in global node_modules
+    local CLAW_VER
+    CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
+    local MARKER="$PROJECT_DIR/.plugins_repaired_$CLAW_VER"
     
     # Only repair if marker is missing AND carbon is missing
     if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then

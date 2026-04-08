@@ -32,8 +32,10 @@ if [ -n "$TARGET_VER" ] && [ "$CURRENT_VER" != "$TARGET_VER" ]; then
     if npm install -g "openclaw@$TARGET_VER" --no-fund --no-audit --ignore-scripts; then
         echo -e "${GREEN}[OK]${NC}   openclaw $TARGET_VER installed"
         OPENCLAW_UPDATED=true
-        # Clean repair marker on version change
-        rm -f "$OPENCLAW_DIR/.plugins_repaired" 2>/dev/null || true
+        # Clean current marker to force re-repair on new version
+        local NEW_VER
+        NEW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
+        rm -f "$PROJECT_DIR/.plugins_repaired_$NEW_VER" 2>/dev/null || true
     elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ] && [ "$CURRENT_VER" != "$STABLE_VER" ]; then
         echo -e "${YELLOW}[WARN]${NC} latest version failed — trying stable version $STABLE_VER"
         if npm install -g "openclaw@${STABLE_VER}" --no-fund --no-audit --ignore-scripts; then
@@ -72,7 +74,10 @@ fi
 
 # Fix missing bundled plugin dependencies (e.g. @buape/carbon)
 if [ -d "$OPENCLAW_DIR" ]; then
-    MARKER="$OPENCLAW_DIR/.plugins_repaired"
+    local CLAW_VER
+    CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
+    MARKER="$PROJECT_DIR/.plugins_repaired_$CLAW_VER"
+    
     if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
         echo "Repairing missing @buape/carbon dependency..."
         (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true

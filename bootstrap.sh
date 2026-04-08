@@ -16,15 +16,19 @@ echo ""
 echo -e "${BOLD}OpenClaw on Android - Bootstrap${NC}"
 echo ""
 
-# Check for git first, install if missing
-if ! command -v git &>/dev/null; then
-    if ! command -v pkg &>/dev/null; then
-        echo -e "${RED}[FAIL]${NC} Neither git nor pkg found. Install git with: pkg install git"
-        exit 1
+# Check for essential tools first, install if missing
+for tool in git curl npm; do
+    if ! command -v "$tool" &>/dev/null; then
+        if ! command -v pkg &>/dev/null; then
+            echo -e "${RED}[FAIL]${NC} pkg not found. Cannot install $tool. Please install it manually."
+            exit 1
+        fi
+        pkg_name="$tool"
+        [ "$tool" = "npm" ] && pkg_name="nodejs"
+        echo -e "${YELLOW}[INFO]${NC} $tool not found. Installing $pkg_name..."
+        pkg update -y && pkg install -y "$pkg_name"
     fi
-    echo -e "${YELLOW}[INFO]${NC} git not found. Installing git..."
-    pkg update -y && pkg install -y git
-fi
+done
 
 echo "Cloning repository (shallow clone, depth=1)..."
 if [ -d "$INSTALL_DIR/.git" ]; then
@@ -63,6 +67,5 @@ ln -sf "$INSTALL_DIR" "$HOME/openclaw-android"
 echo -e "${GREEN}[OK]${NC} Visible symlink created: ~/openclaw-android -> ~/.openclaw-android"
 
 # Run the installer
+chmod +x "$INSTALL_DIR/oa.sh" "$INSTALL_DIR/install.sh" "$INSTALL_DIR/uninstall.sh"
 bash "$INSTALL_DIR/install.sh"
-
-chmod +x "$INSTALL_DIR/uninstall.sh"

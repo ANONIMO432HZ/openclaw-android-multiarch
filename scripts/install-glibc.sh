@@ -40,9 +40,13 @@ if [ "$ARCH" != "aarch64" ]; then
     exit 1
 fi
 
-# Check if already installed
-if [ -f "$OPENCLAW_DIR/.glibc-arch" ] && [ -x "$GLIBC_LDSO" ]; then
-    echo -e "${GREEN}[SKIP]${NC} glibc-runner already installed"
+# Check if already installed (detects both pacman and manual post-setup extractions)
+if [ -x "$GLIBC_LDSO" ]; then
+    if [ ! -f "$OPENCLAW_DIR/.glibc-arch" ]; then
+        mkdir -p "$OPENCLAW_DIR"
+        touch "$OPENCLAW_DIR/.glibc-arch"
+    fi
+    echo -e "${GREEN}[SKIP]${NC} glibc already installed (ld.so present)"
     exit 0
 fi
 

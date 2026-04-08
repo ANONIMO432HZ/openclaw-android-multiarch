@@ -108,6 +108,13 @@ bash "$SCRIPT_DIR/scripts/install-glibc.sh"
 bash "$SCRIPT_DIR/scripts/install-nodejs.sh"
 bash "$SCRIPT_DIR/scripts/install-build-tools.sh"
 
+# CRITICAL: Refresh PATH to include the newly installed glibc Node.js
+# This ensures Steps 6 and 7 use the isolated environment instead of the host system.
+if [ -d "$HOME/.openclaw-android/node/bin" ]; then
+    export PATH="$HOME/.openclaw-android/node/bin:$PATH"
+    echo -e "${GREEN}[OK]${NC}   PATH refreshed with glibc Node.js"
+fi
+
 # Memory optimization for installation phase
 if is_low_ram; then
     echo -e "${YELLOW}[LOW RAM MODE]${NC} Limiting Node.js memory for installation stability."

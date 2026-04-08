@@ -19,8 +19,8 @@ pkg update -y
 pkg upgrade -y
 
 # Install core infrastructure packages (including termux-services for runit and procps for robust ps -ef)
-echo "Installing git, curl, termux-services and procps..."
-pkg install -y git curl termux-services procps
+echo "Installing git, curl, npm (via nodejs), termux-services and procps..."
+pkg install -y git curl nodejs termux-services procps
 
 echo ""
 echo -e "${GREEN}Infrastructure dependencies installed.${NC}"

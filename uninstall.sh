@@ -124,11 +124,23 @@ else
 fi
 
 step 5 "glibc components"
+REMOVED_GLIBC=false
+
 if command -v pacman &>/dev/null && pacman -Q glibc-runner &>/dev/null; then
     pacman -R glibc-runner --noconfirm || true
-    echo -e "${GREEN}[OK]${NC}   Removed glibc-runner package"
-else
-    echo -e "${YELLOW}[SKIP]${NC} glibc-runner not installed"
+    echo -e "${GREEN}[OK]${NC}   Removed glibc-runner via pacman"
+    REMOVED_GLIBC=true
+fi
+
+# Limpieza física (para instalaciones manuales de post-setup.sh)
+if [ -d "${PREFIX:-}/glibc" ]; then
+    rm -rf "${PREFIX:-}/glibc"
+    echo -e "${GREEN}[OK]${NC}   Removed physical glibc directory (${PREFIX:-}/glibc)"
+    REMOVED_GLIBC=true
+fi
+
+if [ "$REMOVED_GLIBC" = false ]; then
+    echo -e "${YELLOW}[SKIP]${NC} glibc not installed or already removed"
 fi
 
 step 6 "shell configuration"

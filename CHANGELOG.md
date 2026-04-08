@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.1.0] - 2026-04-08
 
 ### Added
+
 - **Channel System**: User-selectable release tracks (**Latest** vs **Stable**) during installation to prevent regressions.
 - **Plugin Pre-flight Repair**: Silent auto-healing for `@buape/carbon` and bundled plugins in `onboard` and `ui-config`.
 - **Professional Tool Management**:
@@ -17,11 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Robust Git Sync**: `oa self-update` now protects local work with `git stash` during repository synchronization.
 
 ### Fixed
+
 - **Onboarding Broken**: Fixed the critical "Cannot find module '@buape/carbon'" error.
 - **Syntax Error**: Removed redundant `fi` in `install-tools.sh`.
 - **Install Path Logic**: Fixed incorrect directory pointers for tool installation.
 - **Bun Performance**: Enhanced fallback logic for OpenCode installation in Termux.
-
 
 ## [1.1.5.2] - 2026-03-31
 

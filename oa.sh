@@ -76,21 +76,28 @@ check_and_fix_plugins() {
     OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
     [ -d "$OPENCLAW_DIR" ] || return 0
     
-    # Use a persistent marker in USER SPACE to avoid permission issues in global node_modules
+    # Ensure project dir exists for markers
+    mkdir -p "$PROJECT_DIR" 2>/dev/null || true
+
+    # Reliable version detection for marker
     local CLAW_VER
-    CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
-    local MARKER="$PROJECT_DIR/.plugins_repaired_$CLAW_VER"
+    CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' | tr -d '[:space:]' || echo "unknown")
+    local MARKER="$PROJECT_DIR/.plugins_repaired_${CLAW_VER:-unknown}"
     
     # Only repair if marker is missing AND carbon is missing
     if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
         echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) missing."
-        echo "         Applying silent fix. Please wait..."
-        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
+        echo "         Applying surgical fix... (one-time operation)"
+        
+        # Surgical install: no-save, no-package-lock to avoid messing with other packages
+        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save --no-package-lock 2>/dev/null) || true
+        
         if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
             (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
         fi
+        
         touch "$MARKER" 2>/dev/null || true
-        echo -e "  ${GREEN}[OK]${NC}   Plugin environment repaired."
+        echo -e "  ${GREEN}[OK]${NC}   Plugin environment stabilized."
     fi
 }
 

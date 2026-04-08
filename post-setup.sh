@@ -22,7 +22,32 @@ set -eo pipefail
 OCA_DIR="$HOME/.openclaw-android"
 NODE_DIR="$OCA_DIR/node"
 NODE_VERSION="22.22.0"
-GLIBC_LDSO="$PREFIX/glibc/lib/ld-linux-aarch64.so.1"
+
+# ─── Architecture Detection ────────────────────
+ARCH=$(uname -m)
+case "$ARCH" in
+    aarch64)
+        GLIBC_ARCH="aarch64"
+        NODE_ARCH="arm64"
+        LDSO_NAME="ld-linux-aarch64.so.1"
+        ;;
+    armv7l|armhf|arm)
+        GLIBC_ARCH="arm"
+        NODE_ARCH="armv7l"
+        LDSO_NAME="ld-linux-armhf.so.3" # Note: Termux gpkg might not have glibc for armv7l
+        ;;
+    x86_64)
+        GLIBC_ARCH="x86_64"
+        NODE_ARCH="x64"
+        LDSO_NAME="ld-linux-x86-64.so.2"
+        ;;
+    *)
+        echo -e "${RED}Unsupported architecture: $ARCH${NC}"
+        exit 1
+        ;;
+esac
+
+GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
 MARKER="$OCA_DIR/.post-setup-done"
 
 RED='\033[0;31m'
@@ -58,7 +83,7 @@ echo ""
 mkdir -p "$OCA_DIR" "$OCA_DIR/patches" "$TMPDIR"
 
 TERMUX_DEB_REPO="https://packages-cf.termux.dev/apt/termux-main"
-PACMAN_PKG_REPO="https://service.termux-pacman.dev/gpkg/aarch64"
+PACMAN_PKG_REPO="https://service.termux-pacman.dev/gpkg/${GLIBC_ARCH}"
 TERMUX_INNER="data/data/com.termux/files/usr"
 DEB_DIR="$TMPDIR/debs"
 PKG_DIR="$TMPDIR/pkgs"
@@ -131,7 +156,7 @@ mkdir -p "$DEB_DIR" "$PKG_DIR"
 echo "  Fetching package index..."
 PACKAGES_FILE="$TMPDIR/Packages"
 curl -fsSL --max-time 60 \
-    "${TERMUX_DEB_REPO}/dists/stable/main/binary-aarch64/Packages" \
+    "${TERMUX_DEB_REPO}/dists/stable/main/binary-${ARCH}/Packages" \
     -o "$PACKAGES_FILE"
 
 # Resolve package filename from Packages index
@@ -183,13 +208,19 @@ else
     mkdir -p "$PREFIX/glibc"
 
     # Download glibc package directly from pacman repo (no pacman needed)
-    # The gpkg.db tells us: glibc-2.42-0-aarch64.pkg.tar.xz (~9.7MB)
-    echo "  Downloading glibc (~10MB)..."
-    install_pacman_pkg "glibc-2.42-0-aarch64.pkg.tar.xz" "$PREFIX/glibc"
-
-    # gcc-libs-glibc provides libstdc++.so.6 needed by Node.js (~24MB)
-    echo "  Downloading gcc-libs (~24MB)..."
-    install_pacman_pkg "gcc-libs-glibc-14.2.1-1-aarch64.pkg.tar.xz" "$PREFIX/glibc"
+    # The gpkg.db tells us the latest versions for the detected arch
+    echo "  Downloading glibc for ${GLIBC_ARCH}..."
+    if [ "$GLIBC_ARCH" = "aarch64" ]; then
+        install_pacman_pkg "glibc-2.42-0-aarch64.pkg.tar.xz" "$PREFIX/glibc"
+        echo "  Downloading gcc-libs..."
+        install_pacman_pkg "gcc-libs-glibc-14.2.1-1-aarch64.pkg.tar.xz" "$PREFIX/glibc"
+    elif [ "$GLIBC_ARCH" = "x86_64" ]; then
+        install_pacman_pkg "glibc-2.42-0-x86_64.pkg.tar.xz" "$PREFIX/glibc"
+        install_pacman_pkg "gcc-libs-glibc-14.2.1-1-x86_64.pkg.tar.xz" "$PREFIX/glibc"
+    else
+         echo -e "${YELLOW}[WARN]${NC} glibc binaries not directly available for ${GLIBC_ARCH} in post-setup.sh"
+         echo "       Consider using install.sh for better dependency resolution."
+    fi
 
     # Verify linker
     if [ ! -f "$GLIBC_LDSO" ]; then
@@ -232,7 +263,7 @@ NPXWRAP
         sed -i "1s|#!/usr/bin/env node|#!$NODE_DIR/bin/node|" "$NODE_DIR/bin/corepack"
     fi
 else
-    NODE_TAR="node-v${NODE_VERSION}-linux-arm64"
+    NODE_TAR="node-v${NODE_VERSION}-linux-${NODE_ARCH}"
     echo "  Downloading Node.js v${NODE_VERSION} (~25MB)..."
     curl -fSL --max-time 300 \
         "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_TAR}.tar.xz" \

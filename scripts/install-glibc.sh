@@ -17,7 +17,16 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 OPENCLAW_DIR="$HOME/.openclaw-android"
-GLIBC_LDSO="$PREFIX/glibc/lib/ld-linux-aarch64.so.1"
+# ─── Architecture Detection ────────────────────
+ARCH=$(uname -m)
+case "$ARCH" in
+    aarch64) LDSO_NAME="ld-linux-aarch64.so.1" ;;
+    x86_64)  LDSO_NAME="ld-linux-x86-64.so.2" ;;
+    armv7l|armhf|arm) LDSO_NAME="ld-linux-armhf.so.3" ;;
+    *) LDSO_NAME="ld-linux-aarch64.so.1" ;;
+esac
+
+GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
 PACMAN_CONF="$PREFIX/etc/pacman.conf"
 
 echo "=== Installing glibc Runtime ==="
@@ -88,10 +97,10 @@ echo "Installing glibc-runner..."
 
 # --assume-installed: these packages are provided by Termux's apt but pacman
 # doesn't know about them, causing dependency resolution failures
-if pacman -Sy glibc-runner --noconfirm --assume-installed bash,patchelf,resolv-conf 2>&1; then
-    echo -e "${GREEN}[OK]${NC}   glibc-runner installed"
+if pacman -Sy glibc glibc-runner --noconfirm --assume-installed bash,patchelf,resolv-conf 2>&1; then
+    echo -e "${GREEN}[OK]${NC}   glibc and glibc-runner installed"
 else
-    echo -e "${RED}[FAIL]${NC} Failed to install glibc-runner"
+    echo -e "${RED}[FAIL]${NC} Failed to install glibc packages"
     if [ "$SIGLEVEL_PATCHED" = true ] && [ -f "${PACMAN_CONF}.bak" ]; then
         mv "${PACMAN_CONF}.bak" "$PACMAN_CONF"
     fi

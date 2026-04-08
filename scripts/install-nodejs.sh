@@ -21,11 +21,33 @@ NC='\033[0m'
 
 OPENCLAW_DIR="$HOME/.openclaw-android"
 NODE_DIR="$OPENCLAW_DIR/node"
-GLIBC_LDSO="$PREFIX/glibc/lib/ld-linux-aarch64.so.1"
+# ─── Architecture Detection ────────────────────
+ARCH=$(uname -m)
+case "$ARCH" in
+    aarch64)
+        NODE_ARCH="arm64"
+        LDSO_NAME="ld-linux-aarch64.so.1"
+        ;;
+    x86_64)
+        NODE_ARCH="x64"
+        LDSO_NAME="ld-linux-x86-64.so.2"
+        ;;
+    armv7l|armhf|arm)
+        # Native node handled below in armv7l block
+        NODE_ARCH="armv7l"
+        LDSO_NAME="ld-linux-armhf.so.3"
+        ;;
+    *)
+        NODE_ARCH="arm64" # Default fallback
+        LDSO_NAME="ld-linux-aarch64.so.1"
+        ;;
+esac
+
+GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
 
 # Node.js LTS version to install
 NODE_VERSION="22.22.0"
-NODE_TARBALL="node-v${NODE_VERSION}-linux-arm64.tar.xz"
+NODE_TARBALL="node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz"
 NODE_URL="https://nodejs.org/dist/v${NODE_VERSION}/${NODE_TARBALL}"
 
 echo "=== Installing Node.js (glibc) ==="
@@ -113,7 +135,7 @@ fi
 
 # ── Step 1: Download Node.js linux-arm64 ──────
 
-echo "Downloading Node.js v${NODE_VERSION} (linux-arm64)..."
+echo "Downloading Node.js v${NODE_VERSION} (linux-${NODE_ARCH})..."
 echo "  (File size ~25MB — may take a few minutes depending on network speed)"
 mkdir -p "$NODE_DIR"
 
@@ -180,7 +202,7 @@ if [ $_COUNT -gt 0 ] && [ $_COUNT -lt $# ]; then
     done
     export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }$_LEADING_OPTS"
 fi
-exec "$PREFIX/glibc/lib/ld-linux-aarch64.so.1" "$(dirname "$0")/node.real" "$@"
+exec "$GLIBC_LDSO" --library-path "$PREFIX/glibc/lib" "$(dirname "$0")/node.real" "$@"
 WRAPPER
 chmod +x "$NODE_DIR/bin/node"
 echo -e "${GREEN}[OK]${NC}   node wrapper created"

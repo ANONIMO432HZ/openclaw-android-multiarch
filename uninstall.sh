@@ -30,6 +30,8 @@ if ! command -v banner &>/dev/null; then
 
     ask_yn() {
         local prompt="$1"
+        if [[ "${OA_YES:-}" == "true" ]]; then return 0; fi
+        if [[ "${OA_YES:-}" == "false" ]]; then return 1; fi
         local reply
         read -rp "$prompt [Y/n] " reply < /dev/tty
         [[ "${reply:-}" =~ ^[Nn]$ ]] && return 1
@@ -50,6 +52,11 @@ if ! command -v detect_platform &>/dev/null; then
     detect_platform() {
         if [ -f "$PROJECT_DIR/.platform" ]; then
             cat "$PROJECT_DIR/.platform"
+            return 0
+        fi
+        # Fallback for manual or legacy installs
+        if command -v openclaw &>/dev/null || [ -d "$HOME/.openclaw" ]; then
+            echo "openclaw"
             return 0
         fi
         return 1
@@ -127,8 +134,29 @@ step 5 "glibc components"
 REMOVED_GLIBC=false
 
 if command -v pacman &>/dev/null && pacman -Q glibc-runner &>/dev/null; then
-    pacman -R glibc-runner --noconfirm || true
-    echo -e "${GREEN}[OK]${NC}   Removed glibc-runner via pacman"
+    echo "Uninstalling glibc-runner via pacman..."
+    
+    # SigLevel workaround: Disable signatures to avoid GPGME/Keyring errors during removal
+    PACMAN_CONF="${PREFIX:-/data/data/com.termux/files/usr}/etc/pacman.conf"
+    SIG_PATCHED=false
+    if [ -f "$PACMAN_CONF" ] && ! grep -q "^SigLevel = Never" "$PACMAN_CONF"; then
+        sed -i.bak 's/^SigLevel\s*=.*/SigLevel = Never/' "$PACMAN_CONF"
+        SIG_PATCHED=true
+    fi
+
+    if pacman -R glibc glibc-runner --noconfirm 2>/dev/null; then
+        echo -e "${GREEN}[OK]${NC}   Removed glibc packages via pacman"
+    else
+        # Try a more forceful removal if it failed due to dependencies or DB locks
+        pacman -Rdd glibc glibc-runner --noconfirm --nosave 2>/dev/null || true
+        echo -e "${YELLOW}[WARN]${NC} pacman removal had issues, continuing with physical cleanup"
+    fi
+
+    # Restore SigLevel
+    if [ "$SIG_PATCHED" = true ] && [ -f "${PACMAN_CONF}.bak" ]; then
+        mv "${PACMAN_CONF}.bak" "$PACMAN_CONF"
+    fi
+    
     REMOVED_GLIBC=true
 fi
 

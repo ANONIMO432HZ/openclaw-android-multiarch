@@ -122,11 +122,13 @@ cmd_update() {
 
         if git pull origin main; then
             git stash pop >/dev/null 2>&1 || true
-            find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
             if [ -w "$PREFIX/bin" ]; then
                 ln -sf "$PROJECT_DIR/oa.sh" "$PREFIX/bin/oa"
                 chmod +x "$PROJECT_DIR/oa.sh"
             fi
+            # Ensure all scripts are executable and have correct line endings
+            find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
+            find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
             local NEW_VERSION
             # Precise grep for the exported version line to avoid picking up function arguments
             NEW_VERSION=$(grep "^export OA_VERSION=" "$PROJECT_DIR/scripts/lib.sh" 2>/dev/null | cut -d'"' -f2 || echo "Updated")
@@ -216,9 +218,10 @@ cmd_self_update() {
     # Simple git pull for fast script sync
     if git pull origin main; then
         echo -e "${GREEN}[OK]${NC} Repository synced."
-        # Refresh executable links
         ln -sf "$PROJECT_DIR/oa.sh" "$PREFIX/bin/oa"
-        chmod +x "$PROJECT_DIR/oa.sh"
+        # Ensure scripts are executable and have correct line endings
+        find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
+        find "$PROJECT_DIR" -maxdepth 2 -name "*.sh" -exec sed -i 's/\r$//' {} + 2>/dev/null || true
         bash "$PROJECT_DIR/scripts/setup-env.sh"
         echo ""
         echo -e "${GREEN}[SUCCESS]${NC} Scripts updated to latest version."
@@ -230,7 +233,11 @@ cmd_self_update() {
 
 cmd_install() {
     check_and_fix_env
-    if [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
+    if [ -f "$PROJECT_DIR/install-tools.sh" ]; then
+        chmod +x "$PROJECT_DIR/install-tools.sh"
+        bash "$PROJECT_DIR/install-tools.sh"
+    elif [ -f "$PROJECT_DIR/scripts/install-tools.sh" ]; then
+        chmod +x "$PROJECT_DIR/scripts/install-tools.sh"
         bash "$PROJECT_DIR/scripts/install-tools.sh"
     else
         echo -e "${RED}[FAIL]${NC} install-tools.sh not found."

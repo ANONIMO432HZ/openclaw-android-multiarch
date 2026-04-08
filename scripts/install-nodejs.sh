@@ -175,7 +175,7 @@ fi
 # being loaded into the glibc process (causes version mismatch crash)
 # glibc-compat.js is auto-loaded to fix Android kernel quirks.
 cat > "$NODE_DIR/bin/node" << WRAPPER
-#!/data/data/com.termux/files/usr/bin/sh
+#!$PREFIX/bin/bash
 # OpenClaw Android — Node.js glibc Wrapper
 unset LD_PRELOAD
 _OA_COMPAT="\$HOME/.openclaw-android/patches/glibc-compat.js"

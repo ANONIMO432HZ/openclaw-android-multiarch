@@ -22,6 +22,7 @@ if npm list -g openclaw &>/dev/null 2>&1 || [ -d "$PREFIX/lib/node_modules/openc
     echo "Existing installation detected \u2014 cleaning up for reinstall..."
     npm uninstall -g openclaw 2>/dev/null || true
     rm -rf "$PREFIX/lib/node_modules/openclaw" 2>/dev/null || true
+    rm -f "$(npm root -g)/openclaw/.plugins_repaired" 2>/dev/null || true
     npm uninstall -g clawdhub 2>/dev/null || true
     rm -rf "$PREFIX/lib/node_modules/clawdhub" 2>/dev/null || true
     rm -rf "$HOME/.npm/_cacache" 2>/dev/null || true
@@ -83,18 +84,19 @@ if [ -d "$OPENCLAW_DIR/node_modules/@snazzah/davey" ]; then
 fi
 
 # Fix missing bundled plugin dependencies (e.g. @buape/carbon)
-# These are often skipped by --ignore-scripts but required by core extensions.
 if [ -d "$OPENCLAW_DIR" ]; then
-    echo "Ensuring bundled plugin dependencies are available..."
-    if [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+    MARKER="$OPENCLAW_DIR/.plugins_repaired"
+    if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        echo "Ensuring bundled plugin dependencies are available..."
         echo "Installing missing @buape/carbon dependency..."
         (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
-    fi
-    
-    # Run internal post-installation if available (handles plugin bundling)
-    if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
-        echo "Running OpenClaw plugin bundler..."
-        (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+        
+        # Run internal post-installation if available (handles plugin bundling)
+        if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
+            echo "Running OpenClaw plugin bundler..."
+            (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+        fi
+        touch "$MARKER" 2>/dev/null || true
     fi
 fi
 

@@ -74,14 +74,20 @@ show_help() {
 check_and_fix_plugins() {
     local OPENCLAW_DIR
     OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
+    [ -d "$OPENCLAW_DIR" ] || return 0
     
-    if [ -d "$OPENCLAW_DIR" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+    # Use a persistent marker to avoid repair loops
+    local MARKER="$OPENCLAW_DIR/.plugins_repaired"
+    
+    # Only repair if marker is missing AND carbon is missing
+    if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
         echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) missing."
         echo "         Applying silent fix. Please wait..."
         (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
         if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
             (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
         fi
+        touch "$MARKER" 2>/dev/null || true
         echo -e "  ${GREEN}[OK]${NC}   Plugin environment repaired."
     fi
 }
@@ -167,35 +173,36 @@ cmd_update() {
         local PREV_VERSION
         PREV_VERSION=$(openclaw --version 2>/dev/null | head -1 || echo "unknown")
         echo "  Current version: $PREV_VERSION"
+        # Determine target version based on channel
+        local CH_PREF="latest"
+        [ -f "$PROJECT_DIR/.openclaw_version_channel" ] && CH_PREF=$(cat "$PROJECT_DIR/.openclaw_version_channel" | tr -d '[:space:]')
+        
+        local TARGET="latest"
+        [ "$CH_PREF" != "latest" ] && TARGET="$CH_PREF"
+
+        echo "  Update Target:   $TARGET ($CH_PREF channel)"
         echo ""
-        echo "This will update OpenClaw via npm to the latest version."
-        if [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
-            echo "  Stable fallback: $OPENCLAW_STABLE_VERSION"
-        fi
+        echo "This will update OpenClaw via npm to the selected channel."
 
         if ask_yn "Proceed with updating OpenClaw Core?"; then
-            echo "Updating OpenClaw Core via NPM (latest first)..."
             local NPM_OUTPUT
             local NPM_EXIT=0
-            NPM_OUTPUT=$(npm install -g openclaw@latest --no-audit --no-fund 2>&1) || NPM_EXIT=$?
+            echo "Installing OpenClaw-Core ($TARGET)..."
+            NPM_OUTPUT=$(npm install -g "openclaw@$TARGET" --no-audit --no-fund --ignore-scripts 2>&1) || NPM_EXIT=$?
 
             if [ $NPM_EXIT -eq 0 ]; then
-                echo -e "${GREEN}[OK]${NC} OpenClaw Core updated (latest)."
-            elif [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
-                echo -e "${YELLOW}[FALLBACK]${NC} latest failed — trying stable version $OPENCLAW_STABLE_VERSION..."
-                NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --no-audit --no-fund 2>&1) || NPM_EXIT=$?
+                echo -e "${GREEN}[OK]${NC} OpenClaw Core updated successfully ($TARGET)."
+                # Reset repair marker on version change
+                rm -f "$(npm root -g 2>/dev/null)/openclaw/.plugins_repaired" 2>/dev/null || true
+            elif [ -n "${OPENCLAW_STABLE_VERSION:-}" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ] && [ "$TARGET" != "$OPENCLAW_STABLE_VERSION" ]; then
+                echo -e "${YELLOW}[FALLBACK]${NC} Update failed — trying stable version $OPENCLAW_STABLE_VERSION..."
+                NPM_OUTPUT=$(npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --no-audit --no-fund --ignore-scripts 2>&1) || NPM_EXIT=$?
                 if [ $NPM_EXIT -eq 0 ]; then
                     echo -e "${GREEN}[OK]${NC} OpenClaw Core installed (stable: $OPENCLAW_STABLE_VERSION)."
+                    rm -f "$(npm root -g 2>/dev/null)/openclaw/.plugins_repaired" 2>/dev/null || true
                 else
                     echo -e "${RED}[FAIL]${NC} Stable version also failed."
                     echo "$NPM_OUTPUT" | head -10
-                    if [ "$PREV_VERSION" != "unknown" ]; then
-                        echo ""
-                        if ask_yn "Rollback to previous version ($PREV_VERSION)?"; then
-                            npm install -g "openclaw@$PREV_VERSION" --no-audit --no-fund 2>&1 || true
-                            echo -e "${YELLOW}[INFO]${NC} Rollback attempted."
-                        fi
-                    fi
                 fi
             else
                 echo -e "${RED}[FAIL]${NC} OpenClaw Core update failed."

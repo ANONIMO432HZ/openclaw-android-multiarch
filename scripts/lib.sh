@@ -15,6 +15,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 LIME='\033[38;5;154m'
 BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m'
 
 # ── UI Utilities ──

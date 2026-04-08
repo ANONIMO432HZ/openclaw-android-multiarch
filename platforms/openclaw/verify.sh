@@ -55,6 +55,17 @@ else
     check_fail "Directory $HOME/.openclaw missing"
 fi
 
+# Check for bundled plugin dependencies
+OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
+if [ -d "$OPENCLAW_DIR" ]; then
+    if [ -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        check_pass "Bundled plugin dependency (@buape/carbon)"
+    else
+        check_fail "Missing bundled plugin dependency (@buape/carbon)"
+        echo "       Run: ${BOLD}oa update${NC} to repair"
+    fi
+fi
+
 echo ""
 echo "==============================="
 echo -e "  Results: ${GREEN}$PASS passed${NC}, ${RED}$FAIL failed${NC}, ${YELLOW}$WARN warnings${NC}"

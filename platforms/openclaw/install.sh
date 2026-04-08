@@ -66,6 +66,22 @@ if [ -d "$OPENCLAW_DIR/node_modules/@snazzah/davey" ]; then
     (cd "$OPENCLAW_DIR" && npm install @snazzah/davey --no-fund --no-audit --no-save 2>/dev/null) || true
 fi
 
+# Fix missing bundled plugin dependencies (e.g. @buape/carbon)
+# These are often skipped by --ignore-scripts but required by core extensions.
+if [ -d "$OPENCLAW_DIR" ]; then
+    echo "Ensuring bundled plugin dependencies are available..."
+    if [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        echo "Installing missing @buape/carbon dependency..."
+        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
+    fi
+    
+    # Run internal post-installation if available (handles plugin bundling)
+    if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
+        echo "Running OpenClaw plugin bundler..."
+        (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+    fi
+fi
+
 bash "$SCRIPT_DIR/patches/openclaw-apply-patches.sh"
 
 echo ""

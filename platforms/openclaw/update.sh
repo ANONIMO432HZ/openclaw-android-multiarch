@@ -63,6 +63,18 @@ if [ -d "$OPENCLAW_DIR/node_modules/@snazzah/davey" ]; then
     fi
 fi
 
+# Fix missing bundled plugin dependencies (e.g. @buape/carbon)
+if [ -d "$OPENCLAW_DIR" ]; then
+    if [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        echo "Repairing missing @buape/carbon dependency..."
+        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
+    fi
+    if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
+        echo "Ensuring plugins are properly bundled..."
+        (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+    fi
+fi
+
 bash "$SCRIPT_DIR/patches/openclaw-apply-patches.sh"
 
 if [ "$OPENCLAW_UPDATED" = true ]; then

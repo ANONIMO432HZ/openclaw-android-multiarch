@@ -90,6 +90,15 @@ fi
 step "Checking OpenClaw Core"
 if command -v openclaw &>/dev/null; then
     echo -e "  ${GREEN}[PASS]${NC} OpenClaw binary found."
+    
+    # Check for critical missing dependencies (e.g. @buape/carbon)
+    OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
+    if [ -d "$OPENCLAW_DIR" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        echo -e "  ${RED}[FAIL]${NC} Bundled plugin dependency '@buape/carbon' is missing."
+        echo -e "         Fix: Run ${BOLD}oa update${NC}"
+        ERRORS=$((ERRORS+1))
+    fi
+
     # Run the built-in doctor but capture output to indent it
     echo -e "  Running core diagnostic (via openclaw doctor)..."
     openclaw doctor 2>&1 | sed 's/^/    /' || echo -e "    ${RED}Core doctor failed.${NC}"

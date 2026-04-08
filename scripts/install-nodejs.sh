@@ -173,36 +173,34 @@ fi
 # This uses grun-style execution: ld.so directly loads the binary
 # LD_PRELOAD must be unset to prevent Bionic libtermux-exec.so from
 # being loaded into the glibc process (causes version mismatch crash)
-# glibc-compat.js is auto-loaded to fix Android kernel quirks (os.cpus() returns 0,
-# os.networkInterfaces() throws EACCES) that affect native module builds and runtime.
-printf '#!%s/bin/bash\n' "$PREFIX" > "$NODE_DIR/bin/node"
-cat >> "$NODE_DIR/bin/node" << 'WRAPPER'
+# glibc-compat.js is auto-loaded to fix Android kernel quirks.
+cat > "$NODE_DIR/bin/node" << WRAPPER
+#!/data/data/com.termux/files/usr/bin/sh
+# OpenClaw Android — Node.js glibc Wrapper
 unset LD_PRELOAD
-_OA_COMPAT="$HOME/.openclaw-android/patches/glibc-compat.js"
-if [ -f "$_OA_COMPAT" ]; then
-    case "${NODE_OPTIONS:-}" in
-        *"$_OA_COMPAT"*) ;;
-        *) export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }-r $_OA_COMPAT" ;;
+_OA_COMPAT="\$HOME/.openclaw-android/patches/glibc-compat.js"
+if [ -f "\$_OA_COMPAT" ]; then
+    case "\${NODE_OPTIONS:-}" in
+        *"\$_OA_COMPAT"*) ;;
+        *) export NODE_OPTIONS="\${NODE_OPTIONS:+\$NODE_OPTIONS }-r \$_OA_COMPAT" ;;
     esac
 fi
 # glibc ld.so misparses leading --options as its own flags.
-# Move them to NODE_OPTIONS ONLY when a script path follows
-# (preserves direct invocations like 'node --version').
 _LEADING_OPTS=""
 _COUNT=0
-for _arg in "$@"; do
-    case "$_arg" in --*) _COUNT=$((_COUNT + 1)) ;; *) break ;; esac
+for _arg in "\$@"; do
+    case "\$_arg" in --*) _COUNT=\$((_COUNT + 1)) ;; *) break ;; esac
 done
-if [ $_COUNT -gt 0 ] && [ $_COUNT -lt $# ]; then
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --*) _LEADING_OPTS="${_LEADING_OPTS:+$_LEADING_OPTS }$1"; shift ;;
+if [ \$_COUNT -gt 0 ] && [ \$_COUNT -lt \$# ]; then
+    while [ \$# -gt 0 ]; do
+        case "\$1" in
+            --*) _LEADING_OPTS="\${_LEADING_OPTS:+\$_LEADING_OPTS }\$1"; shift ;;
             *) break ;;
         esac
     done
-    export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }$_LEADING_OPTS"
+    export NODE_OPTIONS="\${NODE_OPTIONS:+\$NODE_OPTIONS }\$_LEADING_OPTS"
 fi
-exec "$GLIBC_LDSO" --library-path "$PREFIX/glibc/lib" "$(dirname "$0")/node.real" "$@"
+exec "$GLIBC_LDSO" --library-path "$PREFIX/glibc/lib" "\$(dirname "\$0")/node.real" "\$@"
 WRAPPER
 chmod +x "$NODE_DIR/bin/node"
 echo -e "${GREEN}[OK]${NC}   node wrapper created"

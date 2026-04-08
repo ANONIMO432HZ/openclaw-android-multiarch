@@ -40,12 +40,12 @@ if [ -z "${PREFIX:-}" ]; then
 fi
 
 ARCH=$(uname -m)
-if [ "$ARCH" != "aarch64" ]; then
+if [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "x86_64" ]; then
     if is_armv7l; then
         echo -e "${YELLOW}[SKIP]${NC} glibc runtime not required for 32-bit/ARMv7 (native instead)"
         exit 0
     fi
-    echo -e "${RED}[FAIL]${NC} glibc environment requires aarch64 (got: $ARCH)"
+    echo -e "${RED}[FAIL]${NC} glibc environment requires aarch64 or x86_64 (got: $ARCH)"
     exit 1
 fi
 
@@ -96,8 +96,9 @@ echo ""
 echo "Installing glibc-runner..."
 
 # --assume-installed: these packages are provided by Termux's apt but pacman
-# doesn't know about them, causing dependency resolution failures
-if pacman -Sy glibc glibc-runner --noconfirm --assume-installed bash,patchelf,resolv-conf 2>&1; then
+# doesn't know about them, causing dependency resolution failures.
+# Filter noisy filesystem warnings during reinstallation.
+if pacman -Sy glibc glibc-runner --noconfirm --assume-installed bash,patchelf,resolv-conf 2>&1 | grep -v "could not get file information"; then
     echo -e "${GREEN}[OK]${NC}   glibc and glibc-runner installed"
 else
     echo -e "${RED}[FAIL]${NC} Failed to install glibc packages"

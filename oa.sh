@@ -76,28 +76,33 @@ check_and_fix_plugins() {
     OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
     [ -d "$OPENCLAW_DIR" ] || return 0
     
-    # Ensure project dir exists for markers
     mkdir -p "$PROJECT_DIR" 2>/dev/null || true
-
-    # Reliable version detection for marker
     local CLAW_VER
     CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' | tr -d '[:space:]' || echo "unknown")
     local MARKER="$PROJECT_DIR/.plugins_repaired_${CLAW_VER:-unknown}"
     
-    # Only repair if marker is missing AND carbon is missing
-    if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
-        echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) missing."
-        echo "         Applying surgical fix... (one-time operation)"
+    # Priority check: Does the directory REALLY exist?
+    if [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        # If it's missing, we MUST repair, even if marker exists (false health state)
+        echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) still missing."
+        echo "         Applying heavy fix... (this ensures core stability)"
         
-        # Surgical install: no-save, no-package-lock to avoid messing with other packages
-        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save --no-package-lock 2>/dev/null) || true
+        # 1. Force install into OpenClaw's own node_modules
+        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --save-exact --no-package-lock 2>/dev/null) || true
         
+        # 2. Run internal bundler if available
         if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
             (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
         fi
         
-        touch "$MARKER" 2>/dev/null || true
-        echo -e "  ${GREEN}[OK]${NC}   Plugin environment stabilized."
+        # Final Verification: Only create marker if dir exists now
+        if [ -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+            touch "$MARKER" 2>/dev/null || true
+            echo -e "  ${GREEN}[OK]${NC}   Plugin environment successfully fixed."
+        else
+            echo -e "  ${RED}[FAIL]${NC}  Could not force install @buape/carbon."
+            echo "         Try manually: cd $OPENCLAW_DIR && npm install @buape/carbon"
+        fi
     fi
 }
 

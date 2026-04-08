@@ -71,21 +71,39 @@ show_help() {
     echo ""
 }
 
+check_and_fix_plugins() {
+    local OPENCLAW_DIR
+    OPENCLAW_DIR="$(npm root -g 2>/dev/null)/openclaw"
+    
+    if [ -d "$OPENCLAW_DIR" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
+        echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) missing."
+        echo "         Applying silent fix. Please wait..."
+        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
+        if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
+            (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+        fi
+        echo -e "  ${GREEN}[OK]${NC}   Plugin environment repaired."
+    fi
+}
+
 # ── Helper: Verify and repair environment if needed (fast) ──
 check_and_fix_env() {
     # Ensure SVDIR is set for termux-services (runit) otherwise commands like sv will fail
     export SVDIR="${PREFIX}/var/service"
     
-    if [ -n "${OA_GLIBC:-}" ] && [ -n "${CONTAINER:-}" ]; then
-        return 0
-    fi
-    if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
-        source "$HOME/.bashrc" 2>/dev/null || true
-    fi
+    # Check basic env vars
     if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
-        bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
-        source "$HOME/.bashrc" 2>/dev/null || true
+        if grep -q "OA_GLIBC=" "$HOME/.bashrc" 2>/dev/null; then
+            source "$HOME/.bashrc" 2>/dev/null || true
+        fi
+        if [ -z "${OA_GLIBC:-}" ] || [ -z "${CONTAINER:-}" ]; then
+            bash "$PROJECT_DIR/scripts/setup-env.sh" 2>/dev/null || true
+            source "$HOME/.bashrc" 2>/dev/null || true
+        fi
     fi
+
+    # Check and repair plugins (Critical for wizards)
+    check_and_fix_plugins
 }
 
 # ── Command Implementations ──

@@ -157,3 +157,17 @@ Este comando detendrá el servicio gestionado (`termux-services`) y matará auto
    ```
    *Este comando reescribirá el cargador de Node.js para usar el método de aislamiento total (`--library-path`), lo que oculta las librerías de glibc de las aplicaciones de Android, eliminando el error para siempre.*
 3. Refresca tu sesión: `source ~/.bashrc`.
+---
+
+## 11. KiloCode pide créditos (Bypass de modelo Auto)
+
+**Síntoma:** El sistema responde con errores de "insufficient credits" o pide aumentar saldo, incluso cuando quieres usar la capa gratuita.
+
+**Causa:** El asistente de configuración de OpenClaw (onboard) ahora configura por defecto el modelo `kilo/auto`, el cual requiere créditos. La opción "Free" ya no aparece automáticamente en el asistente.
+
+**Solución (Activación Manual Segura):**
+Ejecuta el nuevo comando de inyección incluido en la CLI:
+```bash
+oa fix-kilo
+```
+*Este comando es inteligente y seguro: añade el modelo `kilo-auto/free` a tu configuración sin borrar tus API Keys o tokens existentes, y lo establece como el modelo primario de tus agentes.*

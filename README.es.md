@@ -156,6 +156,7 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 | `oa fix-plugins` | `fix` | **Reparar Plugins**: Repara dependencias faltantes y bindings nativos |
 | `oa fix-android` | `fix-core` | Reaplica parches críticos de compatibilidad con Android |
 | `oa fix-env` | — | Recalibra las variables de entorno en `~/.bashrc` |
+| `oa fix-kilo` | — | **Arreglar Kilo**: Inyecta el modelo Kilo Free (Bypass de créditos) |
 | `oa backup` | `bkp` | Crea un respaldo completo de los datos (`.tar.gz`) |
 | `oa restore` | `rst` | Restauración interactiva de respaldos anteriores |
 | `oa uninstall` | `uninst` | Elimina completamente OpenClaw de Android |

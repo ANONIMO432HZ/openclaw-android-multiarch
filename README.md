@@ -279,6 +279,7 @@ After installation, the `oa` command is available for managing your installation
 | `oa fix-plugins` | `fix` | **Repair Plugins**: Fixes missing dependencies (`@buape/carbon`) and native bindings |
 | `oa fix-android` | `fix-core` | Re-applies essential Android compatibility patches |
 | `oa fix-env` | — | Recalibrates environment variables in `~/.bashrc` |
+| `oa fix-kilo` | — | **Kilo Free Fix**: Inject Kilo Free model into config (Bypass credits) |
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |

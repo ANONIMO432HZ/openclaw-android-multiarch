@@ -416,4 +416,18 @@ When running `oa onboard` or any OpenClaw command, you receive a critical error 
    oa fix
    ```
    *This command will rewrite the Node.js wrapper to use the total isolation method (`--library-path`), which hides glibc libraries from standard Android applications, resolving the error permanently.*
-3. Refresh your session: `source ~/.bashrc`.
+
+## KiloCode requires credits (Auto model Bypass)
+
+### Symptom
+System responds with "insufficient credits" errors or asks to increase balance, even when you want to use the free tier.
+
+### Cause
+The OpenClaw onboarding wizard now defaults to the `kilo/auto` model, which requires credits. The "Free" option is no longer automatically offered by the wizard.
+
+### Solution (Safe Manual Activation)
+Run the new injection command included in the CLI:
+```bash
+oa fix-kilo
+```
+*This command is smart and safe: it adds the `kilo-auto/free` model to your configuration without erasing your existing API Keys or tokens, and sets it as the primary model for your agents.*

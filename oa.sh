@@ -70,6 +70,7 @@ show_help() {
     echo "  status       Show comprehensive system and service status"
     echo "  fix-env      Fix environment variables in .bashrc"
     echo "  fix-android  Apply essential Android compatibility patches"
+    echo "  fix-kilo     Inject Kilo Free model into config (Bypass credits)"
     echo "  backup       Create a full backup of OpenClaw data"
     echo "  restore      Restore OpenClaw data from a backup"
     echo "  uninstall    Completely remove OpenClaw from Android"
@@ -713,6 +714,16 @@ cmd_fix_plugins() {
     repair_openclaw_plugins true
 }
 
+cmd_fix_kilo() {
+    banner "OpenClaw — Kilo Free Fix" "$LIME"
+    if [ -f "$PROJECT_DIR/scripts/fix-kilo-free.js" ]; then
+        node "$PROJECT_DIR/scripts/fix-kilo-free.js"
+    else
+        echo -e "${RED}[FAIL]${NC} Repair script not found."
+        exit 1
+    fi
+}
+
 cmd_logs() {
     check_and_fix_env
     local LOGFILE=""
@@ -875,11 +886,12 @@ case "${1:-}" in
     config|--config|cfg)              cmd_config "$@" ;;
     doctor|--doctor|doc)              cmd_doctor ;;
     status|--status|st|stat)          cmd_status ;;
-    backup|--backup|bkp)              cmd_backup "$2" ;;
+    backup|--backup|bkp)              cmd_backup "${2:-}" ;;
     restore|--restore|rst)            cmd_restore "$2" ;;
     fix-env)                          cmd_fix_env ;;
     fix-plugins|fix)                  cmd_fix_plugins ;;
     fix-android|fix-core)             cmd_fix_android ;;
+    fix-kilo)                         cmd_fix_kilo ;;
     uninstall|--uninstall|uninst)     cmd_uninstall ;;
     v|version|--version|-v)           echo "oa CLI $OA_VERSION" ;;
     help|--help|-h|h|"")              show_help ;;

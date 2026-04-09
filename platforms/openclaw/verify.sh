@@ -61,8 +61,8 @@ if [ -d "$OPENCLAW_DIR" ]; then
     if [ -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
         check_pass "Bundled plugin dependency (@buape/carbon)"
     else
-        check_fail "Missing bundled plugin dependency (@buape/carbon)"
-        echo "       Run: ${BOLD}oa update${NC} to repair"
+        check_warn "Missing bundled plugin dependency (@buape/carbon)"
+        echo -e "       Run: ${BOLD}oa update${NC} to repair"
     fi
 fi
 

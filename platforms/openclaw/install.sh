@@ -86,31 +86,8 @@ export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=512"
 echo ""
 echo -e "${GREEN}[OK]${NC}   OpenClaw installed"
 
-# Fix native bindings broken by --ignore-scripts (npm/cli#4828 workaround)
-OPENCLAW_DIR="$(npm root -g)/openclaw"
-if [ -d "$OPENCLAW_DIR/node_modules/@snazzah/davey" ]; then
-    echo "Installing native bindings for @snazzah/davey..."
-    (cd "$OPENCLAW_DIR" && npm install @snazzah/davey --no-fund --no-audit --no-save 2>/dev/null) || true
-fi
-
-# Fix missing bundled plugin dependencies (e.g. @buape/carbon)
-if [ -d "$OPENCLAW_DIR" ]; then
-    CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
-    MARKER="$PROJECT_DIR/.plugins_repaired_$CLAW_VER"
-    
-    if [ ! -f "$MARKER" ] && [ ! -d "$OPENCLAW_DIR/node_modules/@buape/carbon" ]; then
-        echo "Ensuring bundled plugin dependencies are available..."
-        echo "Installing missing @buape/carbon dependency..."
-        (cd "$OPENCLAW_DIR" && npm install @buape/carbon --no-fund --no-audit --no-save 2>/dev/null) || true
-        
-        # Run internal post-installation if available (handles plugin bundling)
-        if [ -f "$OPENCLAW_DIR/scripts/postinstall-bundled-plugins.mjs" ]; then
-            echo "Running OpenClaw plugin bundler..."
-            (cd "$OPENCLAW_DIR" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
-        fi
-        touch "$MARKER" 2>/dev/null || true
-    fi
-fi
+# Fix native bindings and missing dependencies via centralized helper
+repair_openclaw_plugins
 
 bash "$SCRIPT_DIR/patches/openclaw-apply-patches.sh"
 

@@ -187,3 +187,55 @@ get_glibc_ldso() {
 
     return 1
 }
+
+# ── Platform-Specific Helpers (OpenClaw) ──
+# Centralized repair logic for bundled dependencies that often fail in Termux
+repair_openclaw_plugins() {
+    local force="${1:-false}"
+    local openclaw_dir
+    
+    # Ensure glibc-isolated node/npm take priority for path resolution
+    local node_bin="$HOME/.openclaw-android/node/bin"
+    if [ -d "$node_bin" ] && [[ ":$PATH:" != *":$node_bin:"* ]]; then
+        export PATH="$node_bin:$PATH"
+    fi
+
+    openclaw_dir="$(npm root -g 2>/dev/null)/openclaw"
+    [ -d "$openclaw_dir" ] || return 0
+
+    # 1. Fix native bindings broken by --ignore-scripts (npm/cli#4828 workaround)
+    if [ -d "$openclaw_dir/node_modules/@snazzah/davey" ]; then
+        echo "Installing native bindings for @snazzah/davey..."
+        (cd "$openclaw_dir" && npm install @snazzah/davey --no-fund --no-audit --no-save 2>/dev/null) || true
+    fi
+
+    local claw_ver
+    claw_ver=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' | tr -d '[:space:]' || echo "unknown")
+    local marker="$PROJECT_DIR/.plugins_repaired_${claw_ver:-unknown}"
+
+    # 2. Fix missing bundled plugin dependencies (e.g. @buape/carbon)
+    # If it's missing, or we are forcing, we MUST repair
+    if [ ! -d "$openclaw_dir/node_modules/@buape/carbon" ] || [ "$force" = true ]; then
+        echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) missing/requested."
+        echo "         Applying heavy fix... (this ensures core stability)"
+        
+        # 2.1 Force install into OpenClaw's own node_modules
+        (cd "$openclaw_dir" && npm install @buape/carbon --no-fund --no-audit --save-exact --no-package-lock 2>/dev/null) || true
+        
+        # 2.2 Run internal bundler if available (OpenClaw native script)
+        if [ -f "$openclaw_dir/scripts/postinstall-bundled-plugins.mjs" ]; then
+            (cd "$openclaw_dir" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+        fi
+        
+        # Final Verification
+        if [ -d "$openclaw_dir/node_modules/@buape/carbon" ]; then
+            touch "$marker" 2>/dev/null || true
+            echo -e "  ${GREEN}[OK]${NC}   Plugin environment successfully fixed."
+            return 0
+        else
+            echo -e "  ${RED}[FAIL]${NC}  Could not force install @buape/carbon."
+            return 1
+        fi
+    fi
+    return 0
+}

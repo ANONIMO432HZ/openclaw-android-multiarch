@@ -142,15 +142,18 @@ Este comando detendrá el servicio gestionado (`termux-services`) y matará auto
 
 ---
 
-## 9. Error en dependencias de plugins (`@buape/carbon` / `[FAIL]`)
+## 10. Errores de Linker o ELF magic (`libc.so` / `bad ELF magic`)
 
-**Síntoma:** El verificador de plataforma (`oa status`) lanza un fallo en la dependencia `@buape/carbon` o el instalador no puede forzar su instalación.
+**Síntoma:** Al ejecutar `oa onboard` o cualquier comando de OpenClaw, aparece un error crítico similar a:
+`CANNOT LINK EXECUTABLE "/usr/bin/bash": "/usr/glibc/lib/libc.so" has bad ELF magic: 2f2a2047`
 
-**Causa:** npm a veces confunde las rutas de instalación de Termux con las de nuestro entorno aislado, o intenta usar configuraciones globales previas del usuario.
+**Causa:** "Contaminación por Glibc". Las versiones antiguas de la CLI exportaban la variable `LD_LIBRARY_PATH` de forma global. Cuando Node.js intentaba llamar a un comando nativo de Android (como `bash` o `git`), el cargador de Android intentaba usar las librerías de glibc y fallaba porque no las entiende.
 
-**Solución:**
-Ejecuta el comando dedicado de reparación manual que ahora incluye blindaje de rutas y logs de diagnóstico:
-```bash
-oa fix
-```
-*Si el error persiste, el comando te mostrará las últimas líneas del log generado en `/tmp/oa_repair.log` para diagnosticar la causa exacta (problemas de red, falta de espacio, etc.).*
+**Solución (Blindaje de entorno):**
+1. Actualiza los scripts: `oa self-update`.
+2. Repara y moderniza el cargador:
+   ```bash
+   oa fix
+   ```
+   *Este comando reescribirá el cargador de Node.js para usar el método de aislamiento total (`--library-path`), lo que oculta las librerías de glibc de las aplicaciones de Android, eliminando el error para siempre.*
+3. Refresca tu sesión: `source ~/.bashrc`.

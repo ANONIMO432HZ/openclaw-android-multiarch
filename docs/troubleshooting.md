@@ -396,4 +396,24 @@ Run the dedicated manual repair command, which now includes path hardening and e
 oa fix
 ```
 
-If the issue persists, the command will generate a detailed diagnostic log at `/tmp/oa_repair.log` explaining the technical reason for the failure (network, space, permissions, etc.).
+
+## Linker or ELF magic errors (`libc.so` / `bad ELF magic`)
+
+### Symptom
+
+When running `oa onboard` or any OpenClaw command, you receive a critical error like:
+`CANNOT LINK EXECUTABLE "/usr/bin/bash": "/usr/glibc/lib/libc.so" has bad ELF magic: 2f2a2047`
+
+### Cause
+
+**"Glibc Pollution"**: Older versions of the CLI exported the `LD_LIBRARY_PATH` environment variable globally. When Node.js attempted to call a native Android command (like `bash` or `git`), the Android linker tried to use the incompatible glibc libraries and failed because it does not recognize their format.
+
+### Solution (Environment Hardening)
+
+1. Update the scripts: `oa self-update`.
+2. Repair and modernize the loader:
+   ```bash
+   oa fix
+   ```
+   *This command will rewrite the Node.js wrapper to use the total isolation method (`--library-path`), which hides glibc libraries from standard Android applications, resolving the error permanently.*
+3. Refresh your session: `source ~/.bashrc`.

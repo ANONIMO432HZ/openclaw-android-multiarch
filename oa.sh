@@ -243,6 +243,13 @@ cmd_self_update() {
         bash "$PROJECT_DIR/scripts/setup-env.sh"
         echo ""
         echo -e "${GREEN}[SUCCESS]${NC} Scripts updated to latest version."
+        
+        # Check if a modernization fix is pending (without applying it)
+        if grep -q "export LD_LIBRARY_PATH" "$HOME/.openclaw-android/node/bin/node" 2>/dev/null; then
+            echo -e "${YELLOW}[TIP]${NC} Your Node.js environment is using an old isolation method."
+            echo -e "      Run ${BOLD}oa fix${NC} to modernize it and prevent crashes."
+        fi
+        
         echo "Run: source ~/.bashrc"
     else
         git stash pop >/dev/null 2>&1 || true

@@ -34,16 +34,26 @@ fi
 # ───── Version Selection ─────
 echo -e "${CYAN}${BOLD}OpenClaw Version Channel Selection${NC}"
 echo "Choose your release track:"
-echo -e "  1) ${CYAN}Latest${NC} (v2026.4.5+) — Newest features, may need repairs"
-echo -e "  2) ${YELLOW}Stable${NC} (v2026.3.28)  — Tested, more reliable for Termux"
+echo -e "  1) ${GREEN}Stable${NC} (v2026.3.28)  — ${GREEN}Recommended, tested for Termux${NC}"
+echo -e "  2) ${CYAN}Latest${NC} (v2026.4.5+) — Newest features, may need repairs"
 echo ""
 
 CHANNEL_VERSION="latest"
-if ask_yn "Install STABLE version instead of LATEST?"; then
-    CHANNEL_VERSION="${OPENCLAW_STABLE_VERSION:-2026.3.28}"
-    echo -e "${YELLOW}[CHANNEL]${NC} Pinned to Stable ($CHANNEL_VERSION)"
+if [[ "${OA_YES:-}" == "true" ]]; then
+    CHOICE="1"
+elif [[ "${OA_YES:-}" == "false" ]]; then
+    CHOICE="2"
 else
+    echo -n "Select version [1-2, default 1]: "
+    read -r CHOICE < /dev/tty || CHOICE="1"
+fi
+
+if [[ "$CHOICE" == "2" ]]; then
+    CHANNEL_VERSION="latest"
     echo -e "${CYAN}[CHANNEL]${NC} Tracking Latest"
+else
+    CHANNEL_VERSION="${OPENCLAW_STABLE_VERSION:-2026.3.28}"
+    echo -e "${GREEN}[CHANNEL]${NC} Pinned to Stable ($CHANNEL_VERSION)"
 fi
 
 # Save channel preference for future updates
@@ -56,10 +66,10 @@ echo ""
 
 if npm install -g "openclaw@$CHANNEL_VERSION" --ignore-scripts 2>&1; then
     echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed ($CHANNEL_VERSION)"
-elif [ -n "$STABLE_VER" ] && [ "$STABLE_VER" != "latest" ]; then
-    echo -e "${YELLOW}[WARN]${NC} latest version failed — trying stable version $STABLE_VER"
-    if npm install -g "openclaw@${STABLE_VER}" --ignore-scripts 2>&1; then
-        echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed (stable: $STABLE_VER)"
+elif [ -n "$OPENCLAW_STABLE_VERSION" ] && [ "$OPENCLAW_STABLE_VERSION" != "latest" ]; then
+    echo -e "${YELLOW}[WARN]${NC} latest version failed \u2014 trying stable version $OPENCLAW_STABLE_VERSION"
+    if npm install -g "openclaw@${OPENCLAW_STABLE_VERSION}" --ignore-scripts 2>&1; then
+        echo -e "${GREEN}[OK]${NC}   OpenClaw Core installed (stable: $OPENCLAW_STABLE_VERSION)"
     else
         echo -e "${RED}[FAIL]${NC} Both latest and stable version failed"
         exit 1
@@ -85,7 +95,6 @@ fi
 
 # Fix missing bundled plugin dependencies (e.g. @buape/carbon)
 if [ -d "$OPENCLAW_DIR" ]; then
-    local CLAW_VER
     CLAW_VER=$(openclaw --version 2>/dev/null | head -1 | awk '{print $2}' || echo "unknown")
     MARKER="$PROJECT_DIR/.plugins_repaired_$CLAW_VER"
     

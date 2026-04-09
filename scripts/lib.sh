@@ -190,16 +190,52 @@ get_glibc_ldso() {
 
 # Self-repair the node wrapper to prevent glibc pollution of child processes
 repair_node_wrapper() {
-    local node_wrapper="$HOME/.openclaw-android/node/bin/node"
+    local node_dir="$HOME/.openclaw-android/node"
+    local node_wrapper="$node_dir/bin/node"
     [ -f "$node_wrapper" ] || return 0
     
     # If the wrapper still uses standard export LD_LIBRARY_PATH, it's the old leaky version
     if grep -q "export LD_LIBRARY_PATH" "$node_wrapper"; then
         echo -e "${YELLOW}[FIX]${NC}  Modernizing Node.js wrapper to prevent environment leakage..."
-        # Replace the export + exec pattern with the direct --library-path pattern
-        sed -i 's/export LD_LIBRARY_PATH=.*//' "$node_wrapper"
-        sed -i 's/exec "\$_LDSO" /exec "\$_LDSO" --library-path "\$_GLIBC_LIB" /' "$node_wrapper"
-        echo -e "  ${GREEN}[OK]${NC}   Node.js wrapper modernized."
+        
+        # Determine Archer-specific ld.so (copied from install-nodejs.sh logic)
+        local arch
+        arch=$(uname -m)
+        local ldso=""
+        case "$arch" in
+            aarch64) ldso="$PREFIX/glibc/lib/ld-linux-aarch64.so.1" ;;
+            x86_64)  ldso="$PREFIX/glibc/lib/ld-linux-x86-64.so.2" ;;
+            armv7l|armhf|arm) ldso="$PREFIX/glibc/lib/ld-linux-armhf.so.3" ;;
+        esac
+
+        if [ -n "$ldso" ] && [ -f "$ldso" ]; then
+            # Rewrite wrapper with the safer --library-path method
+            cat > "$node_wrapper" << EOF
+#!$PREFIX/bin/bash
+# OpenClaw Android — Node.js glibc Wrapper (Robust Edition)
+_BIN_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+_NODE_REAL="\$_BIN_DIR/node.real"
+_GLIBC_LIB="$PREFIX/glibc/lib"
+_LDSO="$ldso"
+
+# glibc-compat support
+_OA_COMPAT="\$HOME/.openclaw-android/patches/glibc-compat.js"
+if [ -f "\$_OA_COMPAT" ]; then
+    case "\${NODE_OPTIONS:-}" in
+        *"\$_OA_COMPAT"*) ;;
+        *) export NODE_OPTIONS="\${NODE_OPTIONS:+\$NODE_OPTIONS }-r \$_OA_COMPAT" ;;
+    esac
+fi
+
+# Execute with isolated environment (no LD_LIBRARY_PATH exposure)
+unset LD_PRELOAD
+exec "\$_LDSO" --library-path "\$_GLIBC_LIB" "\$_NODE_REAL" "\$@"
+EOF
+            chmod +x "$node_wrapper"
+            echo -e "  ${GREEN}[OK]${NC}   Node.js wrapper successfully modernized."
+        else
+            echo -e "  ${RED}[FAIL]${NC}  Cannot fix wrapper: glibc ld.so not found at $ldso"
+        fi
     fi
 }
 

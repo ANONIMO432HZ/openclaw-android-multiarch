@@ -381,3 +381,19 @@ opencode --version
   2. Map ports 18789 and 18791 from your PC (PowerShell):
      `ssh -p 8022 -L 18789:127.0.0.1:18789 -L 18791:127.0.0.1:18791 u0_aXXX@IP_PHONE`
   3. Load `http://localhost:18789` in your PC browser with the token from `~/.openclaw/openclaw.json`.
+
+## Plugin dependency failure (`@buape/carbon` / `[FAIL]`)
+
+### Cause
+
+npm may confuse native Termux installation paths with our isolated glibc environment, or it might try to use inconsistent global user configurations.
+
+### Solution
+
+Run the dedicated manual repair command, which now includes path hardening and explicit prefix injection:
+
+```bash
+oa fix
+```
+
+If the issue persists, the command will generate a detailed diagnostic log at `/tmp/oa_repair.log` explaining the technical reason for the failure (network, space, permissions, etc.).

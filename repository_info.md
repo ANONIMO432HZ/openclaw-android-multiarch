@@ -1,2 +1,0 @@
-description: "Run OpenClaw on Android with a single command — no proot, no Linux. A Termux-optimized fork for seamless gaming experience on Android devices."
-topics: ["openclaw", "termux", "android", "gaming", "shell-script", "mobile-gaming"]

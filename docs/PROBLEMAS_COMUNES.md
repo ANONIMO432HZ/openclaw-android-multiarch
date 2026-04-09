@@ -139,3 +139,18 @@ Este comando detendrá el servicio gestionado (`termux-services`) y matará auto
 **Solución Permanente Integrada:**
 - **Delegación Inteligente:** `oa stop` ahora detecta si hay un servicio activo y redirige la orden automáticamente a `oa stop:sv`.
 - **Fuerza Bruta Garantizada:** Cambiamos el comando interno a `sv force-stop`. Esto envía un `SIGTERM`, espera unos segundos, y si el socket de Node.js sigue vivo, le envía un `SIGKILL` fulminante para limpiar la memoria RAM y liberar el puerto.
+
+---
+
+## 9. Error en dependencias de plugins (`@buape/carbon` / `[FAIL]`)
+
+**Síntoma:** El verificador de plataforma (`oa status`) lanza un fallo en la dependencia `@buape/carbon` o el instalador no puede forzar su instalación.
+
+**Causa:** npm a veces confunde las rutas de instalación de Termux con las de nuestro entorno aislado, o intenta usar configuraciones globales previas del usuario.
+
+**Solución:**
+Ejecuta el comando dedicado de reparación manual que ahora incluye blindaje de rutas y logs de diagnóstico:
+```bash
+oa fix
+```
+*Si el error persiste, el comando te mostrará las últimas líneas del log generado en `/tmp/oa_repair.log` para diagnosticar la causa exacta (problemas de red, falta de espacio, etc.).*

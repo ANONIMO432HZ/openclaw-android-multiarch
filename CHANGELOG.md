@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Reinforced dynamic linker (`ld.so`) resolution with 3-tier fallback (Dynamic -> Absolute -> Search) in `scripts/lib.sh`.
 - Multi-architecture support for `x86_64` (PC emulators) in glibc installer.
+- Global confirmation for Optional Tools (Step 3) to allow for minimal, faster installations.
 
 ## [1.2.2.0] - 2026-04-08
 

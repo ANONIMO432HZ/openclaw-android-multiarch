@@ -144,11 +144,11 @@ if command -v pacman &>/dev/null && pacman -Q glibc-runner &>/dev/null; then
         SIG_PATCHED=true
     fi
 
-    if pacman -R glibc glibc-runner --noconfirm 2>/dev/null; then
+    if pacman -R glibc glibc-runner gcc-libs-glibc --noconfirm 2>/dev/null; then
         echo -e "${GREEN}[OK]${NC}   Removed glibc packages via pacman"
     else
         # Try a more forceful removal if it failed due to dependencies or DB locks
-        pacman -Rdd glibc glibc-runner --noconfirm --nosave 2>/dev/null || true
+        pacman -Rdd glibc glibc-runner gcc-libs-glibc --noconfirm --nosave 2>/dev/null || true
         echo -e "${YELLOW}[WARN]${NC} pacman removal had issues, continuing with physical cleanup"
     fi
 

@@ -46,56 +46,60 @@ INSTALL_CHROMIUM=false
 INSTALL_GEMINI_CLI=false
 INSTALL_CODEX_CLI=false
 
-check_tool_installed() {
-    local cmd="$1"
-    local name="$2"
-    if command -v "$cmd" &>/dev/null; then
-        echo -e "       ${GREEN}[INSTALLED]${NC} $name"
-        return 0
+if ask_yn "Configure Optional Tools (Chromium, adb, tmux, IDE, AI assistants)?"; then
+    check_tool_installed() {
+        local cmd="$1"
+        local name="$2"
+        if command -v "$cmd" &>/dev/null; then
+            echo -e "       ${GREEN}[INSTALLED]${NC} $name"
+            return 0
+        fi
+        return 1
+    }
+
+    if ! check_tool_installed "tmux" "tmux (terminal multiplexer)"; then
+        if ask_yn "Install tmux (terminal multiplexer)?"; then INSTALL_TMUX=true; fi
     fi
-    return 1
-}
 
-if ! check_tool_installed "tmux" "tmux (terminal multiplexer)"; then
-    if ask_yn "Install tmux (terminal multiplexer)?"; then INSTALL_TMUX=true; fi
-fi
+    if ! check_tool_installed "ttyd" "ttyd (web terminal)"; then
+        if ask_yn "Install ttyd (web terminal)?"; then INSTALL_TTYD=true; fi
+    fi
 
-if ! check_tool_installed "ttyd" "ttyd (web terminal)"; then
-    if ask_yn "Install ttyd (web terminal)?"; then INSTALL_TTYD=true; fi
-fi
+    if ! check_tool_installed "dufs" "dufs (file server)"; then
+        if ask_yn "Install dufs (file server)?"; then INSTALL_DUFS=true; fi
+    fi
 
-if ! check_tool_installed "dufs" "dufs (file server)"; then
-    if ask_yn "Install dufs (file server)?"; then INSTALL_DUFS=true; fi
-fi
+    if ! check_tool_installed "adb" "android-tools (adb)"; then
+        if ask_yn "Install android-tools (adb)?"; then INSTALL_ANDROID_TOOLS=true; fi
+    fi
 
-if ! check_tool_installed "adb" "android-tools (adb)"; then
-    if ask_yn "Install android-tools (adb)?"; then INSTALL_ANDROID_TOOLS=true; fi
-fi
-
-# Selection logic based on architecture and resources
-if is_armv7l; then
-    # ARMv7: Hide completely unsupported tools
-    echo -e "\n${YELLOW}[ARMv7 DETECTED]${NC} Hiding memory-intensive tools unsupported on 32-bit legacy devices."
+    # Selection logic based on architecture and resources
+    if is_armv7l; then
+        # ARMv7: Hide completely unsupported tools
+        echo -e "\n${YELLOW}[ARMv7 DETECTED]${NC} Hiding memory-intensive tools unsupported on 32-bit legacy devices."
+    else
+        # ARMv8/aarch64: Show everything, but warn if RAM is low
+        if ! check_tool_installed "chromium" "Chromium (browser automation)"; then
+            if ask_yn "Install Chromium (browser automation for OpenClaw, ~400MB)?"; then INSTALL_CHROMIUM=true; fi
+        fi
+        if ! check_tool_installed "code-server" "code-server (browser IDE)"; then
+            if ask_yn "Install code-server (browser IDE)?"; then INSTALL_CODE_SERVER=true; fi
+        fi
+        if ! check_tool_installed "opencode" "OpenCode (AI assistant)"; then
+            if ask_yn "Install OpenCode (AI coding assistant)?"; then INSTALL_OPENCODE=true; fi
+        fi
+        if ! check_tool_installed "claude" "Claude Code CLI"; then
+            if ask_yn "Install Claude Code CLI?"; then INSTALL_CLAUDE_CODE=true; fi
+        fi
+        if ! check_tool_installed "gemini" "Gemini CLI"; then
+            if ask_yn "Install Gemini CLI?"; then INSTALL_GEMINI_CLI=true; fi
+        fi
+        if ! check_tool_installed "codex" "Codex CLI"; then
+            if ask_yn "Install Codex CLI?"; then INSTALL_CODEX_CLI=true; fi
+        fi
+    fi
 else
-    # ARMv8/aarch64: Show everything, but warn if RAM is low
-    if ! check_tool_installed "chromium" "Chromium (browser automation)"; then
-        if ask_yn "Install Chromium (browser automation for OpenClaw, ~400MB)?"; then INSTALL_CHROMIUM=true; fi
-    fi
-    if ! check_tool_installed "code-server" "code-server (browser IDE)"; then
-        if ask_yn "Install code-server (browser IDE)?"; then INSTALL_CODE_SERVER=true; fi
-    fi
-    if ! check_tool_installed "opencode" "OpenCode (AI assistant)"; then
-        if ask_yn "Install OpenCode (AI coding assistant)?"; then INSTALL_OPENCODE=true; fi
-    fi
-    if ! check_tool_installed "claude" "Claude Code CLI"; then
-        if ask_yn "Install Claude Code CLI?"; then INSTALL_CLAUDE_CODE=true; fi
-    fi
-    if ! check_tool_installed "gemini" "Gemini CLI"; then
-        if ask_yn "Install Gemini CLI?"; then INSTALL_GEMINI_CLI=true; fi
-    fi
-    if ! check_tool_installed "codex" "Codex CLI"; then
-        if ask_yn "Install Codex CLI?"; then INSTALL_CODEX_CLI=true; fi
-    fi
+    echo -e "${YELLOW}[SKIP]${NC}   Optional tools selection skipped (minimal install)."
 fi
 
 step 4 "Core Infrastructure (L1)"

@@ -208,8 +208,8 @@ fi
 
 # Execute with isolated environment
 unset LD_PRELOAD
-export LD_LIBRARY_PATH="\$_GLIBC_LIB:\${LD_LIBRARY_PATH:-}"
-exec "\$_LDSO" "\$_NODE_REAL" "\$@"
+# Use --library-path instead of export LD_LIBRARY_PATH to prevent pollution of child processes (native apps)
+exec "\$_LDSO" --library-path "\$_GLIBC_LIB" "\$_NODE_REAL" "\$@"
 WRAPPER
 chmod +x "$NODE_DIR/bin/node"
 echo -e "${GREEN}[OK]${NC}   node wrapper created"

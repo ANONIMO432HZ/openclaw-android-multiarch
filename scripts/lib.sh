@@ -188,11 +188,29 @@ get_glibc_ldso() {
     return 1
 }
 
+# Self-repair the node wrapper to prevent glibc pollution of child processes
+repair_node_wrapper() {
+    local node_wrapper="$HOME/.openclaw-android/node/bin/node"
+    [ -f "$node_wrapper" ] || return 0
+    
+    # If the wrapper still uses standard export LD_LIBRARY_PATH, it's the old leaky version
+    if grep -q "export LD_LIBRARY_PATH" "$node_wrapper"; then
+        echo -e "${YELLOW}[FIX]${NC}  Modernizing Node.js wrapper to prevent environment leakage..."
+        # Replace the export + exec pattern with the direct --library-path pattern
+        sed -i 's/export LD_LIBRARY_PATH=.*//' "$node_wrapper"
+        sed -i 's/exec "\$_LDSO" /exec "\$_LDSO" --library-path "\$_GLIBC_LIB" /' "$node_wrapper"
+        echo -e "  ${GREEN}[OK]${NC}   Node.js wrapper modernized."
+    fi
+}
+
 # ── Platform-Specific Helpers (OpenClaw) ──
 # Centralized repair logic for bundled dependencies that often fail in Termux
 repair_openclaw_plugins() {
     local force="${1:-false}"
     local openclaw_dir
+    
+    # First, ensure the node wrapper itself is not leaky
+    repair_node_wrapper
     
     # Fix pathing: ensuring the isolated Node.js environment is active
     local node_path="$HOME/.openclaw-android/node"

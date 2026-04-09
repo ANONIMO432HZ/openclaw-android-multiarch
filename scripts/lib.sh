@@ -39,7 +39,7 @@ REPO_BASE="https://raw.githubusercontent.com/ANONIMO432HZ/openclaw-android-multi
 
 BASHRC_MARKER_START="# >>> OpenClaw on Android >>>"
 BASHRC_MARKER_END="# <<< OpenClaw on Android <<<"
-export OA_VERSION="1.2.2.0" # Multi-arch + Glibc Resilience Edition
+export OA_VERSION="1.2.2.1" # Robust Linker & Glibc Resilience Edition
 export ITALIC="\e[3m"
 export DIM="\e[2m"
 
@@ -145,4 +145,45 @@ load_platform_config() {
     fi
     source "$config_path"
     return 0
+}
+
+# ── Glibc Linker Resolution ──
+# Returns the absolute path to the glibc dynamic linker (ld.so)
+# based on current architecture with absolute path fallbacks for robustness.
+get_glibc_ldso() {
+    local arch=$(uname -m)
+    local ldso_name=""
+    case "$arch" in
+        aarch64) ldso_name="ld-linux-aarch64.so.1" ;;
+        x86_64)  ldso_name="ld-linux-x86-64.so.2" ;;
+        armv7l|armhf|arm) ldso_name="ld-linux-armhf.so.3" ;;
+        *) ldso_name="ld-linux-aarch64.so.1" ;;
+    esac
+
+    # 1. Try $PREFIX-based path (dynamic)
+    if [ -n "${PREFIX:-}" ]; then
+        local path="$PREFIX/glibc/lib/$ldso_name"
+        if [ -x "$path" ]; then
+            echo "$path"
+            return 0
+        fi
+    fi
+
+    # 2. Fallback: Absolute Standard Termux Path
+    local abs_path="/data/data/com.termux/files/usr/glibc/lib/$ldso_name"
+    if [ -x "$abs_path" ]; then
+        echo "$abs_path"
+        return 0
+    fi
+
+    # 3. Fallback: Systematic search
+    if [ -d "${PREFIX:-}/glibc" ]; then
+        local found=$(find "${PREFIX}/glibc" -name "$ldso_name" -type f -executable 2>/dev/null | head -n 1)
+        if [ -n "$found" ]; then
+            echo "$found"
+            return 0
+        fi
+    fi
+
+    return 1
 }

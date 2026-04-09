@@ -26,7 +26,8 @@ case "$ARCH" in
     *) LDSO_NAME="ld-linux-aarch64.so.1" ;;
 esac
 
-GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
+# ─── Linker Resolution ────────────────────────
+GLIBC_LDSO=$(get_glibc_ldso || echo "$PREFIX/glibc/lib/ld-linux-aarch64.so.1")
 PACMAN_CONF="$PREFIX/etc/pacman.conf"
 
 echo "=== Installing glibc Runtime ==="
@@ -50,12 +51,12 @@ if [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "x86_64" ]; then
 fi
 
 # Check if already installed (detects both pacman and manual post-setup extractions)
-if [ -x "$GLIBC_LDSO" ]; then
+if [ -x "$GLIBC_LDSO" ] && [ -f "$PREFIX/glibc/lib/libstdc++.so.6" ]; then
     if [ ! -f "$OPENCLAW_DIR/.glibc-arch" ]; then
         mkdir -p "$OPENCLAW_DIR"
         touch "$OPENCLAW_DIR/.glibc-arch"
     fi
-    echo -e "${GREEN}[SKIP]${NC} glibc already installed (ld.so present)"
+    echo -e "${GREEN}[SKIP]${NC} glibc runtime already installed (ld.so and libstdc++ present)"
     exit 0
 fi
 
@@ -97,9 +98,10 @@ echo "Installing glibc-runner..."
 
 # --assume-installed: these packages are provided by Termux's apt but pacman
 # doesn't know about them, causing dependency resolution failures.
+# We also install gcc-libs-glibc which is required for Node.js (libstdc++).
 # Filter noisy filesystem warnings during reinstallation.
-if pacman -Sy glibc glibc-runner --noconfirm --assume-installed bash,patchelf,resolv-conf 2>&1 | grep -v "could not get file information"; then
-    echo -e "${GREEN}[OK]${NC}   glibc and glibc-runner installed"
+if pacman -Sy glibc glibc-runner gcc-libs-glibc --noconfirm --assume-installed bash,patchelf,resolv-conf 2>&1 | grep -v "could not get file information"; then
+    echo -e "${GREEN}[OK]${NC}   glibc runtime and gcc-libs-glibc installed"
 else
     echo -e "${RED}[FAIL]${NC} Failed to install glibc packages"
     if [ "$SIGLEVEL_PATCHED" = true ] && [ -f "${PACMAN_CONF}.bak" ]; then

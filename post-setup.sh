@@ -47,7 +47,17 @@ case "$ARCH" in
         ;;
 esac
 
-GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
+# Load common library if available
+if [ -f "$(dirname "$0")/scripts/lib.sh" ]; then
+    source "$(dirname "$0")/scripts/lib.sh"
+fi
+
+# Linker Resolution
+if declare -f get_glibc_ldso &>/dev/null; then
+    GLIBC_LDSO=$(get_glibc_ldso || echo "$PREFIX/glibc/lib/$LDSO_NAME")
+else
+    GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
+fi
 MARKER="$OCA_DIR/.post-setup-done"
 
 RED='\033[0;31m'

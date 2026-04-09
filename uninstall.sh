@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_DIR="$HOME/.openclaw-android"
 TOTAL_STEPS=7
-OA_VERSION="1.2.2.0"
+OA_VERSION="1.2.2.1"
 
 # Try to load global library, but provide robust fallbacks
 if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then

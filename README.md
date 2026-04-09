@@ -9,7 +9,7 @@
 ![No proot](https://img.shields.io/badge/proot--distro-Not%20Required-blue)
 ![License MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
 ![GitHub Stars](https://img.shields.io/github/stars/ANONIMO432HZ/openclaw-android-multiarch)
-[![Version](https://img.shields.io/badge/version-1.2.2.0-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
+[![Version](https://img.shields.io/badge/version-1.2.2.1-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 [![Status](https://img.shields.io/badge/status-stable-green.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Because Android deserves a shell.

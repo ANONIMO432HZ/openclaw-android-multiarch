@@ -43,7 +43,8 @@ case "$ARCH" in
         ;;
 esac
 
-GLIBC_LDSO="$PREFIX/glibc/lib/$LDSO_NAME"
+# ─── Linker Resolution ────────────────────────
+GLIBC_LDSO=$(get_glibc_ldso || echo "$PREFIX/glibc/lib/ld-linux-aarch64.so.1")
 
 # Node.js LTS version to install
 NODE_VERSION="22.22.0"
@@ -200,7 +201,8 @@ if [ \$_COUNT -gt 0 ] && [ \$_COUNT -lt \$# ]; then
     done
     export NODE_OPTIONS="\${NODE_OPTIONS:+\$NODE_OPTIONS }\$_LEADING_OPTS"
 fi
-exec "$GLIBC_LDSO" --library-path "$PREFIX/glibc/lib" "\$(dirname "\$0")/node.real" "\$@"
+export LD_LIBRARY_PATH="$PREFIX/glibc/lib:\${LD_LIBRARY_PATH:-}"
+exec "$GLIBC_LDSO" "\$(dirname "\$0")/node.real" "\$@"
 WRAPPER
 chmod +x "$NODE_DIR/bin/node"
 echo -e "${GREEN}[OK]${NC}   node wrapper created"
@@ -252,8 +254,11 @@ echo -e "${GREEN}[OK]${NC}   npm script-shell set to $PREFIX/bin/sh"
 echo ""
 echo "Verifying glibc Node.js..."
 
-NODE_VER=$("$NODE_DIR/bin/node" --version 2>/dev/null) || {
-    echo -e "${RED}[FAIL]${NC} Node.js verification failed — wrapper script may be broken"
+NODE_VER_CMD="$NODE_DIR/bin/node"
+NODE_VER=$($NODE_VER_CMD --version 2>&1) || {
+    echo -e "${RED}[FAIL]${NC} Node.js verification failed: $NODE_VER"
+    echo -e "${YELLOW}[INFO]${NC} Attempting to run with debug info..."
+    LD_DEBUG=libs $NODE_VER_CMD --version 2>&1 | head -n 20 || true
     exit 1
 }
 echo -e "${GREEN}[OK]${NC}   Node.js $NODE_VER (glibc, grun wrapper)"

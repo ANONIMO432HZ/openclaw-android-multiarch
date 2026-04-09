@@ -10,7 +10,7 @@ if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
 fi
 
 # Fallback values if lib.sh is NOT found
-OA_VERSION="${OA_VERSION:-1.2.2.0}"
+OA_VERSION="${OA_VERSION:-1.2.2.1}"
 RED="${RED:-\033[0;31m}"
 GREEN="${GREEN:-\033[0;32m}"
 YELLOW="${YELLOW:-\033[1;33m}"

@@ -8,7 +8,7 @@
 ![Termux](https://img.shields.io/badge/Termux-Requerido-orange)
 ![Sin proot](https://img.shields.io/badge/proot--distro-No%20Requerido-blue)
 ![Licencia MIT](https://img.shields.io/github/license/ANONIMO432HZ/openclaw-android-multiarch)
-![Versión](https://img.shields.io/badge/version-1.2.2.0-blue.svg?style=for-the-badge)
+[![Version](https://img.shields.io/badge/version-1.2.2.1-blue.svg?style=for-the-badge)](https://github.com/ANONIMO432HZ/openclaw-android-multiarch)
 
 Porque Android merece una terminal de verdad.
 
@@ -154,7 +154,7 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 | `oa backup` | `bkp` | Crea un respaldo completo de los datos (`.tar.gz`) |
 | `oa restore` | `rst` | Restauración interactiva de respaldos anteriores |
 | `oa uninstall` | `uninst` | Elimina completamente OpenClaw de Android |
-| `oa version` | `v` | Muestra la versión (Actual: 1.2.2.0) |
+| `oa version` | `v` | Muestra la versión (Actual: 1.2.2.1) |
 
 ## Actualización
 

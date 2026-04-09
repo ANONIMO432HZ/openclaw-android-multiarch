@@ -97,15 +97,13 @@ check_and_fix_env() {
             source "$HOME/.bashrc" 2>/dev/null || true
         fi
     fi
-
-    # Check and repair plugins (Critical for wizards)
-    check_and_fix_plugins
 }
 
 # ── Command Implementations ──
 
 cmd_update() {
     check_and_fix_env
+    check_and_fix_plugins
     maybe_backup_before_update
     banner "OpenClaw — Update Module" "$PURPLE"
     cd "$PROJECT_DIR" || { echo -e "${RED}[FAIL]${NC} Impossible to access $PROJECT_DIR"; exit 1; }
@@ -701,6 +699,13 @@ cmd_fix_android() {
     fi
 }
 
+cmd_fix_plugins() {
+    banner "OpenClaw — Repair Plugins" "$CYAN"
+    echo "Healing bundled dependencies and native bindings..."
+    echo ""
+    repair_openclaw_plugins true
+}
+
 cmd_logs() {
     check_and_fix_env
     local LOGFILE=""
@@ -866,7 +871,8 @@ case "${1:-}" in
     backup|--backup|bkp)              cmd_backup "$2" ;;
     restore|--restore|rst)            cmd_restore "$2" ;;
     fix-env)                          cmd_fix_env ;;
-    fix-android|fix)                  cmd_fix_android ;;
+    fix-plugins|fix)                  cmd_fix_plugins ;;
+    fix-android|fix-core)             cmd_fix_android ;;
     uninstall|--uninstall|uninst)     cmd_uninstall ;;
     v|version|--version|-v)           echo "oa CLI $OA_VERSION" ;;
     help|--help|-h|h|"")              show_help ;;

@@ -138,23 +138,28 @@ Después de la instalación, el comando `oa` estará disponible para gestionar t
 
 | Opción | Alias | Descripción |
 | :--- | :--- | :--- |
-| `oa update` | `up` | **Actualización Profesional**: OpenClaw-Core (Latest o Stable) + Herramientas + Parches |
-| `oa self-update` | `upgrade` | **Sincronización Robusta**: Scripts CLI y parches (con auto-stash) |
-| `oa install-tools` | `inst` | Instala herramientas opcionales (tmux, code-server, etc.) |
-| `oa uninstall-tools` | — | Desinstala herramientas opcionales de forma selectiva |
+| `oa update` | `up` | **Actualización Profesional**: Actualiza OpenClaw-Core, herramientas y repara plugins |
+| `oa self-update` | `selfupdate` | **Sincronización Instantánea**: Sincroniza scripts y parches de forma rápida |
+| `oa install-tools` | `inst` | Instala herramientas opcionales (tmux, code-server, AI CLIs, etc.) |
+| `oa uninstall-tools` | — | Elimina herramientas opcionales de forma selectiva |
 | `oa start` | — | Inicia el Gateway en segundo plano (Manual - nohup) |
-| `oa start:sv` | `strt` | Inicia el Gateway vía **termux-services** (Espera Inteligente 90s) |
-| `oa stop` | `stp` | **Parada Simétrica**: Detiene servicio y limpia procesos "Zombie" |
-| `oa logs` | `log` | Ver logs en tiempo real del fondo/servicio |
+| `oa start:sv` | `strt` | Inicia el Gateway como servicio (termux-services) |
+| `oa start:fg` | `strt:fg` | Inicia el Gateway en primer plano (Modo depuración) |
+| `oa stop` | `stp` | **Parada Inteligente**: Detiene procesos en segundo plano y servicios |
+| `oa stop:sv` | — | Detiene SOLO el servicio de Termux (Modo forzado) |
+| `oa logs` | `log` | Ver logs del servidor y del servicio en tiempo real |
 | `oa ui` | `dashboard` | Abre el Panel de Control de OpenClaw |
 | `oa ui-config` | `config-wizard` | Asistente de Configuración interactivo |
 | `oa onboard` | — | Ejecuta el Asistente de Bienvenida oficial |
 | `oa doctor` | `doc` | **Chequeo de Salud**: Diagnostica y repara errores comunes |
 | `oa status` | `st` | **Estado Inteligente**: Diagnóstico de sistema y puertos |
+| `oa fix-plugins` | `fix` | **Reparar Plugins**: Repara dependencias faltantes y bindings nativos |
+| `oa fix-android` | `fix-core` | Reaplica parches críticos de compatibilidad con Android |
+| `oa fix-env` | — | Recalibra las variables de entorno en `~/.bashrc` |
 | `oa backup` | `bkp` | Crea un respaldo completo de los datos (`.tar.gz`) |
 | `oa restore` | `rst` | Restauración interactiva de respaldos anteriores |
 | `oa uninstall` | `uninst` | Elimina completamente OpenClaw de Android |
-| `oa version` | `v` | Muestra la versión (Actual: 1.2.2.1) |
+| `oa version` | `v`, `-v` | Muestra la versión (Actual: 1.2.2.1-Robust) |
 
 ## Actualización
 

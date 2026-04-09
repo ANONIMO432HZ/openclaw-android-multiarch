@@ -11,10 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Node.js wrapper script heredoc incorrectly escaping variables, causing "broken wrapper" errors.
 - Cleaned up noisy `pacman` filesystem warnings during installation and uninstallation.
 
+### Fixed
+- Resolved Node.js/Glibc "bad ELF magic" error via environment isolation in `scripts/install-nodejs.sh`.
+- Hardened infrastructure installation to allow continuation during Termux mirror outages.
+- Fixed broken Bash completions error in `.bashrc` during shell load.
+
 ### Added
 - Reinforced dynamic linker (`ld.so`) resolution with 3-tier fallback (Dynamic -> Absolute -> Search) in `scripts/lib.sh`.
 - Multi-architecture support for `x86_64` (PC emulators) in glibc installer.
 - Global confirmation for Optional Tools (Step 3) to allow for minimal, faster installations.
+- Centralized plugin repair logic (`@buape/carbon` & `@snazzah/davey`) in `lib.sh`.
+- New CLI commands: `oa fix-plugins` (alias `oa fix`) and `oa fix-core` for manual repairs.
+- Performance: Removed automatic plugin verification from standard commands to ensure instant CLI response.
 
 ## [1.2.2.0] - 2026-04-08
 

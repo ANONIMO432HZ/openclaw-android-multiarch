@@ -260,8 +260,8 @@ After installation, the `oa` command is available for managing your installation
 
 | Option | Aliases | Description |
 | :--- | :--- | :--- |
-| `oa update` | `up` | **Professional Update**: Updates OpenClaw-Core (Latest or Stable), Tools, and Resilience Patches |
-| `oa self-update` | `upgrade` | **Robust Sync**: Syncs CLI scripts & patches (with auto-stash) |
+| `oa update` | `up` | **Professional Update**: Updates OpenClaw-Core (Latest or Stable), Tools, and Repairs Plugins |
+| `oa self-update` | `selfupdate` | **Instant Sync**: Fast sync of CLI scripts & patches (Skips plugin repair) |
 | `oa install-tools` | `inst` | Install optional tools (tmux, code-server, AI CLIs, etc.) |
 | `oa uninstall-tools` | — | Selectively remove optional tools or components |
 | `oa start` | — | Starts the Gateway in background (Manual - nohup) |
@@ -276,12 +276,13 @@ After installation, the `oa` command is available for managing your installation
 | `oa config` | `cfg` | Non-interactive config (`get`/`set`/`validate`) |
 | `oa doctor` | `doc` | **Health Check**: Diagnoses & fixes common system errors |
 | `oa status` | `st` | **Smart Status**: Shows system health + Port/Network verification |
+| `oa fix-plugins` | `fix` | **Repair Plugins**: Fixes missing dependencies (`@buape/carbon`) and native bindings |
+| `oa fix-android` | `fix-core` | Re-applies essential Android compatibility patches |
 | `oa fix-env` | — | Recalibrates environment variables in `~/.bashrc` |
-| `oa fix-android` | `fix` | Re-applies essential Android compatibility patches |
 | `oa backup` | `bkp` | Creates a full data backup (`.tar.gz`) |
 | `oa restore` | `rst` | Interactive restoration from previous backups |
 | `oa uninstall` | `uninst` | Completely removes OpenClaw from Android |
-| `oa version` | `v`, `-v` | Show version info (Current: 1.2.2.0) |
+| `oa version` | `v`, `-v` | Show version info (Current: 1.2.2.1-Robust) |
 | `oa help` | `-h`, `h` | Show availability options |
 
 ## Update

@@ -23,10 +23,13 @@ for tool in git curl npm; do
             echo -e "${RED}[FAIL]${NC} pkg not found. Cannot install $tool. Please install it manually."
             exit 1
         fi
-        pkg_name="$tool"
-        [ "$tool" = "npm" ] && pkg_name="nodejs"
-        echo -e "${YELLOW}[INFO]${NC} $tool not found. Installing $pkg_name..."
-        pkg update -y && pkg install -y "$pkg_name"
+        echo -e "${YELLOW}[INFO]${NC} $tool not found. Attempting to install $tool..."
+        pkg update -y && pkg install -y "$tool" || {
+            if [ "$tool" = "npm" ]; then
+                echo -e "${YELLOW}[INFO]${NC} npm package not found. Trying nodejs package instead..."
+                pkg install -y nodejs
+            fi
+        }
     fi
 done
 

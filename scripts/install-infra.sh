@@ -22,12 +22,15 @@ pkg update -y || echo -e "${YELLOW}[WARN]${NC} pkg update failed. Trying to proc
 pkg upgrade -y || echo -e "${YELLOW}[WARN]${NC} pkg upgrade failed. Trying to proceed..."
 
 # Define required infrastructure packages
-DEPS="git curl nodejs termux-services procps"
+DEPS="git curl nodejs npm termux-services procps"
 
 # Check which packages are missing
 MISSING=""
 for dep in $DEPS; do
-    if ! command -v "$dep" &>/dev/null && [ "$dep" != "termux-services" ] && [ "$dep" != "procps" ]; then
+    if ! command -v "$dep" &>/dev/null && [ "$dep" != "termux-services" ] && [ "$dep" != "procps" ] && [ "$dep" != "npm" ]; then
+        MISSING="$MISSING $dep"
+    elif [ "$dep" = "npm" ] && ! command -v npm &>/dev/null; then
+        # Explicit check for npm since it might be a separate package
         MISSING="$MISSING $dep"
     elif [ "$dep" = "termux-services" ] && [ ! -d "$PREFIX/var/service" ]; then
         # termux-services check: look for a known directory or sv command

@@ -3,6 +3,12 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/scripts/lib.sh"
 
+# Ensure glibc-isolated node/npm take priority for verification
+NODE_BIN="$HOME/.openclaw-android/node/bin"
+if [ -d "$NODE_BIN" ]; then
+    export PATH="$NODE_BIN:$PATH"
+fi
+
 PASS=0
 FAIL=0
 WARN=0

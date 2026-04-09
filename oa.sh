@@ -9,6 +9,13 @@ if [ -f "$PROJECT_DIR/scripts/lib.sh" ]; then
     source "$PROJECT_DIR/scripts/lib.sh"
 fi
 
+# ── Environment Hardening ──
+# Ensure glibc-isolated node/npm take priority for all CLI operations
+NODE_BIN="$HOME/.openclaw-android/node/bin"
+if [ -d "$NODE_BIN" ]; then
+    export PATH="$NODE_BIN:$PATH"
+fi
+
 # Fallback values if lib.sh is NOT found
 OA_VERSION="${OA_VERSION:-1.2.2.1}"
 RED="${RED:-\033[0;31m}"

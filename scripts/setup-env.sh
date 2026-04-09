@@ -89,6 +89,7 @@ sed -i "/export CONTAINER=/d" "$BASHRC" 2>/dev/null || true
 sed -i "/export TMPDIR=/d" "$BASHRC" 2>/dev/null || true
 sed -i "/export TMP=/d" "$BASHRC" 2>/dev/null || true
 sed -i "/export TEMP=/d" "$BASHRC" 2>/dev/null || true
+sed -i "/completions\/openclaw.bash/d" "$BASHRC" 2>/dev/null || true
 
 # Remove excess empty lines at the end of the file
 sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$BASHRC" 2>/dev/null || true

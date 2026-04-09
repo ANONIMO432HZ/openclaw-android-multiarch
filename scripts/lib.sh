@@ -194,19 +194,20 @@ repair_openclaw_plugins() {
     local force="${1:-false}"
     local openclaw_dir
     
-    # Ensure glibc-isolated node/npm take priority for path resolution
-    local node_bin="$HOME/.openclaw-android/node/bin"
-    if [ -d "$node_bin" ] && [[ ":$PATH:" != *":$node_bin:"* ]]; then
-        export PATH="$node_bin:$PATH"
+    # Fix pathing: ensuring the isolated Node.js environment is active
+    local node_path="$HOME/.openclaw-android/node"
+    if [ -d "$node_path/bin" ] && [[ ":$PATH:" != *":$node_path/bin:"* ]]; then
+        export PATH="$node_path/bin:$PATH"
     fi
 
-    openclaw_dir="$(npm root -g 2>/dev/null)/openclaw"
+    # Determine OpenClaw directory using forced prefix for robustness
+    openclaw_dir="$(npm root -g --prefix="$node_path" 2>/dev/null)/openclaw"
     [ -d "$openclaw_dir" ] || return 0
 
     # 1. Fix native bindings broken by --ignore-scripts (npm/cli#4828 workaround)
     if [ -d "$openclaw_dir/node_modules/@snazzah/davey" ]; then
         echo "Installing native bindings for @snazzah/davey..."
-        (cd "$openclaw_dir" && npm install @snazzah/davey --no-fund --no-audit --no-save 2>/dev/null) || true
+        (cd "$openclaw_dir" && npm install @snazzah/davey --no-fund --no-audit --no-save --prefix="$node_path" 2>/dev/null) || true
     fi
 
     local claw_ver
@@ -219,21 +220,32 @@ repair_openclaw_plugins() {
         echo -e "${YELLOW}[REPAIR]${NC} Critical plugin dependency (@buape/carbon) missing/requested."
         echo "         Applying heavy fix... (this ensures core stability)"
         
+        local LOG_FILE="/tmp/oa_repair.log"
+        [ -d "$PREFIX/tmp" ] && LOG_FILE="$PREFIX/tmp/oa_repair.log"
+        truncate -s 0 "$LOG_FILE" 2>/dev/null || true
+
         # 2.1 Force install into OpenClaw's own node_modules
-        (cd "$openclaw_dir" && npm install @buape/carbon --no-fund --no-audit --save-exact --no-package-lock 2>/dev/null) || true
+        local ERR=0
+        (cd "$openclaw_dir" && npm install @buape/carbon --no-fund --no-audit --save-exact --no-package-lock --prefix="$node_path" >>"$LOG_FILE" 2>&1) || ERR=$?
         
         # 2.2 Run internal bundler if available (OpenClaw native script)
-        if [ -f "$openclaw_dir/scripts/postinstall-bundled-plugins.mjs" ]; then
-            (cd "$openclaw_dir" && node scripts/postinstall-bundled-plugins.mjs 2>/dev/null) || true
+        if [ $ERR -eq 0 ] && [ -f "$openclaw_dir/scripts/postinstall-bundled-plugins.mjs" ]; then
+            (cd "$openclaw_dir" && node scripts/postinstall-bundled-plugins.mjs >>"$LOG_FILE" 2>&1) || ERR=$?
         fi
         
         # Final Verification
         if [ -d "$openclaw_dir/node_modules/@buape/carbon" ]; then
             touch "$marker" 2>/dev/null || true
+            rm -f "$LOG_FILE" 2>/dev/null || true
             echo -e "  ${GREEN}[OK]${NC}   Plugin environment successfully fixed."
             return 0
         else
             echo -e "  ${RED}[FAIL]${NC}  Could not force install @buape/carbon."
+            if [ -f "$LOG_FILE" ]; then
+                echo -e "         ${DIM}Check diagnostics below:${NC}"
+                tail -n 10 "$LOG_FILE" | sed 's/^/         /'
+                echo -e "         Full log: ${LOG_FILE}"
+            fi
             return 1
         fi
     fi

@@ -253,7 +253,9 @@ echo "Configuring npm..."
 # On Android 9+, /bin/sh exists. On 7-8 it doesn't.
 # Using $PREFIX/bin/sh is always safe.
 export PATH="$NODE_DIR/bin:$PATH"
+"$NODE_DIR/bin/npm" config set prefix "$NODE_DIR" 2>/dev/null || true
 "$NODE_DIR/bin/npm" config set script-shell "$PREFIX/bin/sh" 2>/dev/null || true
+echo -e "${GREEN}[OK]${NC}   npm prefix set to $NODE_DIR"
 echo -e "${GREEN}[OK]${NC}   npm script-shell set to $PREFIX/bin/sh"
 
 # ── Step 4: Verify ────────────────────────────

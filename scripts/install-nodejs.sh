@@ -171,14 +171,17 @@ if [ -f "$NODE_DIR/bin/node" ] && [ ! -L "$NODE_DIR/bin/node" ]; then
 fi
 
 # Create node wrapper script
-# This uses grun-style execution: ld.so directly loads the binary
-# LD_PRELOAD must be unset to prevent Bionic libtermux-exec.so from
-# being loaded into the glibc process (causes version mismatch crash)
-# glibc-compat.js is auto-loaded to fix Android kernel quirks.
 cat > "$NODE_DIR/bin/node" << WRAPPER
 #!$PREFIX/bin/bash
 # OpenClaw Android — Node.js glibc Wrapper
-unset LD_PRELOAD
+
+# Resolve paths before polluting environment
+_BIN_DIR="\$(cd "\$(dirname "\$0")" && pwd)"
+_NODE_REAL="\$_BIN_DIR/node.real"
+_GLIBC_LIB="$PREFIX/glibc/lib"
+_LDSO="$GLIBC_LDSO"
+
+# Logic for glibc-compat (can stay in shell)
 _OA_COMPAT="\$HOME/.openclaw-android/patches/glibc-compat.js"
 if [ -f "\$_OA_COMPAT" ]; then
     case "\${NODE_OPTIONS:-}" in
@@ -186,7 +189,8 @@ if [ -f "\$_OA_COMPAT" ]; then
         *) export NODE_OPTIONS="\${NODE_OPTIONS:+\$NODE_OPTIONS }-r \$_OA_COMPAT" ;;
     esac
 fi
-# glibc ld.so misparses leading --options as its own flags.
+
+# glibc ld.so --options workaround
 _LEADING_OPTS=""
 _COUNT=0
 for _arg in "\$@"; do
@@ -201,8 +205,11 @@ if [ \$_COUNT -gt 0 ] && [ \$_COUNT -lt \$# ]; then
     done
     export NODE_OPTIONS="\${NODE_OPTIONS:+\$NODE_OPTIONS }\$_LEADING_OPTS"
 fi
-export LD_LIBRARY_PATH="$PREFIX/glibc/lib:\${LD_LIBRARY_PATH:-}"
-exec "$GLIBC_LDSO" "\$(dirname "\$0")/node.real" "\$@"
+
+# Execute with isolated environment
+unset LD_PRELOAD
+export LD_LIBRARY_PATH="\$_GLIBC_LIB:\${LD_LIBRARY_PATH:-}"
+exec "\$_LDSO" "\$_NODE_REAL" "\$@"
 WRAPPER
 chmod +x "$NODE_DIR/bin/node"
 echo -e "${GREEN}[OK]${NC}   node wrapper created"

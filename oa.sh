@@ -393,12 +393,13 @@ cmd_start_sv() {
                 sleep 2
                 # Verify port is actually open before declaring success
                 local port_open=false
-                if command -v ss &>/dev/null && ss -ltn 2>/dev/null | grep -q ":18789\b"; then
+                if command -v ss &>/dev/null && ss -ltn 2>/dev/null | grep -Eq '[:.]18789([[:space:]]|$)'; then
                     port_open=true
-                elif command -v netstat &>/dev/null && netstat -ltn 2>/dev/null | grep -q ":18789\b"; then
+                elif command -v netstat &>/dev/null && netstat -ltn 2>/dev/null | grep -Eq '[:.]18789([[:space:]]|$)'; then
                     port_open=true
                 else
-                    port_open=true  # No tool to verify, trust the log
+                    # Fallback to process check if tools fail but log says it started
+                    if [ -n "$(list_oa_pids)" ]; then port_open=true; fi
                 fi
                 if [ "$port_open" = true ]; then
                     echo -e "\n${GREEN}[OK]${NC} OpenClaw Gateway process started."
@@ -422,9 +423,13 @@ cmd_start_sv() {
             fi
 
             if [ $count -ge $max_wait ]; then
-                echo -e "\n${YELLOW}[WARN]${NC} Timeout de ${max_wait}s excedido."
-                echo -e "       El servicio sigue corriendo en background pero está muy lento."
-                echo -e "       Revisa si arrancó ejecutando: ${BOLD}oa logs:sv${NC}"
+                if [ -n "$(list_oa_pids)" ]; then
+                    echo -e "\n${GREEN}[OK]${NC} OpenClaw está arrancando en segundo plano (arranque lento)."
+                    echo -e "     El proceso está activo. Verifica la carga final con: ${BOLD}oa status${NC}"
+                else
+                    echo -e "\n${RED}[FAIL]${NC} El servicio no arrancó o se cerró inesperadamente."
+                    echo -e "       Revisa los errores con: ${BOLD}oa logs${NC}"
+                fi
                 return 0
             fi
         done
@@ -610,13 +615,13 @@ cmd_status() {
     echo -e "${BOLD}Port / Network Status${NC}"
     # Check 18789 (Gateway) and 8022 (SSH)
     if command -v ss &>/dev/null; then
-        if ss -ltn 2>/dev/null | grep -q ":18789\b"; then
+        if ss -ltn 2>/dev/null | grep -Eq '[:.]18789([[:space:]]|$)'; then
             echo -e "  Gateway (18789): ${GREEN}PORT OPEN${NC}"
         else
             echo -e "  Gateway (18789): ${RED}CLOSED${NC}"
         fi
     elif command -v netstat &>/dev/null; then
-         if netstat -ltn 2>/dev/null | grep -q ":18789\b"; then
+         if netstat -ltn 2>/dev/null | grep -Eq '[:.]18789([[:space:]]|$)'; then
             echo -e "  Gateway (18789): ${GREEN}PORT OPEN${NC}"
         else
             echo -e "  Gateway (18789): ${RED}CLOSED${NC}"
@@ -887,7 +892,7 @@ case "${1:-}" in
     start:fg|--start:fg|fg)           cmd_start_fg ;;
     stop|--stop|stp|down)             cmd_stop ;;
     stop:sv|--stop:sv|stp:sv|srv:down) cmd_stop_sv ;;
-    logs|--logs|log|lg)               cmd_logs ;;
+    logs|--logs|log|lg|logs:sv)       cmd_logs ;;
     ui|--ui|dashboard)                cmd_ui ;;
     ui-config|--ui-config|config-wizard) cmd_ui_config ;;
     onboard|--onboard|obd)            cmd_onboard ;;

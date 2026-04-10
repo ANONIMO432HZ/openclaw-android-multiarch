@@ -345,6 +345,14 @@ cmd_start_sv() {
             sv-enable openclaw-gateway >/dev/null 2>&1 || true
         fi
 
+        # Fallback: Manual symlink if sv-enable failed or is missing
+        if [ ! -L "$SVDIR/openclaw-gateway" ]; then
+            echo -ne "  ${YELLOW}[FIX]${NC} Repairing service link..."
+            mkdir -p "$SVDIR"
+            ln -sf "$HOME/.termux/services/openclaw-gateway" "$SVDIR/openclaw-gateway"
+            echo -e " ${GREEN}Done.${NC}"
+        fi
+
         echo -e "${CYAN}Starting OpenClaw gateway via termux-services...${NC}"
         # Inject a marker to avoid false positives from old logs
         mkdir -p "$PROJECT_DIR/logs"

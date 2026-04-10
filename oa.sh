@@ -218,7 +218,7 @@ cmd_update() {
     source "$HOME/.bashrc" 2>/dev/null || true
     echo -e "${GREEN}[OK]${NC} Update cycle completed."
     echo ""
-    echo -e "${YELLOW}[IMPORTANT]${NC} To apply changes to your current terminal,"
+    echo -e "${YELLOW}[IMPORTANT]${NC} To apply changes to your current terminal."
     echo -e "run: ${BOLD}source ~/.bashrc${NC}"
 }
 
